@@ -9,7 +9,15 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primaryPage: "rgb(39, 50, 62)",
+        secondaryPage: "rgb(33, 37, 41)",
+      },
+    },
+    fontFamily: {
+      primary: "Roboto",
+    },
   },
   plugins: [],
 };
