@@ -7,6 +7,7 @@ import githubImage from "@/images/github.png";
 import linkedinImage from "@/images/linkedin.png";
 import facebookImage from "@/images/facebook.png";
 import avatarImage from "@/images/avatar.jpeg";
+import React from "react";
 import { Avatar } from "@mui/material";
 
 export const HomeScreen = () => {
@@ -85,3 +86,5 @@ export const HomeScreen = () => {
     </div>
   );
 };
+
+export default HomeScreen;
