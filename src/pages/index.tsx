@@ -1,6 +1,5 @@
 import Head from "next/head";
-import React from "react";
-import HomeScreen from "@/pages/Home/HomeScreen";
+import { HomeScreen } from "@/pages/Home";
 
 export default function Home() {
   return (
