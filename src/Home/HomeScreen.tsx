@@ -8,6 +8,11 @@ import linkedinImage from "@/images/linkedin.png";
 import facebookImage from "@/images/facebook.png";
 import avatarImage from "@/images/avatar.jpeg";
 import { Avatar } from "@mui/material";
+import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
+import Button from "@mui/material/Button";
+import React from "react";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 export const HomeScreen = () => {
   return (
@@ -19,9 +24,52 @@ export const HomeScreen = () => {
             Portfolio
           </span>
         </div>
-        <button className="flex h-20 w-20 items-center justify-center">
-          <Image className="bg-cover" src={menuImage} alt={""} />
-        </button>
+
+        <div className="flex h-20 w-20 items-center justify-center">
+          <PopupState variant="popover" popupId="">
+            {(popupState) => (
+              <div className="mr-20">
+                <Button
+                  className="p-0"
+                  startIcon={
+                    <Image className="bg-cover" src={menuImage} alt={""} />
+                  }
+                  variant="text"
+                  {...bindTrigger(popupState)}
+                />
+                <Menu
+                  className="items-start justify-start"
+                  {...bindMenu(popupState)}
+                >
+                  <MenuItem
+                    className="justify-center items-center"
+                    onClick={popupState.close}
+                  >
+                    <span className="justify-center text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-400 pl-2">
+                      Profile
+                    </span>
+                  </MenuItem>
+                  <MenuItem
+                    className="justify-center"
+                    onClick={popupState.close}
+                  >
+                    <span className="justify-center text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-400 pl-2">
+                      Project
+                    </span>
+                  </MenuItem>
+                  <MenuItem
+                    className="justify-center"
+                    onClick={popupState.close}
+                  >
+                    <span className="justify-center text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-400 pl-2">
+                      Contact
+                    </span>
+                  </MenuItem>
+                </Menu>
+              </div>
+            )}
+          </PopupState>
+        </div>
       </div>
       <div className="flex justify-evenly items-center flex-row pt-32">
         <div className="flex-col flex justify-start items-start">
@@ -80,7 +128,11 @@ export const HomeScreen = () => {
             <Image className="bg-cover" src={downCVImage} alt={""} />
           </button>
         </div>
-        <Avatar sx={{ width: 500, height: 500 }} alt="" src={avatarImage.src} />
+        <Avatar
+          sx={{ width: "20%", height: "10%" }}
+          alt=""
+          src={avatarImage.src}
+        />
       </div>
     </div>
   );
