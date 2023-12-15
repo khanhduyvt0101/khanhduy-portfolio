@@ -17,8 +17,8 @@ export const metadata: Metadata = {
       {
         url: `${process.env.METADATA_BASE}/avatar.png`,
         alt: "Khanh Duy | Personal",
-        width: 630,
-        height: 800,
+        width: 600,
+        height: 600,
       },
     ],
   },
