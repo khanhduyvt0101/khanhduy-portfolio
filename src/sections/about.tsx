@@ -6,38 +6,59 @@ export default function about() {
   return (
     <section
       id="about"
-      className="mx-auto my-16 flex flex-col items-center justify-center gap-4 px-2 md:my-20  md:max-w-full lg:flex-row lg:items-center lg:gap-16"
+      className="mx-auto my-16 flex flex-col items-center justify-center gap-4 px-2 md:my-20 md:max-w-full lg:flex-row lg:items-center lg:gap-16"
     >
       <div className="order-2 lg:order-1 lg:w-2/3">
         <MotionDiv delayOffset={0.2}>
-          <h2 className="mb-3 w-full text-center md:mb-6">About Me</h2>
+          <h2 className="mb-3 w-full text-center text-3xl font-bold md:mb-6">
+            About Me
+          </h2>
         </MotionDiv>
-        <article className="flex flex-col gap-4">
+        <article className="flex flex-col gap-4 text-lg">
           <MotionDiv delayOffset={0.4}>
             <p>
-              Hello, I'm Khanh Duy. I'm an freelancer <b>Next.JS</b>. Full-Stack
-              developer based in Ho Chi Minh, VietNam.
+              Hello, I'm Khanh Duy, a <strong>Full-Stack Developer</strong>{" "}
+              specializing in <strong>Next.JS</strong> with over{" "}
+              <strong>2 years of experience</strong>. Currently, I freelance
+              from the vibrant city of Ho Chi Minh, VietNam.
             </p>
           </MotionDiv>
           <MotionDiv delayOffset={0.5}>
-            <p>
-              {`I have 2 year+ of experience in mobile apps and system mobile. I
-                am working on developing iOS & Android Mobile App using React
-                Native, Redux, Flutter, Android Native (java), Firebase, MongoDB,
-                etc. I have also experience developing Mobile App using
-                Swift-Xcode and Android- Studio.
-
-                I can do: - Build iOS & Android
-                Mobile apps using React Native, Redux, Expo, and firebase.
-                - Build iOS & Android Mobile apps using Flutter, BloC, GetX, and firebase.
-                - Build Android Mobile app using Android Native Java, MVVM.
-                - Integrate MongoDB or Rest Api within Mobile app.
-                - Integrate Firebase Auth (Email/pass, Facebook, Google, Twitter).
-                - Design Database using Cloud Fire store, Realtime Database.
-                - Integrate Firebase Realtime Database for chat app implementation.
-                - Firebase Push Notification.
-                - My github: https://github.com/khanhduyvt0101`}
-            </p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>
+                Development of iOS & Android Mobile Apps using React Native,
+                Redux, and Expo.
+              </li>
+              <li>
+                Creation of cross-platform solutions with Flutter, BloC, GetX,
+                and Firebase.
+              </li>
+              <li>
+                Expertise in Android Mobile app development using Android Native
+                Java and MVVM architecture.
+              </li>
+              <li>
+                Integration of MongoDB or REST APIs within mobile applications.
+              </li>
+              <li>
+                Implementation of Firebase Auth for multiple platforms
+                (Email/pass, Facebook, Google, Twitter).
+              </li>
+              <li>
+                Database design using Cloud Firestore and Realtime Database.
+              </li>
+              <li>Chat app development with Firebase Realtime Database.</li>
+              <li>Setup and handling of Firebase Push Notifications.</li>
+              <li>
+                Feel free to check my GitHub for past projects:{" "}
+                <a
+                  href="https://github.com/khanhduyvt0101"
+                  className="text-blue-600 hover:underline"
+                >
+                  Github
+                </a>
+              </li>
+            </ul>
           </MotionDiv>
         </article>
       </div>
@@ -45,7 +66,7 @@ export default function about() {
         <MotionDiv delayOffset={0.4}>
           <img
             src={avatar.src}
-            alt="photo"
+            alt="Khanh Duy"
             className="w-[350px] min-w-[300px] rounded-xl transition-all hover:rotate-3 hover:scale-105"
           />
         </MotionDiv>
