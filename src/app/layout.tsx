@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "https://www.khanhduy.site",
     images: [
       {
-        url: "https://drive.google.com/file/d/1sHRd8wUVsfh2dcC28_x4kfzhvEGhWRjn/view?usp=sharing",
+        url: "/squareavatar.jpeg",
         alt: "Khanh Duy | Personal",
         width: 630,
         height: 800,
