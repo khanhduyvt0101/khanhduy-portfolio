@@ -4,6 +4,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  env: {
+    METADATA_BASE: "https://www.khanhduy.site",
+  },
 };
 
 module.exports = nextConfig;

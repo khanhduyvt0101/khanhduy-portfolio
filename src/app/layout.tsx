@@ -12,10 +12,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Khanh Duy | Personal",
     description: "Khanh Duy's personal portfolio website",
-    url: "https://www.khanhduy.site",
+    url: process.env.METADATA_BASE,
     images: [
       {
-        url: "https://www.khanhduy.site/avatar.png",
+        url: `${process.env.METADATA_BASE}/avatar.png`,
         alt: "Khanh Duy | Personal",
         width: 630,
         height: 800,
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: "https://www.khanhduy.site",
+    canonical: process.env.METADATA_BASE,
   },
 };
 
