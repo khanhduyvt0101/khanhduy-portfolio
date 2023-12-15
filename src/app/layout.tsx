@@ -4,6 +4,7 @@ import { Montserrat } from "next/font/google";
 import Header from "@/components/header";
 import BackToTop from "@/components/back-to-top";
 import avatar from "@/assets/photo/avatar.png";
+import Head from "next/head";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 export const metadata: Metadata = {
@@ -12,13 +13,13 @@ export const metadata: Metadata = {
   description: "Khanh Duy's personal portfolio website",
   openGraph: {
     title: "Khanh Duy | Personal",
-    description: "Eric Huang's personal portfolio website",
+    description: "Khanh Duy's personal portfolio website",
     url: "https://www.khanhduy.site",
     images: [
       {
         url: avatar.src,
         alt: "Khanh Duy | Personal",
-        width: 640,
+        width: 630,
         height: 800,
       },
     ],
@@ -30,9 +31,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  pageMetadata,
 }: {
   children: React.ReactNode;
+  pageMetadata: Metadata;
 }) {
+  const meta = { ...metadata, ...pageMetadata };
   return (
     <html lang="en">
       <body className={montserrat.className}>
