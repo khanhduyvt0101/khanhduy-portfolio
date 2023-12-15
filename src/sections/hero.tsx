@@ -1,7 +1,7 @@
 import ContactList from "@/components/contact-list";
 import MotionText from "@/components/motion-text";
 import MotionDiv from "@/components/motion-div";
-import avatar from "@/assets/photo/avatar.jpeg";
+import avatar from "@/assets/photo/avatar.png";
 
 export default function hero() {
   return (
@@ -14,7 +14,7 @@ export default function hero() {
           <img
             src={avatar.src}
             alt="photo"
-            className="w-[350px] h-[400px] transition-all"
+            className="w-[350px] h-[350px] transition-all"
           />
         </MotionDiv>
       </div>
