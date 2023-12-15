@@ -1,17 +1,15 @@
 import "./globals.css";
-import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import Header from "@/components/header";
 import BackToTop from "@/components/back-to-top";
+import avatar from "@/assets/photo/avatar.png";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
-  pageMetadata,
 }: {
   children: React.ReactNode;
-  pageMetadata: Metadata;
 }) {
   return (
     <html lang="en">
@@ -29,10 +27,7 @@ export default function RootLayout({
           property="og:description"
           content="Khanh Duy's personal portfolio website"
         />
-        <meta
-          property="og:image"
-          content="https://www.khanhduy.site/avatar.png"
-        />
+        <meta property="og:image" content={avatar.src} />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta property="twitter:domain" content="khanhduy.site" />
@@ -42,10 +37,7 @@ export default function RootLayout({
           name="twitter:description"
           content="Khanh Duy's personal portfolio website"
         />
-        <meta
-          name="twitter:image"
-          content="https://www.khanhduy.site/avatar.png"
-        />
+        <meta name="twitter:image" content={avatar.src} />
       </head>
       <body className={montserrat.className}>
         <Header />
