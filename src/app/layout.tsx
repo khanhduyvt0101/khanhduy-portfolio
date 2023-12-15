@@ -3,12 +3,11 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import Header from "@/components/header";
 import BackToTop from "@/components/back-to-top";
-import avatar from "@/assets/photo/avatar.png";
-import Head from "next/head";
+import avatar from "@/assets/photo/squareavatar.jpeg";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 export const metadata: Metadata = {
-  title: "Khanh Duy | Personal",
+  title: "KhanhDuy | Personal",
   authors: [{ name: "Khanh Duy", url: "https://github.com/khanhduyvt0101" }],
   description: "Khanh Duy's personal portfolio website",
   openGraph: {
