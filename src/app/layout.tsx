@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "https://www.khanhduy.site",
     images: [
       {
-        url: "/squareavatar.jpeg",
+        url: "https://www.khanhduy.site/avatar.png",
         alt: "Khanh Duy | Personal",
         width: 630,
         height: 800,
