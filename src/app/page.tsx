@@ -1,6 +1,15 @@
-import Image from "next/image";
-import { CVPage } from "@/app/pages/cv";
+import Contact from "@/sections/contact";
+import About from "@/sections/about";
+import Hero from "@/sections/hero";
+import Skills from "@/sections/skills";
 
 export default function Home() {
-  return <CVPage />;
+  return (
+    <>
+      <Hero />
+      <About />
+      <Skills />
+      <Contact />
+    </>
+  );
 }
