@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import Header from "@/components/header";
 import BackToTop from "@/components/back-to-top";
-import avatar from "@/assets/photo/squareavatar.jpeg";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 export const metadata: Metadata = {
@@ -16,7 +15,7 @@ export const metadata: Metadata = {
     url: "https://www.khanhduy.site",
     images: [
       {
-        url: avatar.src,
+        url: "https://drive.google.com/file/d/1sHRd8wUVsfh2dcC28_x4kfzhvEGhWRjn/view?usp=sharing",
         alt: "Khanh Duy | Personal",
         width: 630,
         height: 800,
