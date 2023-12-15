@@ -10,12 +10,11 @@ export default function hero() {
         <MotionText delayOffset={0}>Hi, I'm Khanh Duy! 👋</MotionText>
       </h1>
       <div className="overflow-hidden p-3">
-        <MotionDiv delayOffset={0.4}>
-          <img
-            src={avatar.src}
-            alt="photo"
-            className="w-[350px] h-[350px] transition-all"
-          />
+        <MotionDiv
+          className="transition-all h-auto w-[90vw] max-w-[350px] sm:w-[80vw] md:w-[60vw] lg:w-[40vw] xl:w-[30vw]"
+          delayOffset={0.4}
+        >
+          <img src={avatar.src} alt="Khanh Duy" className="w-1/2" />
         </MotionDiv>
       </div>
       <h1>
@@ -27,8 +26,8 @@ export default function hero() {
         </MotionDiv>
         <MotionDiv delayOffset={1.4}>
           <p>
-            Just an freelancer<b> NextJs | React | Mobile </b>developer who
-            loves to build something cool.
+            Just a freelancer <b>NextJs | React | Mobile</b> developer who loves
+            to build something cool.
           </p>
         </MotionDiv>
       </div>

@@ -3,8 +3,9 @@ import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import {
   faInstagram,
   faGithub,
-  faTiktok,
+  faLinkedin,
   faXTwitter,
+  faMedium,
 } from "@fortawesome/free-brands-svg-icons";
 import MotionList from "./motion-list";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,6 @@ const contacts: Contact[] = [
     href: "mailto:khanhduyvt0101@gmail.com",
     icon: faEnvelope,
   },
-
   {
     name: "X",
     className: "bg-black hover:bg-gray-800/90",
@@ -40,6 +40,18 @@ const contacts: Contact[] = [
     className: "bg-black hover:bg-gray-800/90",
     href: "https://github.com/khanhduyvt0101",
     icon: faGithub,
+  },
+  {
+    name: "Linkedin",
+    className: "bg-blue-500 hover:bg-blue-800/90",
+    href: "https://www.linkedin.com/in/buitrongkhanhduy/",
+    icon: faLinkedin,
+  },
+  {
+    name: "Medium",
+    className: "bg-black hover:bg-gray-800/90",
+    href: "khanhduyvt.medium.com",
+    icon: faMedium,
   },
   {
     name: "Instagram",

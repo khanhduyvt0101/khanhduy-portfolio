@@ -18,7 +18,7 @@ export default function Header() {
           >
             <Link href="/">Khanh Duy</Link>
           </div>
-          <div className="nav-links flex gap-x-8 text-xs md:text-base">
+          <div className="nav-links flex gap-x-8 text-xs md:text-base pt-6 lg:pt-0">
             {links.map((link) => (
               <span
                 key={link}

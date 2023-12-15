@@ -9,13 +9,11 @@ import shadcnuiIcon from "@/assets/icons/shadcn-ui.png";
 import pnpmIcon from "@/assets/icons/pnpm.png";
 import prettierIcon from "@/assets/icons/prettier.png";
 import nodejsIcon from "@/assets/icons/nodejs.png";
-import nestjsIcon from "@/assets/icons/nest-js.png";
+import nextjsIcon from "@/assets/icons/next-js.png";
 import mysqlIcon from "@/assets/icons/mysql.png";
-import dockerIcon from "@/assets/icons/docker.png";
 import gitIcon from "@/assets/icons/git.png";
 import macosIcon from "@/assets/icons/macos.png";
 import vscodeIcon from "@/assets/icons/vscode.png";
-import arcIcon from "@/assets/icons/arc.png";
 import postmanIcon from "@/assets/icons/postman.svg";
 import ExpoIcon from "@/assets/icons/expo.png";
 import githubActionsIcon from "@/assets/icons/github-actions.png";
@@ -68,7 +66,7 @@ export default function skills() {
         },
         {
           name: "Nest.js",
-          icon: nestjsIcon,
+          icon: nextjsIcon,
         },
         {
           name: "MySQL",
@@ -103,10 +101,6 @@ export default function skills() {
         {
           name: "GitHub Actions",
           icon: githubActionsIcon,
-        },
-        {
-          name: "Docker",
-          icon: dockerIcon,
         },
       ],
     },

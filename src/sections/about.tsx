@@ -8,7 +8,7 @@ export default function about() {
       id="about"
       className="mx-auto my-16 flex flex-col items-center justify-center gap-4 px-2 md:my-20 md:max-w-full lg:flex-row lg:items-center lg:gap-16"
     >
-      <div className="order-2 lg:order-1 lg:w-2/3">
+      <div className="order-1 lg:order-1 lg:w-2/3">
         <MotionDiv delayOffset={0.2}>
           <h2 className="mb-3 w-full text-center text-3xl font-bold md:mb-6">
             About Me
@@ -18,9 +18,9 @@ export default function about() {
           <MotionDiv delayOffset={0.4}>
             <p>
               Hello, I'm Khanh Duy, a <strong>Full-Stack Developer</strong>{" "}
-              specializing in <strong>Next.JS</strong> with over{" "}
-              <strong>2 years of experience</strong>. Currently, I freelance
-              from the vibrant city of Ho Chi Minh, VietNam.
+              specializing in <strong>Next.JS | React | Mobile</strong> with
+              over <strong>3 years of experience</strong>. Currently, I
+              freelance from the vibrant city of Ho Chi Minh, VietNam.
             </p>
           </MotionDiv>
           <MotionDiv delayOffset={0.5}>
@@ -62,12 +62,12 @@ export default function about() {
           </MotionDiv>
         </article>
       </div>
-      <div className="lg:order-2 lg:w-1/3">
+      <div className="lg:order-2 order-2">
         <MotionDiv delayOffset={0.4}>
           <img
             src={avatar.src}
             alt="Khanh Duy"
-            className="w-[350px] min-w-[300px] rounded-xl transition-all hover:rotate-3 hover:scale-105"
+            className="w-[350px] rounded-xl transition-all hover:rotate-3 hover:scale-105"
           />
         </MotionDiv>
       </div>
