@@ -1,6 +1,6 @@
-import MotionDiv from "@/components/motion-div";
+import MotionDiv from "@/src/components/motion-div";
 import React from "react";
-import avatar from "@/assets/photo/landing.jpeg";
+import avatar from "@/src/assets/photo/landing.jpeg";
 
 export default function about() {
   return (

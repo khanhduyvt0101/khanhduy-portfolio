@@ -1,5 +1,5 @@
-import ContactList from "@/components/contact-list";
-import MotionDiv from "@/components/motion-div";
+import ContactList from "@/src/components/contact-list";
+import MotionDiv from "@/src/components/motion-div";
 
 export default function contact() {
   return (

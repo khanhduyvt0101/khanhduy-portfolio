@@ -8,14 +8,14 @@ import {
   faMedium,
 } from "@fortawesome/free-brands-svg-icons";
 import MotionList from "./motion-list";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+} from "@/src/components/ui/tooltip";
+import { cn } from "@/src/lib/utils";
 type Contact = {
   name: string;
   className: string;

@@ -1,7 +1,7 @@
-import ContactList from "@/components/contact-list";
-import MotionText from "@/components/motion-text";
-import MotionDiv from "@/components/motion-div";
-import avatar from "@/assets/photo/avatar.png";
+import ContactList from "@/src/components/contact-list";
+import MotionText from "@/src/components/motion-text";
+import MotionDiv from "@/src/components/motion-div";
+import avatar from "@/src/assets/photo/avatar.png";
 
 export default function hero() {
   return (

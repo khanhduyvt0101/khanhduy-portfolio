@@ -17,6 +17,9 @@ module.exports = {
     },
     extend: {
       colors: {
+        moreProjectsButton: "#55198b",
+        githubRepoCardColor: "rgb(88, 96, 105)",
+        lightBackground2: "rgb(255, 255, 255)",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
