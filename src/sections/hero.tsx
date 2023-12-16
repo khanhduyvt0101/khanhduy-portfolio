@@ -1,12 +1,15 @@
+"use client";
 import ContactList from "@/src/components/contact-list";
 import MotionText from "@/src/components/motion-text";
 import MotionDiv from "@/src/components/motion-div";
 import avatar from "@/src/assets/photo/avatar.png";
+import { contactInfo } from "../portfolio";
+import { Button } from "@/src/components/ui/button";
 
 export default function hero() {
   return (
-    <section className="my-8 flex flex-col items-center justify-center">
-      <h1 className="mb-4 text-[1.4rem] md:text-[2rem]">
+    <section className="my-12 flex flex-col items-center justify-center">
+      <h1 className="mb-4 text-[1.4rem] md:text-[2rem] pt-12">
         <MotionText delayOffset={0}>Hi, I'm Khanh Duy! 👋</MotionText>
       </h1>
       <div className="overflow-hidden p-3">
@@ -32,7 +35,26 @@ export default function hero() {
         </MotionDiv>
       </div>
       <div className="my-8">
-        <ContactList delayOffset={1.45} showWhenInView={false} />
+        <MotionDiv delayOffset={1.2}>
+          <div>
+            <Button
+              className="mr-4 w-40 bg-moreProjectsButton"
+              onClick={() =>
+                document
+                  .getElementById("contact")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              CONTACT ME
+            </Button>
+            <Button
+              className="w-40 bg-moreProjectsButton"
+              onClick={() => window.open(contactInfo.cv)}
+            >
+              SEE MY RESUME
+            </Button>
+          </div>
+        </MotionDiv>
       </div>
     </section>
   );

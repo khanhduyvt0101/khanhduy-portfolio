@@ -10,3 +10,12 @@ export const openSource = {
   showGithubProfile: "true",
   display: true,
 };
+
+export const contactInfo = {
+  title: "Contact Me ☎️",
+  subtitle:
+    "Discuss a project or just want to say hi? My Inbox is open for all.",
+  number: "+86-0000000000",
+  email_address: "khanhduyvt0101@gmail.com",
+  cv: "https://drive.google.com/file/d/1iFwSi4QhA01DvHbtcTBSBiDQPkjmoqEa/view?usp=sharing",
+};
