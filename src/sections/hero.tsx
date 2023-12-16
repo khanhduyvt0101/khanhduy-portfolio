@@ -1,10 +1,8 @@
 "use client";
-import ContactList from "@/src/components/contact-list";
 import MotionText from "@/src/components/motion-text";
 import MotionDiv from "@/src/components/motion-div";
 import avatar from "@/src/assets/photo/avatar.png";
 import { contactInfo } from "../portfolio";
-import { Button } from "@/src/components/ui/button";
 
 export default function hero() {
   return (
@@ -37,22 +35,26 @@ export default function hero() {
       <div className="my-8">
         <MotionDiv delayOffset={1.2}>
           <div>
-            <Button
-              className="mr-4 w-40 bg-moreProjectsButton"
+            <button
+              className="mr-4 w-40 h-10 bg-moreProjectsButton text-white rounded-md hover:bg-buttonHover"
               onClick={() =>
                 document
                   .getElementById("contact")
                   ?.scrollIntoView({ behavior: "smooth" })
               }
             >
-              CONTACT ME
-            </Button>
-            <Button
-              className="w-40 bg-moreProjectsButton"
+              <p className="text-sm">
+                <b>CONTACT ME</b>
+              </p>
+            </button>
+            <button
+              className="mr-4 w-40 h-10 bg-moreProjectsButton text-white rounded-md hover:bg-buttonHover"
               onClick={() => window.open(contactInfo.cv)}
             >
-              SEE MY RESUME
-            </Button>
+              <p className="text-sm">
+                <b>SEE MY RESUME</b>
+              </p>
+            </button>
           </div>
         </MotionDiv>
       </div>
