@@ -8,7 +8,7 @@ const goldenSignature = localFont({
 });
 
 export default function Header() {
-  const links = ["about", "skills", "project", "contact"];
+  const links = ["about", "skills", "project", "blogs", "contact"];
   return (
     <>
       <nav className="justify-centerpy-2 flex w-full select-none pt-6 font-light md:px-28 md:pb-2">

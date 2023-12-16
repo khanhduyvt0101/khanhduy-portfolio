@@ -9,7 +9,7 @@ import SkeletonGithubCard from "./SkeletonGithubCard";
 
 const GithubRepoCard = lazy(() => import("./GithubRepoCard"));
 
-export default function Projects() {
+export default function GithubProjects() {
   const [repos, setRepos] = useState<RepoProps[]>([]);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function Projects() {
     openSource.display
   ) {
     return (
-      <div className="p-4 flex flex-col items-center" id="project">
+      <div className="p-4 flex flex-col items-center">
         <MotionDiv>
           <h1 className="my-2 w-full text-center text-3xl font-bold">
             My Projects

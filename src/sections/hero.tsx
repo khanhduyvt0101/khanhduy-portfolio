@@ -32,32 +32,30 @@ export default function hero() {
           </p>
         </MotionDiv>
       </div>
-      <div className="my-8">
-        <MotionDiv delayOffset={1.2}>
-          <div>
-            <button
-              className="mr-4 w-40 h-10 bg-moreProjectsButton text-white rounded-md hover:bg-buttonHover"
-              onClick={() =>
-                document
-                  .getElementById("contact")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-            >
-              <p className="text-sm">
-                <b>CONTACT ME</b>
-              </p>
-            </button>
-            <button
-              className="mr-4 w-40 h-10 bg-moreProjectsButton text-white rounded-md hover:bg-buttonHover"
-              onClick={() => window.open(contactInfo.cv)}
-            >
-              <p className="text-sm">
-                <b>SEE MY RESUME</b>
-              </p>
-            </button>
-          </div>
-        </MotionDiv>
-      </div>
+      <MotionDiv delayOffset={0.8}>
+        <div className="flex lg:flex-row flex-col">
+          <button
+            className="mr-4 w-40 h-10 bg-moreProjectsButton text-white rounded-md hover:bg-buttonHover mb-8"
+            onClick={() =>
+              document
+                .getElementById("contact")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
+          >
+            <p className="text-sm">
+              <b>CONTACT ME</b>
+            </p>
+          </button>
+          <button
+            className="mr-4 w-40 h-10 bg-moreProjectsButton text-white rounded-md hover:bg-buttonHover"
+            onClick={() => window.open(contactInfo.cv)}
+          >
+            <p className="text-sm">
+              <b>SEE MY RESUME</b>
+            </p>
+          </button>
+        </div>
+      </MotionDiv>
     </section>
   );
 }
