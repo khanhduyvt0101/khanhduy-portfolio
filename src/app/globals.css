@@ -135,3 +135,21 @@ h3 {
   color: white;
   transition: "0.1s";
 }
+
+@keyframes wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+}
+
+.wave-emoji {
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-name: wave;
+  transform-origin: 70% 70%;
+  display: inline-block;
+}
