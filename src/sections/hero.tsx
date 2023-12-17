@@ -3,10 +3,17 @@ import MotionText from "@/src/components/motion-text";
 import MotionDiv from "@/src/components/motion-div";
 import avatar from "@/src/assets/photo/avatar.png";
 import { contactInfo } from "../portfolio";
+import { useContext } from "react";
+import { StyleContext } from "../app/contexts/StyleContext";
 
 export default function hero() {
+  const { isDark } = useContext(StyleContext);
   return (
-    <section className="my-12 flex flex-col items-center justify-center">
+    <section
+      className={`${
+        isDark ? "bg-backgroundDarkMode text-white" : ""
+      } py-12 flex flex-col items-center justify-center duration-500 transition-all`}
+    >
       <h1 className="mb-4 text-[1.4rem] md:text-[2rem] pt-12">
         <MotionText delayOffset={0}>Hi, I'm Khanh Duy! 👋</MotionText>
       </h1>

@@ -3,9 +3,11 @@ import React, { useEffect, useState, useContext } from "react";
 import { Fade } from "react-awesome-reveal";
 import BlogCard, { BlogProps } from "./blogsCard";
 import MotionDiv from "../motion-div";
+import { StyleContext } from "@/src/app/contexts/StyleContext";
 
 const Blogs: React.FC = () => {
   const [mediumBlogs, setMediumBlogs] = useState<BlogProps[]>([]);
+  const { isDark } = useContext(StyleContext);
 
   const extractTextContent = (html: string) => {
     return typeof html === "string"
@@ -36,7 +38,11 @@ const Blogs: React.FC = () => {
 
   return (
     <Fade duration={2000}>
-      <div className="my-12 w-full">
+      <div
+        className={`${
+          isDark ? "dark-mode" : ""
+        } my-12 items-center justify-center px-12`}
+      >
         <MotionDiv>
           <div className="mb-8">
             <h1 className="my-2 w-full text-center text-3xl font-bold">
@@ -58,7 +64,7 @@ const Blogs: React.FC = () => {
                   title: blog.title,
                   description: extractTextContent(blog.description) as string,
                 }}
-                isDark={false}
+                isDark={isDark}
               />
             ))}
           </div>

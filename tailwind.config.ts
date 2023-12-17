@@ -21,6 +21,7 @@ module.exports = {
         buttonHover: "#8c43ce",
         githubRepoCardColor: "rgb(88, 96, 105)",
         lightBackground2: "rgb(255, 255, 255)",
+        backgroundDarkMode: "rgb(23, 28, 40)",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

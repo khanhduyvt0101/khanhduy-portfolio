@@ -21,7 +21,10 @@ import androidIcon from "@/src/assets/icons/android.png";
 import dartIcon from "@/src/assets/icons/dart.png";
 import flutterIcon from "@/src/assets/icons/flutter.png";
 import androidstudioIcon from "@/src/assets/icons/androidstudio.png";
+import { useContext } from "react";
+import { StyleContext } from "../app/contexts/StyleContext";
 export default function skills() {
+  const { isDark } = useContext(StyleContext);
   const data = [
     {
       title: "Web Development",
@@ -151,7 +154,9 @@ export default function skills() {
   return (
     <section
       id="skills"
-      className="flex w-full flex-col items-center text-center"
+      className={`${
+        isDark ? "bg-backgroundDarkMode text-white" : ""
+      } flex w-full flex-col items-center text-center`}
     >
       <MotionDiv>
         <h2 className="mb-4">My Skills</h2>

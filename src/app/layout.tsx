@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import Header from "@/src/components/header";
 import BackToTop from "@/src/components/back-to-top";
 import avatar from "@/src/assets/photo/avatar.png";
+import { StyleContextProvider } from "./contexts/StyleContext";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -40,9 +41,13 @@ export default function RootLayout({
         <meta name="twitter:image" content={avatar.src} />
       </head>
       <body className={montserrat.className}>
-        <Header />
-        <main className="container lg:px-28">{children}</main>
-        <BackToTop />
+        <StyleContextProvider>
+          <>
+            <Header />
+            <main>{children}</main>
+            <BackToTop />
+          </>
+        </StyleContextProvider>
       </body>
     </html>
   );
