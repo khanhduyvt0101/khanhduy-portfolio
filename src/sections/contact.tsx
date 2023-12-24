@@ -12,18 +12,18 @@ export default function contact() {
     <section
       className={`${
         isDark ? "dark-mode" : ""
-      } pb-28 flex lg:flex-row flex-col items-center justify-center gap-5 text-center pt-8`}
+      } pb-28 flex flex-row items-center justify-center gap-5 text-center pt-8`}
       id="contact"
     >
-      <div className="flex flex-col items-center lg:order-2">
-        <FooterContact />
-        <ContactList />
-      </div>
-      <MotionDiv className="order-1">
+      <MotionDiv>
         <div className="h-[400px] w-[400px]">
           <DisplayLottie animationData={reachOutLottie} />
         </div>
       </MotionDiv>
+      <div className="flex flex-col items-center">
+        <FooterContact />
+        <ContactList />
+      </div>
     </section>
   );
 }
