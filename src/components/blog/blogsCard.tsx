@@ -1,6 +1,4 @@
 import React from "react";
-import styles from "@/src/components/blog/blogsCard.module.css";
-import { classes } from "@/src/utils/style";
 
 export interface BlogProps {
   title: string;
@@ -25,39 +23,21 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, isDark }) => {
 
   return (
     <div onClick={() => openUrlInNewTab(blog.link, blog.title)}>
-      <div
-        className={
-          isDark
-            ? classes(styles.blog_container, styles.dark_mode)
-            : classes(styles.blog_container)
-        }
-      >
+      <div className={isDark ? "blog-container dark-mode" : "blog-container"}>
         <a
           className={
-            isDark
-              ? classes(
-                  styles.blog_card,
-                  styles.dark_mode,
-                  styles.blog_card_shadow
-                )
-              : classes(styles.blog_card)
+            isDark ? "dark-mode blog-card blog-card-shadow" : "blog-card"
           }
           href="#blog"
         >
-          <h3
-            className={
-              isDark
-                ? classes(styles.small_dark, styles.blog_title)
-                : classes(styles.blog_title)
-            }
-          >
+          <h3 className={isDark ? "small-dark blog-title" : "blog-title"}>
             {blog.title}
           </h3>
           <p className={isDark ? "small-dark small" : "small"}>
             {blog.description}
           </p>
-          <div className={classes(styles.go_corner)}>
-            <div className={classes(styles.go_arrow)}>→</div>
+          <div className="go-corner">
+            <div className="go-arrow">→</div>
           </div>
         </a>
       </div>
