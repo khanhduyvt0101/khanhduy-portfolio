@@ -1,4 +1,6 @@
 import React from "react";
+import styles from "@/src/components/blog/blogCard.module.css";
+import { classes } from "@/src/utils/style";
 
 export interface BlogProps {
   title: string;
@@ -33,7 +35,13 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, isDark }) => {
           <h3 className={isDark ? "small-dark blog-title" : "blog-title"}>
             {blog.title}
           </h3>
-          <p className={isDark ? "small-dark small" : "small"}>
+          <p
+            className={
+              isDark
+                ? classes(styles.small_dark, styles.small)
+                : classes(styles.small)
+            }
+          >
             {blog.description}
           </p>
           <div className="go-corner">

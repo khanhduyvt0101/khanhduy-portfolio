@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "@/src/components/blog/blogCard.css";
 @import "@/src/components/toggleSwitch/ToggleSwitch.css";
 
 @layer base {
