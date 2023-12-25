@@ -8,6 +8,9 @@ dependencies:
   '@emotion/react':
     specifier: ^11.11.1
     version: 11.11.1(@types/react@18.2.21)(react@18.2.0)
+  '@fontsource/kanit':
+    specifier: ^5.0.18
+    version: 5.0.18
   '@fortawesome/fontawesome-svg-core':
     specifier: ^6.4.2
     version: 6.5.1
@@ -290,6 +293,10 @@ packages:
 
   /@floating-ui/utils@0.1.6:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
+    dev: false
+
+  /@fontsource/kanit@5.0.18:
+    resolution: {integrity: sha512-mvC19JOSxT1sbWtk+aOKXTvqqhHVXP9eCMiZNkU66amZ5kdY0bcctx5mLD7MpvEmcOjBYxpZGiK1pT+5hwChcA==}
     dev: false
 
   /@fortawesome/fontawesome-common-types@6.5.1:

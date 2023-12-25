@@ -19,6 +19,7 @@ module.exports = {
       colors: {
         moreProjectsButton: "#55198b",
         buttonHover: "#8c43ce",
+        mask: "#1DC9FF",
         githubRepoCardColor: "rgb(88, 96, 105)",
         lightBackground2: "rgb(255, 255, 255)",
         backgroundDarkMode: "rgb(23, 28, 40)",
@@ -79,6 +80,12 @@ module.exports = {
         "fade-in": "fade-in 0.3s ease-in forwards",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      fontFamily: {
+        kanit: ['"Kanit"', "sans-serif"],
+      },
+      fontWeight: {
+        thin: 100,
       },
     },
   },
