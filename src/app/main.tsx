@@ -7,6 +7,7 @@ import Project from "../sections/project";
 import Skills from "../sections/skills";
 import { StyleContext } from "./contexts/StyleContext";
 import Contact from "../sections/contact";
+import { ToggleSwitch } from "../components/toggleSwitch/ToggleSwitch";
 
 export const Main = () => {
   const { isDark } = useContext(StyleContext);

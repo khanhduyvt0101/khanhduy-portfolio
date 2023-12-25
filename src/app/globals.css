@@ -152,3 +152,7 @@ h3 {
   transform-origin: 70% 70%;
   display: inline-block;
 }
+
+body {
+  font-family: "Kanit", sans-serif;
+}

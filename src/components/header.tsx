@@ -1,13 +1,14 @@
 "use client";
-import Link from "next/link";
-import { ToggleSwitch } from "./toggleSwitch/ToggleSwitch";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { StyleContext } from "../app/contexts/StyleContext";
-import KD from "@/src/assets/photo/KD.png";
-import KDdarktheme from "@/src/assets/photo/KDdarktheme.png";
+import KDDark from "@/src/assets/svg/KDDark.svg";
+import KDFocus from "@/src/assets/svg/KDFocus.svg";
+import KDLight from "@/src/assets/svg/KDLight.svg";
+import Image from "next/image";
 
 export default function Header() {
   const { isDark } = useContext(StyleContext);
+  const [isHovered, setIsHovered] = useState(false);
   const links = ["about", "skills", "project", "blogs", "contact"];
 
   return (
@@ -15,20 +16,26 @@ export default function Header() {
       <nav
         className={`${
           isDark ? "text-white bg-backgroundDarkMode" : ""
-        } justify-center fixed left-0 top-0 flex-col select-none font-light px-2 duration-500 transition-all hidden md:flex h-screen`}
+        } justify-center fixed left-0 top-0 flex-col select-none font-light px-4 duration-500 transition-all hidden md:flex h-screen`}
       >
-        <div className="nav-links flex flex-col gap-y-20 text-base items-center justify-center">
-          <Link className="ml-4" href="/">
-            <img
-              src={!isDark ? KDdarktheme.src : KD.src}
-              alt="Khanh Duy"
-              className="w-[120px] h-[90px]"
-            />
-          </Link>
+        <div className="flex flex-col gap-y-[90px] text-base items-center justify-center">
+          <Image
+            src={isHovered ? KDFocus : isDark ? KDLight : KDDark}
+            alt="logo"
+            width={80}
+            height={63}
+            onClick={() => {
+              window.location.href = "./";
+            }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          />
           {links.map((link) => (
-            <span
+            <button
               key={link}
-              className="cursor-pointer"
+              className={`hover:bg-mask hover:text-white rounded-[10px] px-[10px] py-1 text-normal ${
+                !isDark ? "focus:bg-white" : "focus:bg-backgroundDarkMode"
+              } focus:text-mask`}
               style={{ transform: "rotate(270deg)" }}
               onClick={() => {
                 document
@@ -37,9 +44,8 @@ export default function Header() {
               }}
             >
               {link.charAt(0).toUpperCase() + link.slice(1)}
-            </span>
+            </button>
           ))}
-          <ToggleSwitch />
         </div>
       </nav>
     </>

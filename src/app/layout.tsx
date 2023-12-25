@@ -4,6 +4,7 @@ import Header from "@/src/components/header";
 import BackToTop from "@/src/components/back-to-top";
 import avatar from "@/src/assets/photo/avatar.png";
 import { StyleContextProvider } from "./contexts/StyleContext";
+import { ToggleSwitch } from "../components/toggleSwitch/ToggleSwitch";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -15,6 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
         <title>Khanh Duy | Personal</title>
         <meta
           name="description"
@@ -43,6 +48,7 @@ export default function RootLayout({
       <body className={montserrat.className}>
         <StyleContextProvider>
           <>
+            <ToggleSwitch />
             <Header />
             <main>{children}</main>
             <BackToTop />
