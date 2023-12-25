@@ -8,7 +8,7 @@ import MotionDiv from "../motion-div";
 export const FooterContact: React.FC = () => {
   return (
     <MotionDiv>
-      <div className="pb-4" id="contact">
+      <div id="contact">
         <h1 className="text-3xl font-bold">Reach Out to me!</h1>
         <div className="flex">
           <div className="flex-1">

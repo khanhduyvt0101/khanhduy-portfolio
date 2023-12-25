@@ -40,18 +40,18 @@ export const numToMs = (num: number): string => `${num}ms`;
  * Convert an rgb theme property (e.g. rgbBlack: '0 0 0')
  * to values that can be spread into a ThreeJS Color class
  */
-export const rgbToThreeColor = (rgb: string): number[] =>
+export const rgbToThreeColor = (rgb: string | undefined): number[] =>
   rgb?.split(" ").map((value) => Number(value) / 255) || [];
 
 /**
- * Convert a JS object into `--` prefixed css custom properties.
+ * Convert a JS object into `--` prefixed CSS custom properties.
  * Optionally pass a second param for normal styles
  */
 export function cssProps(
   props: Record<string, number | string>,
-  style: Record<string, any> = {}
-): Record<string, any> {
-  let result: Record<string, any> = {};
+  style: Record<string, string> = {}
+): Record<string, string> {
+  let result: Record<string, string> = {};
 
   const keys = Object.keys(props);
 
@@ -66,7 +66,7 @@ export function cssProps(
       value = numToPx(value);
     }
 
-    result[`--${key}`] = value;
+    result[`--${key}`] = String(value);
   }
 
   return { ...result, ...style };
@@ -76,7 +76,7 @@ export function cssProps(
  * Concatenate classNames together
  */
 export function classes(
-  ...classes: (string | undefined | null | boolean)[]
+  ...classNames: (string | undefined | null | false)[]
 ): string {
-  return classes.filter(Boolean).join(" ");
+  return classNames.filter(Boolean).join(" ");
 }
