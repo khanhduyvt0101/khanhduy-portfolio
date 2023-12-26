@@ -16,9 +16,9 @@ export default function Header() {
       <nav
         className={`${
           isDark ? "text-white bg-backgroundDarkMode" : ""
-        } justify-center fixed left-0 top-0 flex-col select-none font-light px-4 duration-500 transition-all hidden md:flex h-screen`}
+        } justify-center fixed left-0 top-0 flex-col select-none font-light px-4 py-8 duration-500 transition-all hidden md:flex h-screen`}
       >
-        <div className="flex flex-col gap-y-[90px] text-base items-center justify-center">
+        <div className="flex flex-col h-screen text-base items-center justify-between">
           <Image
             src={isHovered ? KDFocus : isDark ? KDLight : KDDark}
             alt="logo"
