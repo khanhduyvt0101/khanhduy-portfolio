@@ -13,9 +13,7 @@ import Header from "../components/header";
 import BackToTop from "../components/back-to-top";
 
 export const Main = () => {
-  const storedIsDark = localStorage.getItem("isDark");
   const { isDark } = useContext(StyleContext);
-  const darkTheme = isDark === undefined ? storedIsDark === "true" : isDark;
   const [isShowingSplashAnimation, setIsShowingSplashAnimation] =
     useState(true);
 
@@ -30,14 +28,14 @@ export const Main = () => {
   }, []);
 
   return isShowingSplashAnimation ? (
-    <SplashScreen isDark={darkTheme} />
+    <SplashScreen isDark={isDark} />
   ) : (
     <>
       <ToggleSwitch />
       <Header />
       <div
         className={`${
-          darkTheme ? "bg-backgroundDarkMode text-white" : "bg-white"
+          isDark ? "bg-backgroundDarkMode text-white" : "bg-white"
         } duration-500 transition-all`}
       >
         <div className={`lg:px-28`}>
