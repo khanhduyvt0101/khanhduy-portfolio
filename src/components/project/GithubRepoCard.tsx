@@ -45,7 +45,7 @@ const GithubRepoCard: React.FC<RepoProps> = ({ node, isDark }) => {
             isDark
               ? "bg-gray-800 text-white hover:scale-105"
               : "bg-lightBackground2 text-githubRepoCardColor hover:shadow-2xl"
-          }  shadow-lg p-8 cursor-pointer transition-all duration-300 ease-in-out lg:h-[200px] h-[240px] rounded-xl w-[300px] lg:w-full`}
+          }  shadow-lg p-8 cursor-pointer transition-all duration-500 ease-in-out lg:h-[200px] h-[240px] rounded-xl w-[300px] lg:w-full`}
           key={node.id}
           onClick={() => openUrlInNewTab(node.url, node.name)}
         >

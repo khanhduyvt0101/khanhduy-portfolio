@@ -7,22 +7,23 @@ import Project from "../sections/project";
 import Skills from "../sections/skills";
 import { StyleContext } from "./contexts/StyleContext";
 import Contact from "../sections/contact";
-import { ToggleSwitch } from "../components/toggleSwitch/ToggleSwitch";
 
 export const Main = () => {
   const { isDark } = useContext(StyleContext);
   return (
     <div
       className={`${
-        isDark ? "bg-backgroundDarkMode w-full" : ""
-      } lg:px-28 duration-500 transition-all`}
+        isDark ? "bg-backgroundDarkMode text-white" : "bg-white"
+      } duration-500 transition-all`}
     >
-      <Hero />
-      <About />
-      <Skills />
-      <Project />
-      <Blogs />
-      <Contact />
+      <div className={`lg:px-28`}>
+        <Hero />
+        <About />
+        <Skills />
+        <Project />
+        <Blogs />
+        <Contact />
+      </div>
     </div>
   );
 };

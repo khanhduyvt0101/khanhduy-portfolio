@@ -1,43 +1,31 @@
+import { StyleContext } from "@/src/app/contexts/StyleContext";
 import { AnimatePresence, motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 export const Title = () => {
-  const words = ["Next.JS", "REACT", "Mobile"];
+  const { isDark } = useContext(StyleContext);
   const [isVisible, setIsVisible] = useState(false);
-  const [showText, setShowText] = useState(false);
   const maskControls = useAnimation();
 
   useEffect(() => {
-    // Start the animation
     setIsVisible(true);
 
-    // Reset the animation after it finishes
     const timer = setTimeout(() => {
       setIsVisible(false);
-    }, 2000); // Adjust the duration as needed
+    }, 1000);
 
     return () => {
       clearTimeout(timer);
     };
-  }, []);
+  }, [isDark]);
 
   useEffect(() => {
     if (isVisible) {
-      // Animate the mask to expand
-      maskControls.start({ width: "100%" });
-
-      const textTimer = setTimeout(() => {
-        setShowText(true);
-      }, 1500);
-
-      return () => {
-        clearTimeout(textTimer);
-      };
+      maskControls.start({ width: "300px", x: 0 });
     } else {
-      // Animate the mask to shrink and fade out
-      maskControls.start({ width: 0, opacity: 1 });
+      maskControls.start({ width: 0, x: "300px" });
     }
-  }, [isVisible, maskControls]);
+  }, [isVisible, maskControls, isDark]);
 
   const variants1 = {
     hidden: { filter: "blur(10px)", opacity: 0 },
@@ -50,33 +38,37 @@ export const Title = () => {
         <span className="font-kanit font-thin tracking-[0.3em] text-[24px] lg:mr-[250px] text-center">
           KHANH DUY
         </span>
-        <motion.div
-          key="mask"
-          initial="hidden"
-          animate={maskControls}
-          exit="hidden"
-          variants={{
-            hidden: { width: 0, opacity: 1 },
-            visible: { width: "100%", opacity: 1 },
-          }}
-          transition={{ duration: 1 }}
-          className="bg-mask h-14 absolute"
-          style={{ zIndex: 2 }}
-        />
-        {showText && <h1>DEVELOPER</h1>}
+        <div className="w-[300px]">
+          <motion.div
+            key="mask"
+            initial="hidden"
+            animate={maskControls}
+            exit="hidden"
+            variants={{
+              hidden: { width: 0, x: "300px" },
+              visible: { width: "300px", x: 0 },
+            }}
+            transition={{ duration: 1 }}
+            className="bg-mask h-14 absolute"
+            style={{ zIndex: 2 }}
+          />
+          <h1 className="text-center">DEVELOPER</h1>
+        </div>
         <motion.h1
+          key={isDark ? 0 : 1}
           initial="hidden"
           animate="visible"
-          transition={{ duration: 0.5, delay: 1.5 }}
+          transition={{ duration: 0.5, delay: 2 }}
           variants={variants1}
           className="text-center drop-shadow-sm"
         >
           <div className="flex items-center flex-row justify-between lg:w-[280px] w-[200px] tracking-[-0.02em] text-sm font-normal lg:text-base">
             <span>Next.JS</span>
             <motion.h1
+              key={isDark ? 0 : 1}
               initial="hidden"
               animate="visible"
-              transition={{ duration: 0.5, delay: 2 }}
+              transition={{ duration: 0.5, delay: 2.5 }}
               variants={variants1}
               className="text-sm font-normal lg:text-base"
             >
@@ -84,9 +76,10 @@ export const Title = () => {
             </motion.h1>
             <span>React</span>
             <motion.h1
+              key={isDark ? 0 : 1}
               initial="hidden"
               animate="visible"
-              transition={{ duration: 0.5, delay: 2 }}
+              transition={{ duration: 0.5, delay: 2.5 }}
               variants={variants1}
               className="text-sm font-normal lg:text-base"
             >

@@ -38,11 +38,7 @@ const Blogs: React.FC = () => {
 
   return (
     <Fade duration={2000}>
-      <div
-        className={`${
-          isDark ? "dark-mode" : ""
-        } my-12 items-center justify-center px-12`}
-      >
+      <div className={`my-12 items-center justify-center px-12`}>
         <MotionDiv>
           <div className="mb-8">
             <h1 className="my-2 w-full text-center text-3xl font-bold">

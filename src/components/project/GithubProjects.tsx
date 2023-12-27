@@ -36,11 +36,7 @@ export default function GithubProjects() {
     openSource.display
   ) {
     return (
-      <div
-        className={`${
-          isDark ? "bg-backgroundDarkMode text-white" : ""
-        } p-4 flex flex-col items-center`}
-      >
+      <div className={`p-4 flex flex-col items-center`}>
         <MotionDiv>
           <h1 className="my-2 w-full text-center text-3xl font-bold">
             My Projects

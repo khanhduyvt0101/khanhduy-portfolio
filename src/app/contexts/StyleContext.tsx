@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 
 interface StyleContextType {
   isDark: boolean;
@@ -14,13 +14,28 @@ export const StyleContext = React.createContext<StyleContextType>({
 export const StyleContextProvider: React.FC<{ children: JSX.Element }> = (
   props
 ) => {
-  const [isDark, setIsDark] = React.useState<boolean>(false);
+  // Initialize isDark state with a default value
+  const [isDark, setIsDarkState] = React.useState<boolean>(false);
 
-  let styleContext: StyleContextType = {
-    setIsDark: (value: boolean) => {
-      setIsDark(value);
-    },
-    isDark: isDark,
+  useEffect(() => {
+    // Retrieve isDark value from localStorage on component mount
+    const storedIsDark = localStorage.getItem("isDark");
+
+    if (storedIsDark !== null) {
+      // Convert the string value to a boolean
+      setIsDarkState(storedIsDark === "true");
+    }
+  }, []); // Run this effect only once on component mount
+
+  // Create a wrapper function for setIsDark that updates both state and localStorage
+  const setIsDark: StyleContextType["setIsDark"] = (value) => {
+    setIsDarkState(value); // Update the state
+    localStorage.setItem("isDark", value.toString()); // Update localStorage
+  };
+
+  const styleContext: StyleContextType = {
+    setIsDark,
+    isDark,
   };
 
   return (

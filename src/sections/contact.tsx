@@ -7,12 +7,9 @@ import DisplayLottie from "../components/displayLottie/DisplayLottie";
 import reachOutLottie from "@/src/assets/lottie/reachout.json";
 
 export default function contact() {
-  const { isDark } = useContext(StyleContext);
   return (
     <section
-      className={`${
-        isDark ? "dark-mode" : ""
-      } pb-28 flex flex-row items-center justify-center gap-5 text-center pt-8`}
+      className={`pb-28 flex flex-row items-center justify-center gap-5 text-center pt-8`}
       id="contact"
     >
       <MotionDiv>

@@ -4,13 +4,8 @@ import avatar from "@/src/assets/photo/landing.jpeg";
 import { StyleContext } from "../app/contexts/StyleContext";
 
 export default function about() {
-  const { isDark } = useContext(StyleContext);
   return (
-    <div
-      className={`${
-        isDark ? "bg-backgroundDarkMode text-white" : ""
-      } duration-500 transition-all`}
-    >
+    <div>
       <section
         id="about"
         className="mx-auto my-16 flex flex-col items-center justify-center gap-4 px-12 md:my-20 md:max-w-full lg:flex-row lg:items-center lg:gap-16"
