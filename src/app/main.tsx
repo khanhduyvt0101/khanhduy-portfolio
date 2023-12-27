@@ -1,5 +1,5 @@
 "use client";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import About from "../sections/about";
 import Blogs from "../sections/blogs";
 import Hero from "../sections/hero";
@@ -7,23 +7,49 @@ import Project from "../sections/project";
 import Skills from "../sections/skills";
 import { StyleContext } from "./contexts/StyleContext";
 import Contact from "../sections/contact";
+import { SplashScreen } from "../components/splashScreen/SplashScreen";
+import { ToggleSwitch } from "../components/toggleSwitch/ToggleSwitch";
+import Header from "../components/header";
+import BackToTop from "../components/back-to-top";
 
 export const Main = () => {
+  const storedIsDark = localStorage.getItem("isDark");
   const { isDark } = useContext(StyleContext);
-  return (
-    <div
-      className={`${
-        isDark ? "bg-backgroundDarkMode text-white" : "bg-white"
-      } duration-500 transition-all`}
-    >
-      <div className={`lg:px-28`}>
-        <Hero />
-        <About />
-        <Skills />
-        <Project />
-        <Blogs />
-        <Contact />
+  const darkTheme = isDark === undefined ? storedIsDark === "true" : isDark;
+  const [isShowingSplashAnimation, setIsShowingSplashAnimation] =
+    useState(true);
+
+  useEffect(() => {
+    const splashTimer = setTimeout(
+      () => setIsShowingSplashAnimation(false),
+      2000
+    );
+    return () => {
+      clearTimeout(splashTimer);
+    };
+  }, []);
+
+  return isShowingSplashAnimation ? (
+    <SplashScreen isDark={darkTheme} />
+  ) : (
+    <>
+      <ToggleSwitch />
+      <Header />
+      <div
+        className={`${
+          darkTheme ? "bg-backgroundDarkMode text-white" : "bg-white"
+        } duration-500 transition-all`}
+      >
+        <div className={`lg:px-28`}>
+          <Hero />
+          <About />
+          <Skills />
+          <Project />
+          <Blogs />
+          <Contact />
+        </div>
       </div>
-    </div>
+      <BackToTop />
+    </>
   );
 };

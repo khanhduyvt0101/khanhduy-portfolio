@@ -48,10 +48,7 @@ export default function RootLayout({
       <body className={montserrat.className}>
         <StyleContextProvider>
           <>
-            <ToggleSwitch />
-            <Header />
             <main>{children}</main>
-            <BackToTop />
           </>
         </StyleContextProvider>
       </body>

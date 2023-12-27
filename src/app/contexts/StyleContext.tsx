@@ -2,12 +2,12 @@
 import React, { useEffect } from "react";
 
 interface StyleContextType {
-  isDark: boolean;
+  isDark?: boolean;
   setIsDark: (value: boolean) => void;
 }
 
 export const StyleContext = React.createContext<StyleContextType>({
-  isDark: false,
+  isDark: undefined,
   setIsDark: () => {},
 });
 

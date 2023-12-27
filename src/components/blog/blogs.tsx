@@ -60,7 +60,7 @@ const Blogs: React.FC = () => {
                   title: blog.title,
                   description: extractTextContent(blog.description) as string,
                 }}
-                isDark={isDark}
+                isDark={isDark ?? false}
               />
             ))}
           </div>
