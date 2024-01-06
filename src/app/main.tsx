@@ -11,6 +11,7 @@ import { SplashScreen } from "../components/splashScreen/SplashScreen";
 import { ToggleSwitch } from "../components/toggleSwitch/ToggleSwitch";
 import Header from "../components/header";
 import BackToTop from "../components/back-to-top";
+import { IntroAnimation } from "../components/intro/IntroAnimation";
 
 export const Main = () => {
   const { isDark } = useContext(StyleContext);
@@ -18,19 +19,18 @@ export const Main = () => {
     useState(true);
 
   useEffect(() => {
-    const splashTimer = setTimeout(
-      () => setIsShowingSplashAnimation(false),
-      2000
-    );
-    return () => {
-      clearTimeout(splashTimer);
-    };
+    setTimeout(() => {
+      setIsShowingSplashAnimation(false);
+    }, 2000);
   }, []);
 
   return isShowingSplashAnimation ? (
     <SplashScreen isDark={isDark} />
   ) : (
     <>
+      <div className="fixed w-screen h-screen">
+        <IntroAnimation />
+      </div>
       <ToggleSwitch />
       <Header />
       <div

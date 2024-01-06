@@ -22,27 +22,21 @@ export const ToggleSwitch = () => {
   };
 
   return (
-    <Button
-      className={`fixed top-10 right-8 border-0 transition-all duration-500 ${
-        isDark
-          ? "hover:bg-backgroundDarkMode bg-backgroundDarkMode"
-          : "hover:bg-white bg-white"
-      }`}
+    <button
+      className={`fixed top-10 right-8 border-0 transition-all duration-500`}
       onClick={() => {
         setIsDark(!isDark);
         setChecked(!isChecked);
       }}
-      variant="outline"
-      size="icon"
     >
       <Image
         src={getIcon()}
         alt="modeIcon"
-        width={68}
-        height={68}
+        width={50}
+        height={50}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       />
-    </Button>
+    </button>
   );
 };

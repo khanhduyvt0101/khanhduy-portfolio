@@ -11,19 +11,23 @@ interface StyleContextType {
 export const SplashScreen = (props: StyleContextType) => {
   return (
     <div
-      className={
-        props.isDark
-          ? classes("dark-mode", styles.splash_container)
-          : classes(styles.splash_container)
-      }
+      className={`${
+        props.isDark ? "bg-backgroundDarkMode text-white" : "bg-white"
+      } h-screen w-screen`}
     >
-      <div className={classes(styles.splash_animation_container)}>
-        <DisplayLottie animationData={loadingLottie} />
-      </div>
-      <div className={classes(styles.splash_title_container)}>
-        <span className="text-gray-400"> &lt;</span>
-        <span className={classes(styles.splash_title)}>Khanh Duy</span>
-        <span className="text-gray-400">/&gt;</span>
+      <div className="h-3/4 items-center justify-center flex-col flex">
+        <div className={styles.climbing_cube_container}>
+          <div className={styles.container}>
+            <div className={styles.box}>
+              <div className={styles.cube}></div>
+            </div>
+          </div>
+        </div>
+        <div className={classes(styles.splash_title_container)}>
+          <span className="text-gray-400"> &lt;</span>
+          <span className={classes(styles.splash_title)}>Khanh Duy</span>
+          <span className="text-gray-400">/&gt;</span>
+        </div>
       </div>
     </div>
   );

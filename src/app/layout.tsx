@@ -1,10 +1,7 @@
 import "./globals.css";
 import { Montserrat } from "next/font/google";
-import Header from "@/src/components/header";
-import BackToTop from "@/src/components/back-to-top";
 import avatar from "@/src/assets/photo/avatar.png";
 import { StyleContextProvider } from "./contexts/StyleContext";
-import { ToggleSwitch } from "../components/toggleSwitch/ToggleSwitch";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 

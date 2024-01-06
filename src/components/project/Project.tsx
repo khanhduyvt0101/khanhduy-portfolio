@@ -14,26 +14,33 @@ export const Project = () => {
   });
 
   return (
-    <div className="overflow-hidden flex-row justify-center" ref={ref}>
-      <motion.h1
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        variants={MULTIDIRECTION_SLIDE_VARIANTS}
-        transition={{ duration: 1 }}
-        className=""
-      >
-        Multi Direction
-      </motion.h1>
+    <div
+      className="flex flex-row justify-center w-screen items-center"
+      ref={ref}
+    >
+      <div className="h-[100px] w-1/2">
+        <motion.h1
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          variants={MULTIDIRECTION_SLIDE_VARIANTS}
+          transition={{ duration: 1 }}
+          className="text-center"
+        >
+          Multi Direction
+        </motion.h1>
+      </div>
 
-      <motion.h1
-        initial="right"
-        animate={inView ? "visible" : "right"}
-        variants={MULTIDIRECTION_SLIDE_VARIANTS}
-        transition={{ duration: 1 }}
-        className=""
-      >
-        Slide
-      </motion.h1>
+      <div className="h-[100px] w-1/2">
+        <motion.h1
+          initial="right"
+          animate={inView ? "visible" : "right"}
+          variants={MULTIDIRECTION_SLIDE_VARIANTS}
+          transition={{ duration: 1 }}
+          className="text-center"
+        >
+          Slide
+        </motion.h1>
+      </div>
     </div>
   );
 };
