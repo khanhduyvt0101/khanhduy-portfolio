@@ -1,9 +1,9 @@
-import GithubProjects from "@/src/components/project/GithubProjects";
+import { Project } from "../components/project/Project";
 
 export default function project() {
   return (
     <section id="project">
-      <GithubProjects />
+      <Project />
     </section>
   );
 }

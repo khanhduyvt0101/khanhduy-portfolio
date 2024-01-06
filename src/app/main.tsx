@@ -40,9 +40,9 @@ export const Main = () => {
       >
         <div className={`lg:px-28`}>
           <Hero />
+          <Project />
           <About />
           <Skills />
-          <Project />
           <Blogs />
           <Contact />
         </div>

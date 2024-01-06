@@ -1,8 +1,7 @@
 "use client";
 import MotionDiv from "@/src/components/motion-div";
-import { useContext } from "react";
-import { StyleContext } from "../app/contexts/StyleContext";
 import { Title } from "../components/intro/Title";
+import { DownloadCVButton } from "../components/intro/DownloadCVButton";
 
 export default function hero() {
   return (
@@ -12,6 +11,10 @@ export default function hero() {
       <MotionDiv delayOffset={0.8}>
         <Title />
       </MotionDiv>
+
+      <div className="mt-[200px]">
+        <DownloadCVButton />
+      </div>
     </section>
   );
 }

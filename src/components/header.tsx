@@ -9,7 +9,7 @@ import Image from "next/image";
 export default function Header() {
   const { isDark } = useContext(StyleContext);
   const [isHovered, setIsHovered] = useState(false);
-  const links = ["about", "skills", "project", "blogs", "contact"];
+  const links = ["project", "about", "skills", "blogs", "contact"];
 
   return (
     <>
@@ -18,18 +18,19 @@ export default function Header() {
           isDark ? "text-white bg-backgroundDarkMode" : "bg-white"
         } justify-center fixed left-0 top-0 flex-col select-none font-light px-4 py-8 duration-500 transition-all hidden md:flex h-screen`}
       >
-        <div className="flex flex-col h-screen text-base items-center justify-between">
-          <Image
-            src={isHovered ? KDFocus : isDark ? KDLight : KDDark}
-            alt="logo"
-            width={80}
-            height={63}
-            onClick={() => {
-              window.location.href = "./";
-            }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          />
+        <Image
+          className="mb-20"
+          src={isHovered ? KDFocus : isDark ? KDLight : KDDark}
+          alt="logo"
+          width={80}
+          height={63}
+          onClick={() => {
+            window.location.href = "./";
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        />
+        <div className="flex flex-col text-base items-center justify-between h-3/4">
           {links.map((link) => (
             <button
               key={link}

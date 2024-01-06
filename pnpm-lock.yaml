@@ -54,7 +54,7 @@ dependencies:
     specifier: ^4.3.4
     version: 4.3.4
   framer-motion:
-    specifier: ^10.16.4
+    specifier: ^10.16.16
     version: 10.16.16(react-dom@18.2.0)(react@18.2.0)
   lottie-react:
     specifier: ^2.4.0
@@ -80,6 +80,9 @@ dependencies:
   react-easy-emoji:
     specifier: ^1.8.1
     version: 1.8.1(@types/react@18.2.21)(react@18.2.0)
+  react-intersection-observer:
+    specifier: ^9.5.3
+    version: 9.5.3(react@18.2.0)
   react-use:
     specifier: ^17.4.0
     version: 17.4.2(react-dom@18.2.0)(react@18.2.0)

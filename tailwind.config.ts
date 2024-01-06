@@ -20,6 +20,7 @@ module.exports = {
         moreProjectsButton: "#55198b",
         buttonHover: "#8c43ce",
         mask: "#1DC9FF",
+        maskForButton: "#008EF4",
         githubRepoCardColor: "rgb(88, 96, 105)",
         lightBackground2: "rgb(255, 255, 255)",
         backgroundDarkMode: "rgb(23, 28, 40)",
