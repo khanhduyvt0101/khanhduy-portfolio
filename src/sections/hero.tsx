@@ -9,7 +9,7 @@ export default function hero() {
     <section
       className={`lg:pl-[200px] py-12 flex flex-col lg:items-start duration-500 transition-all h-screen justify-center`}
     >
-      <div className="absolute right-12 z-[0]">
+      <div className="absolute right-20 z-[0]">
         <IntroAnimation />
       </div>
       <MotionDiv delayOffset={0.8}>
