@@ -145,3 +145,9 @@
 .blog_card_shadow {
   box-shadow: 1px 0px 20px #ffffff;
 }
+
+.dark_mode {
+  background-color: #171c28;
+  color: white;
+  transition: "0.1s";
+}
