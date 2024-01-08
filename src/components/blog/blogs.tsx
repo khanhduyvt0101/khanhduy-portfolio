@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { Fade } from "react-awesome-reveal";
 import BlogCard, { BlogProps } from "./blogsCard";
 import MotionDiv from "../motion-div";
-import { StyleContext } from "@/src/app/contexts/StyleContext";
+import { StyleContext } from "@/src/app/contexts/styleContext";
 
 const Blogs: React.FC = () => {
   const [mediumBlogs, setMediumBlogs] = useState<BlogProps[]>([]);

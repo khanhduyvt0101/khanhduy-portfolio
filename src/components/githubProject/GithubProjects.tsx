@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useEffect, Suspense, lazy, useContext } from "react";
 import { openSource, socialMediaLinks } from "../../portfolio";
-import { RepoProps } from "./GithubRepoCard";
+import { RepoProps } from "./githubRepoCard";
 import MotionDiv from "../motion-div";
 import { Button } from "../ui/button";
 import { cn } from "@/src/lib/utils";
-import SkeletonGithubCard from "./SkeletonGithubCard";
-import { StyleContext } from "@/src/app/contexts/StyleContext";
+import SkeletonGithubCard from "./skeletonGithubCard";
+import { StyleContext } from "@/src/app/contexts/styleContext";
 
-const GithubRepoCard = lazy(() => import("./GithubRepoCard"));
+const GithubRepoCard = lazy(() => import("./githubRepoCard"));
 
 export default function GithubProjects() {
   const [repos, setRepos] = useState<RepoProps[]>([]);

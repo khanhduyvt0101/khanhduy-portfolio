@@ -1,4 +1,4 @@
-import { StyleContext } from "@/src/app/contexts/StyleContext";
+import { StyleContext } from "@/src/app/contexts/styleContext";
 import { AnimatePresence, motion, useAnimation } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 

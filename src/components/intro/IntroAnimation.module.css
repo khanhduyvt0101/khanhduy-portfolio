@@ -1,16 +1,18 @@
 .bg {
   width: 100%;
   height: 100vh;
-  background-image: linear-gradient(
-    120deg,
-    #000000 0%,
-    #000000 30%,
-    #030c8d 60%,
-    #08a4ff 80%,
-    #3700cf 100%
-  );
-}
+  background-image: linear-gradient(to top, rgb(88, 96, 105) 10%, transparent),
+    linear-gradient(
+      120deg,
+      rgb(88, 96, 105) 0%,
+      rgb(88, 96, 105) 30%,
+      #414bce 60%,
+      #08a4ff 80%,
+      #3700cf 100%
+    );
 
+  background-blend-mode: normal;
+}
 .glass {
   position: absolute;
   top: 0;
@@ -19,26 +21,26 @@
   height: 100%;
   overflow: hidden;
 }
-
 .glass li {
   position: absolute;
   display: block;
   list-style: none;
   width: 40px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.514);
+  background: rgba(58, 167, 255, 0.13);
+  border: 1px solid #ff72d5ef;
   animation: spin 5s linear infinite;
   bottom: -150px;
+  box-shadow:
+    0 0 5px rgb(17, 180, 255),
+    0 0 25px #1babff;
 }
-
 .glass li:nth-child(1) {
   left: 35%;
   width: 200px;
   height: 200px;
   animation-delay: 0s;
 }
-
 .glass li:nth-child(2) {
   left: 10%;
   width: 20px;
@@ -46,14 +48,12 @@
   animation-delay: 2s;
   animation-duration: 12s;
 }
-
 .glass li:nth-child(3) {
   left: 70%;
   width: 20px;
   height: 20px;
   animation-delay: 4s;
 }
-
 .glass li:nth-child(4) {
   left: 40%;
   width: 60px;
@@ -61,28 +61,24 @@
   animation-delay: 0s;
   animation-duration: 18s;
 }
-
 .glass li:nth-child(5) {
   left: 65%;
   width: 20px;
   height: 20px;
   animation-delay: 0s;
 }
-
 .glass li:nth-child(6) {
   left: 75%;
   width: 110px;
   height: 110px;
   animation-delay: 3s;
 }
-
 .glass li:nth-child(7) {
   left: 35%;
   width: 150px;
   height: 150px;
   animation-delay: 7s;
 }
-
 .glass li:nth-child(8) {
   left: 50%;
   width: 25px;
@@ -90,7 +86,6 @@
   animation-delay: 15s;
   animation-duration: 45s;
 }
-
 .glass li:nth-child(9) {
   left: 20%;
   width: 15px;
@@ -98,7 +93,6 @@
   animation-delay: 2s;
   animation-duration: 35s;
 }
-
 .glass li:nth-child(10) {
   left: 85%;
   width: 300px;
@@ -106,7 +100,6 @@
   animation-delay: 0s;
   animation-duration: 11s;
 }
-
 .glass li:nth-child(11) {
   left: 105%;
   width: 30px;
@@ -114,7 +107,6 @@
   animation-delay: 0s;
   animation-duration: 7s;
 }
-
 .glass li:nth-child(12) {
   left: 100%;
   width: 25px;
@@ -122,7 +114,6 @@
   animation-delay: 0s;
   animation-duration: 6s;
 }
-
 @keyframes spin {
   0% {
     transform: translateY(0) translateX(0px) rotate(0deg);

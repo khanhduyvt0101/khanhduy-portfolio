@@ -1,4 +1,4 @@
-import { Project } from "../components/project/Project";
+import { Project } from "../components/project/project";
 
 export default function project() {
   return (

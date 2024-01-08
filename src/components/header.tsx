@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useState } from "react";
-import { StyleContext } from "../app/contexts/StyleContext";
+import { StyleContext } from "../app/contexts/styleContext";
 import KDDark from "@/src/assets/svg/KDDark.svg";
 import KDFocus from "@/src/assets/svg/KDFocus.svg";
 import KDLight from "@/src/assets/svg/KDLight.svg";

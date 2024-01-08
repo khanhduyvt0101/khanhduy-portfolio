@@ -22,7 +22,7 @@ import dartIcon from "@/src/assets/icons/dart.png";
 import flutterIcon from "@/src/assets/icons/flutter.png";
 import androidstudioIcon from "@/src/assets/icons/androidstudio.png";
 import { useContext } from "react";
-import { StyleContext } from "../app/contexts/StyleContext";
+import { StyleContext } from "../app/contexts/styleContext";
 export default function skills() {
   const data = [
     {

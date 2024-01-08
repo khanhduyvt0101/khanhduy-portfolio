@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useContext } from "react";
-import { StyleContext } from "@/src/app/contexts/StyleContext";
-import { Button } from "../ui/button";
+import { StyleContext } from "@/src/app/contexts/styleContext";
 import darkModeIconBlack from "@/src/assets/svg/darkModeIconBlack.svg";
 import darkModeIconFocus from "@/src/assets/svg/darkModeIconFocus.svg";
 import lightModeIconWhite from "@/src/assets/svg/lightModeIconWhite.svg";

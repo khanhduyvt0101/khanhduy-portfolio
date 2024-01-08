@@ -1,6 +1,6 @@
 import React, { Component, Suspense } from "react";
 import Lottie from "lottie-react";
-import SkeletonGithubCard from "../githubProject/SkeletonGithubCard";
+import SkeletonGithubCard from "../githubProject/skeletonGithubCard";
 
 type DisplayLottieProps = {
   animationData: any;

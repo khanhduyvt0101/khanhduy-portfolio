@@ -1,7 +1,6 @@
 import MotionDiv from "@/src/components/motion-div";
 import React, { useContext } from "react";
 import avatar from "@/src/assets/photo/landing.jpeg";
-import { StyleContext } from "../app/contexts/StyleContext";
 
 export default function about() {
   return (

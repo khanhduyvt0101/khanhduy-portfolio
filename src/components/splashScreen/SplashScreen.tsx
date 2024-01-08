@@ -1,8 +1,6 @@
 import React from "react";
-import DisplayLottie from "../../components/displayLottie/DisplayLottie";
-import styles from "./SplashScreen.module.css";
+import styles from "./splashScreen.module.css";
 import { classes } from "@/src/utils/style";
-import loadingLottie from "@/src/assets/lottie/loadingLottie.json";
 
 interface StyleContextType {
   isDark?: boolean;

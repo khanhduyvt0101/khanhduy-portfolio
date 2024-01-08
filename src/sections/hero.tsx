@@ -1,8 +1,7 @@
 "use client";
 import MotionDiv from "@/src/components/motion-div";
-import { Title } from "../components/intro/Title";
-import { DownloadCVButton } from "../components/intro/DownloadCVButton";
-import { IntroAnimation } from "../components/intro/IntroAnimation";
+import { Title } from "../components/intro/title";
+import { DownloadCVButton } from "../components/intro/downloadCVButton";
 
 export default function hero() {
   return (

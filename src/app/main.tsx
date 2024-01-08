@@ -5,13 +5,13 @@ import Blogs from "../sections/blogs";
 import Hero from "../sections/hero";
 import Project from "../sections/project";
 import Skills from "../sections/skills";
-import { StyleContext } from "./contexts/StyleContext";
+import { StyleContext } from "./contexts/styleContext";
 import Contact from "../sections/contact";
-import { SplashScreen } from "../components/splashScreen/SplashScreen";
-import { ToggleSwitch } from "../components/toggleSwitch/ToggleSwitch";
+import { SplashScreen } from "../components/splashScreen/splashScreen";
+import { ToggleSwitch } from "../components/toggleSwitch/toggleSwitch";
 import Header from "../components/header";
 import BackToTop from "../components/back-to-top";
-import { IntroAnimation } from "../components/intro/IntroAnimation";
+import { IntroAnimation } from "../components/intro/introAnimation";
 
 export const Main = () => {
   const { isDark } = useContext(StyleContext);

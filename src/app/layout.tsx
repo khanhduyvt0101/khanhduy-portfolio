@@ -1,7 +1,7 @@
 import "./globals.css";
 import { Montserrat } from "next/font/google";
 import avatar from "@/src/assets/photo/avatar.png";
-import { StyleContextProvider } from "./contexts/StyleContext";
+import { StyleContextProvider } from "./contexts/styleContext";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 

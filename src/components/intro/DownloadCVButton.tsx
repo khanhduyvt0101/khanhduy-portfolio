@@ -1,7 +1,7 @@
 import downloadCVIcon from "@/src/assets/svg/downloadCVIcon.svg";
 import { contactInfo } from "@/src/portfolio";
 import Image from "next/image";
-import styles from "./DownloadCVButton.module.css";
+import styles from "./downloadCVButton.module.css";
 import { useState } from "react";
 
 export const DownloadCVButton = () => {

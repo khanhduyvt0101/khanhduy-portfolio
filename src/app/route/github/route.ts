@@ -1,7 +1,7 @@
 import axios from "axios";
 import process from "process";
 import { NextRequest, NextResponse } from "next/server";
-import { RepoProps } from "@/src/components/githubProject/GithubRepoCard";
+import { RepoProps } from "@/src/components/githubProject/githubRepoCard";
 
 // Environment variables
 const GITHUB_TOKEN = process.env.REACT_APP_GITHUB_TOKEN;

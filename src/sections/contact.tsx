@@ -1,10 +1,8 @@
 import ContactList from "@/src/components/contact-list";
 import MotionDiv from "@/src/components/motion-div";
-import { FooterContact } from "../components/contact/FooterContact";
-import { StyleContext } from "../app/contexts/StyleContext";
-import { useContext } from "react";
-import DisplayLottie from "../components/displayLottie/DisplayLottie";
 import reachOutLottie from "@/src/assets/lottie/reachout.json";
+import DisplayLottie from "../components/displayLottie/displayLottie";
+import { FooterContact } from "../components/contact/footerContact";
 
 export default function contact() {
   return (
