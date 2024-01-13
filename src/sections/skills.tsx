@@ -151,26 +151,25 @@ export default function skills() {
   ];
 
   return (
-    <section
-      id="skills"
-      className={`flex w-full flex-col items-center text-center`}
-    >
-      <MotionDiv>
-        <h1 className="mb-4">My Skills</h1>
-      </MotionDiv>
-      <div className="flex flex-wrap justify-center">
-        {data.map((item, index) => (
-          <MotionDiv key={index}>
-            <div className="mb-6 md:px-2">
-              <h3>{item.title}</h3>
-              <MotionList className="flex flex-wrap justify-evenly gap-0 md:gap-5 md:px-6 lg:justify-center">
-                {item.skills.map((skill) => (
-                  <SkillCard key={skill.name} {...skill} />
-                ))}
-              </MotionList>
-            </div>
-          </MotionDiv>
-        ))}
+    <section id="skills">
+      <div className={`w-full items-center text-center`}>
+        <MotionDiv>
+          <h1 className="mb-4">My Skills</h1>
+        </MotionDiv>
+        <div className="flex flex-wrap justify-center">
+          {data.map((item, index) => (
+            <MotionDiv key={index}>
+              <div className="mb-6 md:px-2">
+                <h3>{item.title}</h3>
+                <MotionList className="flex flex-wrap justify-evenly gap-0 md:gap-5 md:px-6 lg:justify-center">
+                  {item.skills.map((skill) => (
+                    <SkillCard key={skill.name} {...skill} />
+                  ))}
+                </MotionList>
+              </div>
+            </MotionDiv>
+          ))}
+        </div>
       </div>
     </section>
   );

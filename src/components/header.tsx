@@ -16,7 +16,7 @@ export default function Header() {
       <nav
         className={`${
           isDark ? "text-white" : ""
-        } justify-center fixed left-0 top-0 flex-col select-none font-light px-0 lg:px-4 py-8 duration-500 transition-all hidden md:flex h-screen`}
+        } z-10 justify-center fixed left-0 top-0 flex-col select-none font-light px-0 lg:px-4 py-8 duration-500 transition-all hidden md:flex h-screen`}
       >
         <Image
           className="mb-20"

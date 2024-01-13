@@ -17,7 +17,7 @@ export default function hero() {
         <Title />
       </MotionDiv>
 
-      <div className="mt-[200px]">
+      <div className="mt-[200px] text-center">
         <DownloadCVButton />
       </div>
     </div>

@@ -6,18 +6,19 @@ import { FooterContact } from "../components/contact/footerContact";
 
 export default function contact() {
   return (
-    <section
-      className={`pb-28 flex flex-row items-center justify-center gap-5 text-center pt-8`}
-      id="contact"
-    >
-      <MotionDiv>
-        <div className="h-[400px] w-[400px]">
-          <DisplayLottie animationData={reachOutLottie} />
+    <section id="contact">
+      <div
+        className={`pb-28 flex flex-row items-center justify-center gap-5 text-center pt-8`}
+      >
+        <MotionDiv>
+          <div className="h-[400px] w-[400px]">
+            <DisplayLottie animationData={reachOutLottie} />
+          </div>
+        </MotionDiv>
+        <div className="flex flex-col items-center">
+          <FooterContact />
+          <ContactList />
         </div>
-      </MotionDiv>
-      <div className="flex flex-col items-center">
-        <FooterContact />
-        <ContactList />
       </div>
     </section>
   );
