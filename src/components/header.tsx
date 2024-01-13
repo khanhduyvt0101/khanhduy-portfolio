@@ -16,7 +16,7 @@ export default function Header() {
       <nav
         className={`${
           isDark ? "text-white" : ""
-        } justify-center fixed left-0 top-0 flex-col select-none font-light px-4 py-8 duration-500 transition-all hidden md:flex h-screen`}
+        } justify-center fixed left-0 top-0 flex-col select-none font-light px-0 lg:px-4 py-8 duration-500 transition-all hidden md:flex h-screen`}
       >
         <Image
           className="mb-20"
@@ -34,7 +34,7 @@ export default function Header() {
           {links.map((link) => (
             <button
               key={link}
-              className={`hover:bg-mask hover:text-white rounded-[10px] px-[10px] py-1 text-normal ${
+              className={`hover:bg-mask hover:text-white rounded-[10px] py-1 text-normal ${
                 !isDark ? "focus:bg-white" : "focus:bg-backgroundDarkMode"
               } focus:text-mask`}
               style={{ transform: "rotate(270deg)" }}

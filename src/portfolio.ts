@@ -19,3 +19,7 @@ export const contactInfo = {
   email_address: "khanhduyvt0101@gmail.com",
   cv: "https://drive.google.com/file/d/1ObXfYAy89FmC6rxUUkl-SzNxMI2zkthh/view?usp=sharing",
 };
+
+export const projects = {
+  agileHelper: "https://github.com/khanhduyvt0101/Agile-helper",
+};
