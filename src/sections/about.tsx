@@ -35,7 +35,7 @@ export default function about() {
                 over <strong>3 years of experience</strong>. Currently, I
                 freelance from the vibrant city of Ho Chi Minh, Vietnam.
               </p>
-              <MotionDiv>
+              <MotionDiv className="p-0 m-0">
                 <div>
                   <h1 className="mt-12 mb-8">My expertise</h1>
                   <ul className="list-disc space-y-2 sm:order-3 mb-8">

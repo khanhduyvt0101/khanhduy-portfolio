@@ -23,7 +23,7 @@ export default function MotionDiv({
   return (
     <motion.div
       ref={ref}
-      className={cn("relative flex items-center justify-center")}
+      className={className ?? cn("relative flex items-center justify-center")}
       initial={{ y: 100, opacity: 0 }}
       animate={controls}
       transition={{
