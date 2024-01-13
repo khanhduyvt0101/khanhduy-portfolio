@@ -6,12 +6,13 @@ import { IntroAnimation } from "../components/intro/introAnimation";
 
 export default function hero() {
   return (
-    <section
-      className={`lg:pl-[200px] py-12 flex flex-col lg:items-start duration-500 transition-all h-screen justify-center`}
+    <div
+      className={`lg:ml-[200px] pb-[700px] flex flex-col lg:items-start duration-500 transition-all h-screen justify-center`}
     >
-      <div className="absolute w-screen h-screen">
+      <div className="h-screen">
         <IntroAnimation />
       </div>
+
       <MotionDiv delayOffset={0.8}>
         <Title />
       </MotionDiv>
@@ -19,6 +20,6 @@ export default function hero() {
       <div className="mt-[200px]">
         <DownloadCVButton />
       </div>
-    </section>
+    </div>
   );
 }

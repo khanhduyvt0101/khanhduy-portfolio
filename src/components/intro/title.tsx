@@ -33,7 +33,7 @@ export const Title = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-12 flex-col mt-2">
+    <div className="flex justify-center items-center h-12 flex-col">
       <AnimatePresence>
         <span className="font-kanit font-thin tracking-[0.3em] text-[24px] lg:mr-[250px] text-center">
           KHANH DUY

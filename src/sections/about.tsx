@@ -38,7 +38,7 @@ export default function about() {
               <MotionDiv className="p-0 m-0">
                 <div>
                   <h1 className="mt-12 mb-8">My expertise</h1>
-                  <ul className="list-disc space-y-2 sm:order-3 mb-8">
+                  <ul className="list-disc space-y-2 sm:order-3 mb-8 ml-6">
                     <li>
                       Development of iOS & Android Mobile Apps using React
                       Native, Redux, and Expo.

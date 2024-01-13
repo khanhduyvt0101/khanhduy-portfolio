@@ -13,6 +13,7 @@
 
   background-blend-mode: normal;
 }
+
 .bg {
   width: 100%;
   height: 100vh;
@@ -28,6 +29,7 @@
 
   background-blend-mode: normal;
 }
+
 .glass {
   position: absolute;
   top: 0;

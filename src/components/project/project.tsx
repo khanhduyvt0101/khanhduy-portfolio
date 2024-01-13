@@ -23,7 +23,7 @@ export const Project = () => {
 
   return (
     <div
-      className="flex lg:flex-row flex-col justify-center items-center w-screen h-screen"
+      className="flex lg:flex-row flex-col justify-center items-center w-full h-screen"
       ref={ref}
     >
       <div className="lg:ml-[250px] justify-center items-center w-1/2 md:order-1">
@@ -38,7 +38,7 @@ export const Project = () => {
             <p className="ml-4 text-sm text-mask">01</p>
           </div>
           <h1 className="text-start">Agile Helper</h1>
-          <div className="justify-center items-center w-full text-sm font-normal text-start">
+          <div className="justify-center items-center w-full text-sm font-normal text-start space-y-4">
             <li>
               Help set up easy planning and retro, review in an agile team
             </li>
