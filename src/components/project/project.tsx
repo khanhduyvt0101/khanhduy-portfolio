@@ -5,7 +5,6 @@ import Image from "next/image";
 import projectIcon from "@/src/assets/svg/projectIcon.svg";
 import mobileProject from "@/src/assets/svg/mobileProject.svg";
 import iconReadMoreButton from "@/src/assets/svg/iconReadMoreButton.svg";
-import largeIconReadMoreButton from "@/src/assets/svg/largeIconReadMoreButton.svg";
 import focusIconReadMoreButton from "@/src/assets/svg/focusIconReadMoreButton.svg";
 import { projects } from "@/src/portfolio";
 
@@ -24,10 +23,10 @@ export const Project = () => {
 
   return (
     <div
-      className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-8 justify-center items-center w-screen h-screen"
+      className="flex lg:flex-row flex-col justify-center items-center w-screen h-screen"
       ref={ref}
     >
-      <div className="ml-[250px] justify-start items-center">
+      <div className="lg:ml-[250px] justify-center items-center w-1/2 md:order-1">
         <motion.h1
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
@@ -80,7 +79,7 @@ export const Project = () => {
         </motion.h1>
       </div>
 
-      <div className="justify-center items-center">
+      <div className="justify-center items-center w-1/2 md:order-2">
         <motion.h1
           initial="right"
           animate={inView ? "visible" : "right"}
@@ -89,10 +88,11 @@ export const Project = () => {
           className="text-center"
         >
           <Image
+            className="self-center items-center"
             src={mobileProject}
             alt="projectIcon"
-            width={579}
-            height={569}
+            width={379}
+            height={369}
           />
         </motion.h1>
       </div>

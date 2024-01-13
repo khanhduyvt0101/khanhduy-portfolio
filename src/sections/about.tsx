@@ -1,78 +1,105 @@
 import MotionDiv from "@/src/components/motion-div";
 import React, { useContext } from "react";
-import avatar from "@/src/assets/photo/landing.jpeg";
+import aboutIcon from "@/src/assets/svg/aboutIcon.svg";
+import avatar from "@/src/assets/photo/avatar.png";
+import Image from "next/image";
+import styles from "@/src/components/intro/downloadCVButton.module.css";
+import sendMessageIcon from "@/src/assets/svg/sendMessageIcon.svg";
+import { contactInfo } from "../portfolio";
 
 export default function about() {
   return (
     <div>
       <section
         id="about"
-        className="mx-auto my-16 flex flex-col items-center justify-center gap-4 px-12 md:my-20 md:max-w-full lg:flex-row lg:items-center lg:gap-16"
+        className="mx-24 my-16 flex flex-col gap-4 md:my-20 md:max-w-full h-full"
       >
-        <div className="order-1 lg:order-1 lg:w-2/3">
-          <MotionDiv delayOffset={0.2}>
-            <h2 className="mb-3 w-full text-center text-3xl font-bold md:mb-6">
-              About Me
-            </h2>
-          </MotionDiv>
-          <article className="flex flex-col gap-4 text-lg">
-            <MotionDiv delayOffset={0.4}>
-              <p>
+        <div className="flex flex-row justify-center items-center md:self-end lg:self-end lg:mr-[40px]">
+          <p className="mr-4 text-xl text-mask">About me</p>
+          <Image src={aboutIcon} alt="projectIcon" width={87} height={27} />
+        </div>
+        <article className="gap-4 text-lg flex flex-col justify-center">
+          <MotionDiv>
+            <div>
+              <Image
+                className="lg:float-right md:float-right sm:order-1 sm:ml-16"
+                src={avatar}
+                alt="projectIcon"
+                width={300}
+                height={300}
+              />
+              <h1 className="my-8">Hello</h1>
+              <p className="sm:order-2">
                 Hello, I'm Khanh Duy, a <strong>Full-Stack Developer</strong>{" "}
                 specializing in <strong>Next.JS | React | Mobile</strong> with
                 over <strong>3 years of experience</strong>. Currently, I
-                freelance from the vibrant city of Ho Chi Minh, VietNam.
+                freelance from the vibrant city of Ho Chi Minh, Vietnam.
               </p>
-            </MotionDiv>
-            <MotionDiv delayOffset={0.5}>
-              <ul className="list-disc space-y-2">
-                <li>
-                  Development of iOS & Android Mobile Apps using React Native,
-                  Redux, and Expo.
-                </li>
-                <li>
-                  Creation of cross-platform solutions with Flutter, BloC, GetX,
-                  and Firebase.
-                </li>
-                <li>
-                  Expertise in Android Mobile app development using Android
-                  Native Java and MVVM architecture.
-                </li>
-                <li>
-                  Integration of MongoDB or REST APIs within mobile
-                  applications.
-                </li>
-                <li>
-                  Implementation of Firebase Auth for multiple platforms
-                  (Email/pass, Facebook, Google, Twitter).
-                </li>
-                <li>
-                  Database design using Cloud Firestore and Realtime Database.
-                </li>
-                <li>Chat app development with Firebase Realtime Database.</li>
-                <li>Setup and handling of Firebase Push Notifications.</li>
-                <li>
-                  Feel free to check my GitHub for past projects:{" "}
-                  <a
-                    href="https://github.com/khanhduyvt0101"
-                    className="text-blue-600 hover:underline"
+              <MotionDiv>
+                <div>
+                  <h1 className="mt-12 mb-8">My expertise</h1>
+                  <ul className="list-disc space-y-2 sm:order-3 mb-8">
+                    <li>
+                      Development of iOS & Android Mobile Apps using React
+                      Native, Redux, and Expo.
+                    </li>
+                    <li>
+                      Creation of cross-platform solutions with Flutter, BloC,
+                      GetX, and Firebase.
+                    </li>
+                    <li>
+                      Expertise in Android Mobile app development using Android
+                      Native Java and MVVM architecture.
+                    </li>
+                    <li>
+                      Integration of MongoDB or REST APIs within mobile
+                      applications.
+                    </li>
+                    <li>
+                      Implementation of Firebase Auth for multiple platforms
+                      (Email/pass, Facebook, Google, Twitter).
+                    </li>
+                    <li>
+                      Database design using Cloud Firestore and Realtime
+                      Database.
+                    </li>
+                    <li>
+                      Chat app development with Firebase Realtime Database.
+                    </li>
+                    <li>Setup and handling of Firebase Push Notifications.</li>
+                    <li>
+                      Feel free to check my GitHub for past projects:{" "}
+                      <a
+                        href="https://github.com/khanhduyvt0101"
+                        className="text-blue-600 hover:underline"
+                      >
+                        Github
+                      </a>
+                    </li>
+                  </ul>
+                  <button
+                    onClick={() => {
+                      window.open(contactInfo.cv, "_blank");
+                    }}
+                    className={styles.button}
                   >
-                    Github
-                  </a>
-                </li>
-              </ul>
-            </MotionDiv>
-          </article>
-        </div>
-        <div className="lg:order-2 order-2">
-          <MotionDiv delayOffset={0.4}>
-            <img
-              src={avatar.src}
-              alt="Khanh Duy"
-              className="w-[500px] rounded-xl transition-all hover:rotate-3 hover:scale-105"
-            />
+                    <Image
+                      src={sendMessageIcon}
+                      alt="logo"
+                      width={30}
+                      height={26}
+                    />
+                    <span
+                      className={`transition-opacity duration-500 absolute inset-0 flex items-center justify-center text-mask`}
+                    >
+                      Send me a message
+                    </span>
+                  </button>
+                </div>
+              </MotionDiv>
+            </div>
           </MotionDiv>
-        </div>
+        </article>
       </section>
     </div>
   );
