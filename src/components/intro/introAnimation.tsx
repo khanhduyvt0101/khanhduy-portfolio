@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import styles from "./introAnimation.module.css";
+import { StyleContext } from "@/src/app/contexts/styleContext";
 
 export const IntroAnimation = () => {
+  const { isDark } = useContext(StyleContext);
   return (
-    <div className={styles.bg}>
+    <div className={isDark ? styles.bgDark : styles.bg}>
       <ul className={styles.glass}>
         {[...Array(12)].map((_, index) => (
           <li key={index}></li>

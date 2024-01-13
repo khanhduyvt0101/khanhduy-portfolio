@@ -22,7 +22,7 @@ export const ToggleSwitch = () => {
 
   return (
     <button
-      className={`fixed top-10 right-8 border-0 transition-all duration-500`}
+      className={`fixed top-10 right-8 border-0 transition-all duration-500 z-10`}
       onClick={() => {
         setIsDark(!isDark);
         setChecked(!isChecked);

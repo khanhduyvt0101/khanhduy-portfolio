@@ -21,16 +21,13 @@ export const Main = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsShowingSplashAnimation(false);
-    }, 2000);
+    }, 3000);
   }, []);
 
   return isShowingSplashAnimation ? (
     <SplashScreen isDark={isDark} />
   ) : (
     <>
-      <div className="fixed w-screen h-screen">
-        <IntroAnimation />
-      </div>
       <ToggleSwitch />
       <Header />
       <div
