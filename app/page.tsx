@@ -1,9 +1,7 @@
-import Image from "next/image";
-
-export default function Home() {
+export default function Page() {
   return (
-    <div className="h-full w-full items-center justify-center">
-      Coming soon...
-    </div>
+    <main className="bg-white h-screen w-full flex items-center justify-center">
+      <span className="text-black text-center">Coming soon...</span>
+    </main>
   );
 }
