@@ -3,6 +3,8 @@ import { Container } from "@/components/Container";
 import SocialList from "./social-list";
 import Resume from "./resume";
 import Newsletter from "./news-letter";
+import { Button } from "@/components/Button";
+import { PiReadCvLogoBold } from "react-icons/pi";
 
 export default function Home() {
   return (
@@ -28,8 +30,12 @@ export default function Home() {
           <div className="flex flex-col gap-16">
             <Resume />
           </div>
-          <div className="space-y-10 lg:pl-16 xl:pl-24">
+          <div className="space-y-10 lg:pl-16 xl:pl-24 justify-center">
             <Newsletter />
+            <Button href="https://drive.google.com/file/d/1LQKt9drmSwyNzjrFOOFN3ahxxY1JLCyX/view?usp=sharing">
+              <PiReadCvLogoBold />
+              Download CV
+            </Button>
           </div>
         </div>
       </Container>
