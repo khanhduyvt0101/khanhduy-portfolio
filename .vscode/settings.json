@@ -1,0 +1,32 @@
+{
+  "terminal.integrated.env.osx": { "AWS_PROFILE": "researchkick" },
+  "terminal.integrated.env.windows": { "AWS_PROFILE": "researchkick" },
+  "terminal.integrated.env.linux": { "AWS_PROFILE": "researchkick" },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": { "source.fixAll": "always" },
+  "jest.runMode": "on-demand",
+  "tailwindCSS.classAttributes": ["className"],
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cn\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "todo-tree.tree.scanMode": "workspace only",
+  "todo-tree.filtering.useBuiltInExcludes": "file excludes",
+  "files.associations": { ".env*": "properties" },
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "files.insertFinalNewline": true,
+  "files.exclude": {
+    "pnpm-lock.yaml": true,
+    "**/node_modules": true,
+    "**/*.tsbuildinfo": true,
+    "**/next-env.d.ts": true,
+    "**/.next": true,
+    "**/.swc": true,
+    "**/.cdk": true,
+    "**/.vercel": true
+  }
+}

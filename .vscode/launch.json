@@ -1,0 +1,40 @@
+{
+  "configurations": [
+    {
+      "name": "Server",
+      "presentation": { "hidden": true },
+      "request": "launch",
+      "type": "node",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    },
+    {
+      "name": "Client",
+      "presentation": { "hidden": true },
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:29576",
+      "userDataDir": false,
+      "runtimeArgs": ["--hide-crash-restore-bubble"],
+      "resolveSourceMapLocations": ["${workspaceFolder}/.next/**"],
+      "skipFiles": ["${workspaceFolder}/node_modules/**"]
+    },
+    {
+      "name": "Script File",
+      "request": "launch",
+      "type": "node",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["tsx", "${relativeFile}"],
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Next.js",
+      "presentation": { "order": 1 },
+      "configurations": ["Server", "Client"],
+      "stopAll": true
+    }
+  ]
+}
