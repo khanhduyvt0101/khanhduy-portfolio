@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import { type Metadata } from "next";
+
+import { Layout } from "@/components/Layout";
+
 import "./globals.css";
-import { GeistMono } from "geist/font/mono";
-import { GeistSans } from "geist/font/sans";
-import { cn } from "@/lib/cn";
+import { Providers } from "@/lib/providers";
 
 export const metadata: Metadata = {
   title: "Khanh Duy",
@@ -11,16 +12,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html
-      className={cn(GeistSans.variable, GeistMono.variable)}
-      data-theme="light"
-      lang="en"
-    >
-      <body>{children}</body>
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <body className="flex h-full bg-zinc-50 dark:bg-black">
+        <Providers>
+          <div className="flex w-full">
+            <Layout>{children}</Layout>
+          </div>
+        </Providers>
+      </body>
     </html>
   );
 }
