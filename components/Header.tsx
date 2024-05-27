@@ -16,7 +16,7 @@ import {
 import clsx from "clsx";
 
 import { Container } from "@/components/Container";
-import avatarImage from "@/images/avatar.jpg";
+import avatarImage from "@/images/small-avatar.jpg";
 
 function CloseIcon(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
@@ -140,8 +140,6 @@ function MobileNavigation(
                 <MobileNavItem href="/about">About</MobileNavItem>
                 <MobileNavItem href="/articles">Articles</MobileNavItem>
                 <MobileNavItem href="/projects">Projects</MobileNavItem>
-                <MobileNavItem href="/speaking">Speaking</MobileNavItem>
-                <MobileNavItem href="/uses">Uses</MobileNavItem>
               </ul>
             </nav>
           </PopoverPanel>
@@ -187,8 +185,6 @@ function DesktopNavigation(props: React.ComponentPropsWithoutRef<"nav">) {
         <NavItem href="/about">About</NavItem>
         <NavItem href="/articles">Articles</NavItem>
         <NavItem href="/projects">Projects</NavItem>
-        <NavItem href="/speaking">Speaking</NavItem>
-        <NavItem href="/uses">Uses</NavItem>
       </ul>
     </nav>
   );
@@ -255,8 +251,9 @@ function Avatar({
         src={avatarImage}
         alt=""
         sizes={large ? "4rem" : "2.25rem"}
+        fill
         className={clsx(
-          "rounded-full bg-zinc-100 object-cover dark:bg-zinc-800",
+          "rounded-full bg-zinc-100 object-contain dark:bg-zinc-800",
           large ? "h-16 w-16" : "h-9 w-9"
         )}
         priority
