@@ -8,6 +8,9 @@ import { Providers } from "@/lib/providers";
 export const metadata: Metadata = {
   title: "Khanh Duy",
   description: "Portfolio of Khanh Duy",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

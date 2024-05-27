@@ -3,8 +3,7 @@ import { Container } from "@/components/Container";
 import SocialList from "./social-list";
 import Resume from "./resume";
 import Newsletter from "./news-letter";
-import { Button } from "@/components/Button";
-import { PiReadCvLogoBold } from "react-icons/pi";
+import SideProject from "./side-project";
 
 export default function Home() {
   return (
@@ -26,16 +25,16 @@ export default function Home() {
         </div>
       </Container>
       <Container className="mt-24 md:mt-28">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 mb-6">
+          Job Experience
+        </h2>
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-2">
           <div className="flex flex-col gap-16">
             <Resume />
           </div>
           <div className="space-y-10 lg:pl-16 xl:pl-24 justify-center">
+            <SideProject />
             <Newsletter />
-            <Button href="https://drive.google.com/file/d/1LQKt9drmSwyNzjrFOOFN3ahxxY1JLCyX/view?usp=sharing">
-              <PiReadCvLogoBold />
-              Download CV
-            </Button>
           </div>
         </div>
       </Container>

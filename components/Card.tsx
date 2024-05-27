@@ -81,7 +81,7 @@ Card.Skill = function CardCta({ children }: { children: React.ReactNode }) {
   return (
     <div
       aria-hidden="true"
-      className="relative z-10 mt-4 flex items-center text-sm font-medium text-zinc-800 dark:text-zinc-100"
+      className="relative z-10 mt-4 flex items-center text-sm font-medium text-zinc-800 dark:text-green-700"
     >
       {children}
     </div>
@@ -104,7 +104,7 @@ Card.Eyebrow = function CardEyebrow<T extends React.ElementType = "p">({
     <Component
       className={clsx(
         className,
-        "relative z-10 order-first mb-3 flex items-center text-sm text-zinc-400 dark:text-zinc-500",
+        "relative z-10 order-first mb-3 flex items-center text-sm text-zinc-500 dark:text-zinc-500",
         decorate && "pl-3.5"
       )}
       {...props}
