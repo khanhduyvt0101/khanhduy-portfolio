@@ -125,6 +125,32 @@ export default function Page(): ReactNode {
         </div>
 
         <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+          Thông Tin Về Đăng Ký Premium
+        </h3>
+        <div className="mt-2 max-w-2xl">
+          <p>
+            Ứng Dụng cung cấp tùy chọn đăng ký premium cho phép bạn truy cập
+            toàn bộ các tính năng. Đăng ký này sẽ tự động gia hạn, nhưng bạn có
+            thể hủy gia hạn một cách dễ dàng trong ứng dụng.
+          </p>
+          <ul className="mt-8 max-w-xl space-y-8 text-gray-600">
+            <li className="flex gap-x-3">
+              <PiCheckCircleBold
+                className="mt-1 size-5 flex-none text-indigo-600"
+                aria-hidden="true"
+              />
+              <span>
+                <strong className="font-semibold text-gray-900">
+                  Hủy Gia Hạn:
+                </strong>{" "}
+                Bạn có thể hủy tự động gia hạn đăng ký premium bất kỳ lúc nào
+                thông qua phần cài đặt tài khoản trong ứng dụng.
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
           Chia Sẻ Thông Tin Với Bên Thứ Ba
         </h3>
         <div className="mt-2 max-w-2xl">

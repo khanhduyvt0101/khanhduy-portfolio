@@ -82,7 +82,21 @@ export default function Page(): ReactNode {
         </div>
 
         <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-          5. Chấm Dứt
+          5. Subscription Premium
+        </h3>
+        <div className="mt-2 max-w-2xl">
+          <p>
+            Ứng Dụng Được Cấp Phép cung cấp các tính năng cao cấp thông qua gói
+            subscription premium. Gói subscription premium sẽ tự động gia hạn
+            theo thời gian bạn đã chọn (hàng tháng hoặc hàng năm) trừ khi bạn
+            hủy bỏ gia hạn ít nhất 24 giờ trước khi kết thúc giai đoạn hiện tại.
+            Bạn có thể dễ dàng hủy bỏ gia hạn tự động trong phần cài đặt của ứng
+            dụng.
+          </p>
+        </div>
+
+        <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+          6. Chấm Dứt
         </h3>
         <div className="mt-2 max-w-2xl">
           <p>
@@ -96,7 +110,7 @@ export default function Page(): ReactNode {
         </div>
 
         <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-          6. Dịch Vụ Bên Ngoài
+          7. Dịch Vụ Bên Ngoài
         </h3>
         <div className="mt-2 max-w-2xl">
           <p>
@@ -112,7 +126,7 @@ export default function Page(): ReactNode {
         </div>
 
         <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-          7. KHÔNG CÓ BẢO HÀNH
+          8. KHÔNG CÓ BẢO HÀNH
         </h3>
         <div className="mt-2 max-w-2xl">
           <p>
@@ -132,7 +146,7 @@ export default function Page(): ReactNode {
         </div>
 
         <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-          8. Giới Hạn Trách Nhiệm
+          9. Giới Hạn Trách Nhiệm
         </h3>
         <div className="mt-2 max-w-2xl">
           <p>
@@ -151,7 +165,7 @@ export default function Page(): ReactNode {
         </div>
 
         <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-          9. Kiểm Soát Xuất Khẩu
+          10. Kiểm Soát Xuất Khẩu
         </h3>
         <div className="mt-2 max-w-2xl">
           <p>
@@ -165,7 +179,7 @@ export default function Page(): ReactNode {
         </div>
 
         <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-          10. Luật Điều Chỉnh
+          11. Luật Điều Chỉnh
         </h3>
         <div className="mt-2 max-w-2xl">
           <p>
@@ -179,7 +193,7 @@ export default function Page(): ReactNode {
         </div>
 
         <h3 className="mt-10 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-          11. Thông Tin Liên Hệ
+          12. Thông Tin Liên Hệ
         </h3>
         <div className="mt-2 max-w-2xl">
           <p>
