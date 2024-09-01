@@ -8,7 +8,7 @@ import { useTheme } from "next-themes";
 import {
   Popover,
   PopoverButton,
-  PopoverOverlay,
+  PopoverBackdrop,
   PopoverPanel,
   Transition,
   TransitionChild,
@@ -113,7 +113,7 @@ function MobileNavigation(
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <PopoverOverlay className="fixed inset-0 z-50 bg-zinc-800/40 backdrop-blur-sm dark:bg-black/80" />
+          <PopoverBackdrop className="fixed inset-0 z-50 bg-zinc-800/40 backdrop-blur-sm dark:bg-black/80" />
         </TransitionChild>
         <TransitionChild
           enter="duration-150 ease-out"
@@ -193,21 +193,19 @@ function DesktopNavigation(props: React.ComponentPropsWithoutRef<"nav">) {
 function ThemeToggle() {
   let { resolvedTheme, setTheme } = useTheme();
   let otherTheme = resolvedTheme === "dark" ? "light" : "dark";
-  let [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <button
       type="button"
-      aria-label={mounted ? `Switch to ${otherTheme} theme` : "Toggle theme"}
+      aria-label={"Toggle theme"}
       className="group rounded-full bg-white/90 px-3 py-2 shadow-lg shadow-zinc-800/5 ring-1 ring-zinc-900/5 backdrop-blur transition dark:bg-zinc-800/90 dark:ring-white/10 dark:hover:ring-white/20"
       onClick={() => setTheme(otherTheme)}
     >
-      <SunIcon className="h-6 w-6 fill-zinc-100 stroke-zinc-500 transition group-hover:fill-zinc-200 group-hover:stroke-zinc-700 dark:hidden [@media(prefers-color-scheme:dark)]:fill-teal-50 [@media(prefers-color-scheme:dark)]:stroke-teal-500 [@media(prefers-color-scheme:dark)]:group-hover:fill-teal-50 [@media(prefers-color-scheme:dark)]:group-hover:stroke-teal-600" />
-      <MoonIcon className="hidden h-6 w-6 fill-zinc-700 stroke-zinc-500 transition dark:block [@media(prefers-color-scheme:dark)]:group-hover:stroke-zinc-400 [@media_not_(prefers-color-scheme:dark)]:fill-teal-400/10 [@media_not_(prefers-color-scheme:dark)]:stroke-teal-500" />
+      {resolvedTheme === "light" ? (
+        <SunIcon className="h-6 w-6 fill-zinc-100 stroke-zinc-500 transition group-hover:fill-zinc-200 group-hover:stroke-zinc-700 dark:hidden [@media(prefers-color-scheme:dark)]:fill-teal-50 [@media(prefers-color-scheme:dark)]:stroke-teal-500 [@media(prefers-color-scheme:dark)]:group-hover:fill-teal-50 [@media(prefers-color-scheme:dark)]:group-hover:stroke-teal-600" />
+      ) : (
+        <MoonIcon className="h-6 w-6 fill-zinc-700 stroke-zinc-500 transition dark:block [@media(prefers-color-scheme:dark)]:group-hover:stroke-zinc-400 [@media_not_(prefers-color-scheme:dark)]:fill-teal-400/10 [@media_not_(prefers-color-scheme:dark)]:stroke-teal-500" />
+      )}
     </button>
   );
 }
@@ -320,7 +318,6 @@ export function Header() {
         setProperty("--avatar-top", "0px");
       }
     }
-
     function updateAvatarStyles() {
       if (!isHomePage) {
         return;
@@ -438,9 +435,8 @@ export function Header() {
                   </AvatarContainer>
                 )}
               </div>
-              <div className="flex flex-1 justify-end md:justify-center">
-                <MobileNavigation className="pointer-events-auto md:hidden" />
-                <DesktopNavigation className="pointer-events-auto hidden md:block" />
+              <div className="flex flex-1 justify-center">
+                <DesktopNavigation className="pointer-events-auto" />
               </div>
               <div className="flex justify-end md:flex-1">
                 <div className="pointer-events-auto">
