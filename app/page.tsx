@@ -26,7 +26,7 @@ export default function Home() {
       </Container>
       <Container className="mt-24 md:mt-28">
         <h2 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 mb-6">
-          Job Experience
+          Job Experiences
         </h2>
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-2">
           <div className="flex flex-col gap-16">
