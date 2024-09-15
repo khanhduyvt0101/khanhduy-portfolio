@@ -30,7 +30,7 @@ const projects = [
       "Gained expertise in Kafka, microservices, AWS, and Jenkins.",
       "Contributed to system stability by resolving persistent issues and implementing best practices.",
     ],
-    skill: "Node.js, Kafka, AWS, Jenkins, System Migration, Automated Testing.",
+    skill: "Nodejs, Kafka, AWS, Jenkins, System Migration, Automated Testing.",
   },
   {
     date: "June 2022 - September 2022",
