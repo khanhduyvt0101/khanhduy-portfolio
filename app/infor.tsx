@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import {
+  IconArticle,
   IconBrandFacebook,
   IconBrandGithub,
   IconBrandInstagram,
@@ -23,6 +24,11 @@ import { t } from "i18next";
 import classes from "./infor.module.css";
 
 const socialLinks = [
+  {
+    href: "https://blog.khanhduy.com",
+    icon: IconArticle,
+    tooltip: "Blog",
+  },
   {
     href: "mailto:khanhduyvt0101@gmail.com",
     icon: IconMail,
@@ -82,6 +88,7 @@ export function Infor(): ReactNode {
                     variant="default"
                   >
                     <Icon
+                      color={tooltip === "Blog" ? "blue" : undefined}
                       stroke={1.5}
                       style={{ width: "70%", height: "70%" }}
                     />

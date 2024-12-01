@@ -71,7 +71,7 @@ export function Products(): ReactNode {
   return (
     <div className={classes.wrapper}>
       <Container className={classes.inner} mb={30} mt={30} size="lg">
-        <Title mb="md" order={2}>
+        <Title mb="xl" ta="center">
           Products
         </Title>
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing={50}>

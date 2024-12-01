@@ -5,7 +5,7 @@
 
 .inner {
   position: relative;
-  padding-bottom: 120px;
+  padding-bottom: calc(var(--mantine-spacing-xl) * 2);
   display: flex;
   justify-content: space-between;
   align-items: center;
