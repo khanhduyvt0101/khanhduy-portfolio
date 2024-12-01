@@ -2,14 +2,9 @@ export const translation = {
   asCount: "{{count, number}}",
   asDate: "{{date, datetime}}",
   site: {
-    title: "dbsky",
-    description: "Open-source public analytics for any Bluesky accounts",
-    madeBy: "Made by <0>@phuctm97</0>",
-  },
-  hero: {
-    title: "Open-source analytics for any <0>Bluesky</0> account",
-    highlights:
-      "<0>See public analytics of any Bluesky account</0><0>Contribute to add features you need</0><0>Self-host your own instance</0>",
+    title: "Khanh Duy Portfolio",
+    description: "Khanh Duy Portfolio",
+    madeBy: "Made by <0>Khanh Duy</0>",
   },
   colorScheme: {
     light: "Light",
