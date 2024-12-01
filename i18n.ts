@@ -4,7 +4,7 @@ export const translation = {
   site: {
     title: "Khanh Duy Portfolio",
     description: "Khanh Duy Portfolio",
-    madeBy: "Made by <0>Khanh Duy</0>",
+    madeBy: "Made by Khanh Duy",
   },
   colorScheme: {
     light: "Light",
@@ -21,7 +21,7 @@ export const translation = {
     message: "The page you are looking for does not exist or has been moved.",
   },
   footer: {
-    madeBy: "Made by <0>Khanh Duy</0>",
+    madeBy: "Made by Khanh Duy",
   },
 } as const;
 

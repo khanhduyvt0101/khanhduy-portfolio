@@ -88,7 +88,7 @@ export function Infor(): ReactNode {
                     variant="default"
                   >
                     <Icon
-                      color={tooltip === "Blog" ? "blue" : undefined}
+                      color={tooltip === "Blog" ? "cyan" : undefined}
                       stroke={1.5}
                       style={{ width: "70%", height: "70%" }}
                     />
