@@ -26,9 +26,19 @@ import { ColorSchemeControl } from "./color-scheme-control";
 import { I18nextProvider } from "./i18next-provider";
 import styles from "./layout.module.css";
 
-const geist = Geist({ subsets: ["latin"] });
+const geist = Geist({
+  subsets: ["latin"],
+  adjustFontFallback: false,
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
 
-const geistMono = Geist_Mono({ subsets: ["latin"] });
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  adjustFontFallback: false,
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
 
 const theme = createTheme({
   fontFamily: geist.style.fontFamily,
