@@ -11,6 +11,7 @@ This repository contains the source code for my personal portfolio website built
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - Node.js (12.x or later)
 - npm (6.x or later) or yarn (1.22.x or later)
 
