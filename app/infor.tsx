@@ -9,11 +9,13 @@ import {
   Image,
   Text,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import {
   IconBrandFacebook,
   IconBrandGithub,
   IconBrandInstagram,
+  IconBrandLinkedin,
   IconBrandThreads,
   IconBrandX,
   IconMail,
@@ -26,26 +28,37 @@ const socialLinks = [
   {
     href: "mailto:khanhduyvt0101@gmail.com",
     icon: IconMail,
+    tooltip: "Mail",
+  },
+  {
+    href: "https://www.linkedin.com/in/buitrongkhanhduy/",
+    icon: IconBrandLinkedin,
+    tooltip: "LinkedIn",
   },
   {
     href: "https://github.com/khanhduyvt0101",
     icon: IconBrandGithub,
+    tooltip: "Github",
   },
   {
     href: "https://x.com/@khanhduyvt",
     icon: IconBrandX,
+    tooltip: "X (Twitter)",
   },
   {
     href: "https://www.facebook.com/khanhduyvt0101",
     icon: IconBrandFacebook,
+    tooltip: "Facebook",
   },
   {
     href: "https://www.threads.net/@_khanhduy",
     icon: IconBrandThreads,
+    tooltip: "Threads",
   },
   {
     href: "https://www.instagram.com/_khanhduy",
     icon: IconBrandInstagram,
+    tooltip: "Instagram",
   },
 ];
 
@@ -60,17 +73,18 @@ export function Infor(): ReactNode {
           </Text>
 
           <Group gap="md" mt={30}>
-            {socialLinks.map(({ href, icon: Icon }) => (
-              <ActionIcon
-                key={href}
-                component="a"
-                href={href}
-                size="lg"
-                target="_blank"
-                variant="default"
-              >
-                <Icon stroke={1.5} style={{ width: "70%", height: "70%" }} />
-              </ActionIcon>
+            {socialLinks.map(({ href, icon: Icon, tooltip }) => (
+              <Tooltip key={href} label={tooltip}>
+                <ActionIcon
+                  component="a"
+                  href={href}
+                  size="lg"
+                  target="_blank"
+                  variant="default"
+                >
+                  <Icon stroke={1.5} style={{ width: "70%", height: "70%" }} />
+                </ActionIcon>
+              </Tooltip>
             ))}
           </Group>
         </div>

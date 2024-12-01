@@ -83,6 +83,13 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
                         Khanh Duy
                       </Text>
                     </Group>
+                    <Text
+                      className={styles.link}
+                      component="a"
+                      href="https://blog.khanhduy.com"
+                    >
+                      Blog
+                    </Text>
                     <ColorSchemeControl />
                   </Group>
                 </Container>
