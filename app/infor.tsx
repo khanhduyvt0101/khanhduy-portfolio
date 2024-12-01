@@ -18,6 +18,7 @@ import {
   IconBrandX,
   IconMail,
 } from "@tabler/icons-react";
+import { t } from "i18next";
 
 import classes from "./infor.module.css";
 
@@ -53,12 +54,9 @@ export function Infor(): ReactNode {
     <Container size="md">
       <div className={classes.inner}>
         <div className={classes.content}>
-          <Title className={classes.title}>Developer</Title>
+          <Title className={classes.title}>{t("infor:title")}</Title>
           <Text c="dimmed" mt="md">
-            Hello, I&apos;m KhanhDuy, a developer based in Ho Chi Minh City. I
-            enjoy building indie projects and creating software solutions. I
-            focus on delivering quality work while having the freedom to pursue
-            projects that interest and challenge me.
+            {t("infor:description")}
           </Text>
 
           <Group gap="md" mt={30}>

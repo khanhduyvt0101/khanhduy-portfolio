@@ -21,3 +21,9 @@ export const translation = {
     message: "The page you are looking for does not exist or has been moved.",
   },
 } as const;
+
+export const infor = {
+  title: "Developer",
+  description:
+    "Hello, I'm KhanhDuy, a developer based in Ho Chi Minh City. I enjoy building indie projects and creating software solutions. I focus on delivering quality work while having the freedom to pursue projects that interest and challenge me.",
+};
