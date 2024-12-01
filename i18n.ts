@@ -25,5 +25,5 @@ export const translation = {
 export const infor = {
   title: "Developer",
   description:
-    "Hello, I'm KhanhDuy, a developer based in Ho Chi Minh City. I enjoy building indie projects and creating software solutions. I focus on delivering quality work while having the freedom to pursue projects that interest and challenge me.",
+    "Hello, I'm Khanh Duy, a developer based in Ho Chi Minh City. I enjoy building indie projects and creating software solutions. I focus on delivering quality work while having the freedom to pursue projects that interest and challenge me.",
 };
