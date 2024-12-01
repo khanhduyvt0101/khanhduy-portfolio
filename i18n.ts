@@ -20,6 +20,9 @@ export const translation = {
     title: "404",
     message: "The page you are looking for does not exist or has been moved.",
   },
+  footer: {
+    madeBy: "Made by <0>Khanh Duy</0>",
+  },
 } as const;
 
 export const infor = {

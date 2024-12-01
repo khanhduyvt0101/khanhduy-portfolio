@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 
 import {
@@ -64,32 +62,37 @@ const socialLinks = [
 
 export function Infor(): ReactNode {
   return (
-    <Container size="md">
-      <div className={classes.inner}>
-        <div className={classes.content}>
-          <Title className={classes.title}>{t("infor:title")}</Title>
-          <Text c="dimmed" mt="md">
-            {t("infor:description")}
-          </Text>
+    <div className={classes.wrapper}>
+      <Container size="md">
+        <div className={classes.inner}>
+          <div className={classes.content}>
+            <Title className={classes.title}>{t("infor:title")}</Title>
+            <Text c="dimmed" mt="md">
+              {t("infor:description")}
+            </Text>
 
-          <Group gap="md" mt={30}>
-            {socialLinks.map(({ href, icon: Icon, tooltip }) => (
-              <Tooltip key={href} label={tooltip}>
-                <ActionIcon
-                  component="a"
-                  href={href}
-                  size="lg"
-                  target="_blank"
-                  variant="default"
-                >
-                  <Icon stroke={1.5} style={{ width: "70%", height: "70%" }} />
-                </ActionIcon>
-              </Tooltip>
-            ))}
-          </Group>
+            <Group gap="md" mt={30}>
+              {socialLinks.map(({ href, icon: Icon, tooltip }) => (
+                <Tooltip key={href} label={tooltip}>
+                  <ActionIcon
+                    component="a"
+                    href={href}
+                    size="lg"
+                    target="_blank"
+                    variant="default"
+                  >
+                    <Icon
+                      stroke={1.5}
+                      style={{ width: "70%", height: "70%" }}
+                    />
+                  </ActionIcon>
+                </Tooltip>
+              ))}
+            </Group>
+          </div>
+          <Image className={classes.image} radius="md" src="avatar.webp" />
         </div>
-        <Image className={classes.image} radius="md" src="avatar.webp" />
-      </div>
-    </Container>
+      </Container>
+    </div>
   );
 }

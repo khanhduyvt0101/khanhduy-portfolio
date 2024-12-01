@@ -4,6 +4,7 @@ import "@mantine/charts/styles.css";
 import type { PropsWithChildren, ReactNode } from "react";
 
 import {
+  Anchor,
   Box,
   Center,
   ColorSchemeScript,
@@ -11,7 +12,6 @@ import {
   createTheme,
   Group,
   MantineProvider,
-  rem,
   Text,
 } from "@mantine/core";
 import { t } from "i18next";
@@ -21,6 +21,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { defaultColorScheme } from "~/lib/default-color-scheme";
 import { direction } from "~/lib/direction";
 import { language } from "~/lib/language";
+import { T } from "~/lib/t";
 
 import { ColorSchemeControl } from "./color-scheme-control";
 import { I18nextProvider } from "./i18next-provider";
@@ -104,7 +105,21 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
                   </Group>
                 </Container>
               </Box>
-              <Center mih={`calc(100dvh - ${rem(h * 2)})`}>{children}</Center>
+              {children}
+              <Center h={56}>
+                <Container component="footer">
+                  <Text c="dimmed" size="sm" ta="center">
+                    <T i18nKey="site.madeBy">
+                      <Anchor
+                        href="https://bsky.app/profile/phuctm97.com"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        variant="gradient"
+                      />
+                    </T>
+                  </Text>
+                </Container>
+              </Center>
             </Provider>
           </MantineProvider>
         </I18nextProvider>
