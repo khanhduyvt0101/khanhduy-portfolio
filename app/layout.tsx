@@ -12,6 +12,7 @@ import {
   Group,
   MantineProvider,
   rem,
+  Text,
 } from "@mantine/core";
 import { t } from "i18next";
 import { Provider } from "jotai";
@@ -72,7 +73,16 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
                     h={h}
                     justify="space-between"
                   >
-                    <Group gap="xs" />
+                    <Group gap="xs">
+                      <Text
+                        fw={900}
+                        gradient={{ from: "blue", to: "cyan", deg: 90 }}
+                        size="xl"
+                        variant="gradient"
+                      >
+                        Khanh Duy
+                      </Text>
+                    </Group>
                     <ColorSchemeControl />
                   </Group>
                 </Container>

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { Infor } from "./infor";
+
 export default function Page(): ReactNode {
-  return <div>Coming Soon...</div>;
+  return <Infor />;
 }
