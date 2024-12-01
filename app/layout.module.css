@@ -1,0 +1,6 @@
+.header {
+  border-bottom: 1px solid var(--mantine-color-gray-1);
+  @mixin dark {
+    border-color: var(--mantine-color-dark-6);
+  }
+}

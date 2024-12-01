@@ -5,34 +5,47 @@
       "presentation": { "hidden": true },
       "request": "launch",
       "type": "node",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev"],
-      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!${workspaceFolder}/*",
+        "!${workspaceFolder}/node_modules/**",
+        "!${workspaceFolder}/.next/cache/**",
+        "!${workspaceFolder}/.next/server/vendor-chunks/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/*",
+        "${workspaceFolder}/node_modules/**",
+        "${workspaceFolder}/.next/**"
+      ],
+      "internalConsoleOptions": "neverOpen"
     },
     {
       "name": "Client",
       "presentation": { "hidden": true },
       "request": "launch",
       "type": "chrome",
-      "url": "http://localhost:29576",
+      "url": "http://localhost:56078",
       "userDataDir": false,
       "runtimeArgs": ["--hide-crash-restore-bubble"],
-      "resolveSourceMapLocations": ["${workspaceFolder}/.next/**"],
-      "skipFiles": ["${workspaceFolder}/node_modules/**"]
-    },
-    {
-      "name": "Script File",
-      "request": "launch",
-      "type": "node",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["tsx", "${relativeFile}"],
-      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/.next/**",
+        "!${workspaceFolder}/.next/cache/**",
+        "!${workspaceFolder}/.next/server/**"
+      ],
+      "skipFiles": [
+        "${workspaceFolder}/*",
+        "${workspaceFolder}/node_modules/**",
+        "${workspaceFolder}/.next/**"
+      ],
+      "internalConsoleOptions": "neverOpen"
     }
   ],
   "compounds": [
     {
       "name": "Next.js",
-      "presentation": { "order": 1 },
       "configurations": ["Server", "Client"],
       "stopAll": true
     }

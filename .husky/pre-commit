@@ -1,0 +1,3 @@
+tsc -p tsconfig.app.json
+eslint .
+prettier --log-level error -c .
