@@ -1,64 +1,87 @@
 .wrapper {
-  position: relative;
-  box-sizing: border-box;
+	position: relative;
+	box-sizing: border-box;
+	background-color: light-dark(
+		var(--mantine-color-gray-0),
+		var(--mantine-color-dark-8)
+	);
 }
 
 .inner {
-  position: relative;
-  padding-top: 120px;
-  padding-bottom: 120px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	position: relative;
+	padding-top: 120px;
+	padding-bottom: 120px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
 
-  @media (max-width: $mantine-breakpoint-sm) {
-    padding-bottom: 80px;
-    padding-top: 80px;
-  }
+@media (max-width: 48em) {
+	.inner {
+		flex-direction: column-reverse;
+		padding-top: 80px;
+		padding-bottom: 60px;
+	}
 }
 
 .content {
-  max-width: 480px;
-  margin-right: calc(var(--mantine-spacing-xl) * 3);
+	max-width: 480px;
+	margin-right: calc(var(--mantine-spacing-xl) * 3);
+}
 
-  @media (max-width: $mantine-breakpoint-md) {
-    max-width: 100%;
-    margin-right: 0;
-  }
+@media (max-width: 62em) {
+	.content {
+		max-width: 100%;
+		margin-right: 0;
+	}
 }
 
 .title {
-  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
-  font-family:
-    Greycliff CF,
-    var(--mantine-font-family);
-  font-size: 44px;
-  line-height: 1.2;
-  font-weight: 900;
+	color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+	font-family:
+		Greycliff CF,
+		var(--mantine-font-family);
+	font-size: 54px;
+	line-height: 1.2;
+	font-weight: 900;
+	margin-bottom: var(--mantine-spacing-md);
+}
 
-  @media (max-width: $mantine-breakpoint-xs) {
-    font-size: 28px;
-  }
+@media (max-width: 36em) {
+	.title {
+		font-size: 32px;
+	}
+}
+
+.description {
+	font-size: var(--mantine-font-size-lg);
+	line-height: 1.6;
 }
 
 .control {
-  @media (max-width: $mantine-breakpoint-xs) {
-    flex: 1;
-  }
+	padding-left: 50px;
+	padding-right: 50px;
+	font-family:
+		Greycliff CF,
+		var(--mantine-font-family);
+	font-size: 22px;
+}
+
+@media (max-width: 36em) {
+	.control {
+		flex: 1;
+		font-size: 18px;
+	}
 }
 
 .image {
-  width: 376px;
-  height: 356px;
-
-  @media (max-width: $mantine-breakpoint-md) {
-    display: none;
-  }
+	flex: 1;
+	max-width: 400px;
 }
 
-.highlight {
-  position: relative;
-  background-color: var(--mantine-color-blue-light);
-  border-radius: var(--mantine-radius-sm);
-  padding: 4px 12px;
+@media (max-width: 48em) {
+	.image {
+		margin-bottom: var(--mantine-spacing-xl);
+		width: 100%;
+	}
 }
