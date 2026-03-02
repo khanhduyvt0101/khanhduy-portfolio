@@ -41,7 +41,7 @@
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-react-hooks": "^7.0.1",
 		"eslint-plugin-simple-import-sort": "^12.1.1",
-		"eslint-plugin-unicorn": "^63.0.0",
+		"eslint-plugin-unicorn": "56.0.1",
 		"fetch-retry": "^6.0.0",
 		"husky": "^9.1.7",
 		"i18next": "^25.8.13",
