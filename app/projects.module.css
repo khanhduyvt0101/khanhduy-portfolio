@@ -1,0 +1,33 @@
+.wrapper {
+	padding-top: calc(var(--mantine-spacing-xl) * 2);
+	padding-bottom: calc(var(--mantine-spacing-xl) * 2);
+}
+
+.title {
+	margin-bottom: calc(var(--mantine-spacing-xl) * 1.5);
+	font-family:
+		Greycliff CF,
+		var(--mantine-font-family);
+	font-weight: 900;
+}
+
+.card {
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.card:hover {
+	transform: translateY(-5px);
+	box-shadow: var(--mantine-shadow-md);
+}
+
+.header {
+	border-bottom: 1px solid
+		light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));
+	padding-bottom: var(--mantine-spacing-md);
+	margin-bottom: var(--mantine-spacing-md);
+}
