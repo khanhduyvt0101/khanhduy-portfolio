@@ -1,70 +1,54 @@
 "use client";
 
-import type { IconProps } from "@tabler/icons-react";
-import type { ReactNode } from "react";
-
-import {
-  isMantineColorScheme,
-  rem,
-  SegmentedControl,
-  Skeleton,
-  useMantineColorScheme,
-  VisuallyHidden,
-} from "@mantine/core";
-import { useMounted } from "@mantine/hooks";
 import { IconDevices, IconMoon, IconSun } from "@tabler/icons-react";
 import { t } from "i18next";
+import { useTheme } from "next-themes";
+import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 
-import { defaultColorScheme } from "~/lib/default-color-scheme";
-
-const iconProps: IconProps = {
-  stroke: 1.5,
-  style: { width: rem(20), height: rem(20), display: "block" },
-};
+import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 export function ColorSchemeControl(): ReactNode {
-  const mounted = useMounted();
-  const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="w-9 h-9 bg-muted animate-pulse rounded-md" />;
+  }
+
   return (
-    <Skeleton visible={!mounted} width="auto">
-      <SegmentedControl
-        data={[
-          {
-            value: "light",
-            label: (
-              <>
-                <IconSun {...iconProps} />
-                <VisuallyHidden>{t("colorScheme.light")}</VisuallyHidden>
-              </>
-            ),
-          },
-          {
-            value: "dark",
-            label: (
-              <>
-                <IconMoon {...iconProps} />
-                <VisuallyHidden>{t("colorScheme.dark")}</VisuallyHidden>
-              </>
-            ),
-          },
-          {
-            value: "auto",
-            label: (
-              <>
-                <IconDevices {...iconProps} />
-                <VisuallyHidden>{t("colorScheme.auto")}</VisuallyHidden>
-              </>
-            ),
-          },
-        ]}
-        value={mounted ? colorScheme : defaultColorScheme}
-        withItemsBorders={false}
-        onChange={(value) => {
-          if (!isMantineColorScheme(value))
-            throw new Error("Failed to change color scheme");
-          setColorScheme(value);
-        }}
-      />
-    </Skeleton>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <IconSun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <IconMoon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          <IconSun className="mr-2 h-4 w-4" />
+          <span>{t("colorScheme.light")}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          <IconMoon className="mr-2 h-4 w-4" />
+          <span>{t("colorScheme.dark")}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          <IconDevices className="mr-2 h-4 w-4" />
+          <span>{t("colorScheme.auto")}</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -1,35 +1,22 @@
-import "@mantine/core/styles.css";
-import "@mantine/charts/styles.css";
+import "./globals.css";
 
-import type { PropsWithChildren, ReactNode } from "react";
-
-import {
-  Box,
-  Center,
-  ColorSchemeScript,
-  Container,
-  createTheme,
-  Group,
-  MantineProvider,
-  Text,
-} from "@mantine/core";
 import { t } from "i18next";
 import { Provider } from "jotai";
 import { Geist, Geist_Mono } from "next/font/google";
-
-import { defaultColorScheme } from "~/lib/default-color-scheme";
+import type { PropsWithChildren, ReactNode } from "react";
+import { ThemeProvider } from "~/components/theme-provider";
 import { direction } from "~/lib/direction";
 import { language } from "~/lib/language";
 
 import { ColorSchemeControl } from "./color-scheme-control";
 import { I18nextProvider } from "./i18next-provider";
-import styles from "./layout.module.css";
 
 const geist = Geist({
   subsets: ["latin"],
   adjustFontFallback: false,
   display: "swap",
   weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-geist-sans",
 });
 
 const geistMono = Geist_Mono({
@@ -37,14 +24,8 @@ const geistMono = Geist_Mono({
   adjustFontFallback: false,
   display: "swap",
   weight: ["400", "500", "600", "700"],
+  variable: "--font-geist-mono",
 });
-
-const theme = createTheme({
-  fontFamily: geist.style.fontFamily,
-  fontFamilyMonospace: geistMono.style.fontFamily,
-});
-
-const h = 56;
 
 export const metadata = {
   title: t("site.title"),
@@ -59,53 +40,39 @@ export const metadata = {
 export default function Layout({ children }: PropsWithChildren): ReactNode {
   return (
     <html suppressHydrationWarning dir={direction} lang={language}>
-      <head>
-        <ColorSchemeScript defaultColorScheme={defaultColorScheme} />
-      </head>
-      <body>
+      <body
+        className={`${geist.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col bg-background text-foreground`}
+      >
         <I18nextProvider>
-          <MantineProvider
-            defaultColorScheme={defaultColorScheme}
-            theme={theme}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
           >
             <Provider>
-              <Box
-                bg="var(--mantine-color-body)"
-                pos="sticky"
-                style={{ zIndex: 1 }}
-                top={0}
-              >
-                <Container>
-                  <Group
-                    className={styles.header}
-                    component="header"
-                    h={h}
-                    justify="space-between"
-                  >
-                    <Group gap="xs">
-                      <Text
-                        fw={900}
-                        gradient={{ from: "blue", to: "cyan", deg: 90 }}
-                        size="xl"
-                        variant="gradient"
-                      >
+              <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b">
+                <div className="container mx-auto px-4 max-w-5xl">
+                  <header className="flex h-14 items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-black bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
                         Khanh Duy
-                      </Text>
-                    </Group>
+                      </span>
+                    </div>
                     <ColorSchemeControl />
-                  </Group>
-                </Container>
-              </Box>
-              {children}
-              <Center h={56}>
-                <Container component="footer">
-                  <Text c="dimmed" size="sm" ta="center">
+                  </header>
+                </div>
+              </div>
+              <main className="flex-1">{children}</main>
+              <footer className="h-14 flex items-center justify-center border-t mt-auto">
+                <div className="container mx-auto px-4 max-w-5xl text-center">
+                  <span className="text-sm text-muted-foreground">
                     {t("footer.madeBy")}
-                  </Text>
-                </Container>
-              </Center>
+                  </span>
+                </div>
+              </footer>
             </Provider>
-          </MantineProvider>
+          </ThemeProvider>
         </I18nextProvider>
       </body>
     </html>
