@@ -9,6 +9,7 @@ import {
   IconMail,
 } from "@tabler/icons-react";
 import { t } from "i18next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Button } from "~/components/ui/button";
@@ -21,10 +22,11 @@ import {
 
 const socialLinks = [
   {
-    href: "https://blog.khanhduy.com",
+    href: "/blog",
     icon: IconArticle,
     tooltip: "Blog",
     color: "text-cyan-500",
+    internal: true,
   },
   {
     href: "mailto:khanhduyvt0101@gmail.com",
@@ -82,27 +84,37 @@ export function Infor(): ReactNode {
 
             <div className="flex flex-wrap gap-4 mt-8">
               <TooltipProvider delayDuration={100}>
-                {socialLinks.map(({ href, icon: Icon, tooltip, color }) => (
-                  <Tooltip key={href}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="icon"
-                        className="rounded-full w-12 h-12"
-                      >
-                        <a href={href} target="_blank" rel="noreferrer">
-                          <Icon
-                            className={`w-[70%] h-[70%] stroke-[1.5px] ${color || ""}`}
-                          />
-                        </a>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{tooltip}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
+                {socialLinks.map(
+                  ({ href, icon: Icon, tooltip, color, internal }) => (
+                    <Tooltip key={href}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="icon"
+                          className="rounded-full w-12 h-12"
+                        >
+                          {internal ? (
+                            <Link href={href}>
+                              <Icon
+                                className={`w-[70%] h-[70%] stroke-[1.5px] ${color || ""}`}
+                              />
+                            </Link>
+                          ) : (
+                            <a href={href} target="_blank" rel="noreferrer">
+                              <Icon
+                                className={`w-[70%] h-[70%] stroke-[1.5px] ${color || ""}`}
+                              />
+                            </a>
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ),
+                )}
               </TooltipProvider>
             </div>
           </div>
