@@ -16,14 +16,19 @@ import {
 
 export function ColorSchemeControl(): ReactNode {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
 
   useEffect(() => {
-    setMounted(true);
+    setMounted(true); // eslint-disable-line react-hooks/set-state-in-effect
   }, []);
 
   if (!mounted) {
-    return <div className="w-9 h-9 bg-muted animate-pulse rounded-md" />;
+    return (
+      <div
+        className="w-9 h-9 bg-muted animate-pulse rounded-md"
+        suppressHydrationWarning
+      />
+    );
   }
 
   return (

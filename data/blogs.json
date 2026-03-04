@@ -1,0 +1,54 @@
+[
+	{
+		"id": "1",
+		"slug": "getting-started-with-nextjs-16",
+		"title": "Getting Started with Next.js 16",
+		"excerpt": "Learn how to build modern web applications with Next.js 16 and the new App Router features.",
+		"content": "Next.js 16 brings exciting new features that make building web applications easier than ever. In this tutorial, we'll explore the new App Router, improved performance, and more.",
+		"coverImage": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=400&fit=crop",
+		"author": "Khanh Duy",
+		"authorAvatar": "/avatar.webp",
+		"publishedAt": "2026-03-01",
+		"category": "Development",
+		"tags": ["Next.js", "React", "Web Development"]
+	},
+	{
+		"id": "2",
+		"slug": "building-beautiful-uis-with-shadcn",
+		"title": "Building Beautiful UIs with shadcn/ui",
+		"excerpt": "Discover how to create stunning user interfaces quickly using shadcn/ui components.",
+		"content": "shadcn/ui is a game-changer for React developers. It provides beautifully designed, accessible components that you can copy and paste into your project.",
+		"coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=400&fit=crop",
+		"author": "Khanh Duy",
+		"authorAvatar": "/avatar.webp",
+		"publishedAt": "2026-02-25",
+		"category": "UI/UX",
+		"tags": ["shadcn", "Tailwind", "Design"]
+	},
+	{
+		"id": "3",
+		"slug": "typescript-best-practices-2026",
+		"title": "TypeScript Best Practices in 2026",
+		"excerpt": "Essential TypeScript patterns and practices every developer should know in 2026.",
+		"content": "TypeScript continues to evolve. Here are the best practices and patterns you should adopt this year.",
+		"coverImage": "https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=800&h=400&fit=crop",
+		"author": "Khanh Duy",
+		"authorAvatar": "/avatar.webp",
+		"publishedAt": "2026-02-20",
+		"category": "Development",
+		"tags": ["TypeScript", "Best Practices"]
+	},
+	{
+		"id": "4",
+		"slug": "building-portfolio-with-nextjs",
+		"title": "Building My Portfolio with Next.js",
+		"excerpt": "How I built my personal portfolio website using Next.js, shadcn/ui, and Tailwind CSS.",
+		"content": "A deep dive into the technical decisions and implementation details of my portfolio website.",
+		"coverImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop",
+		"author": "Khanh Duy",
+		"authorAvatar": "/avatar.webp",
+		"publishedAt": "2026-02-15",
+		"category": "Portfolio",
+		"tags": ["Portfolio", "Next.js", "Tailwind"]
+	}
+]
