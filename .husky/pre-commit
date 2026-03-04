@@ -1,3 +1,5 @@
-tsc -p tsconfig.app.json
-eslint .
-prettier --log-level error -c .
+#!/bin/bash
+
+bun x tsc -p tsconfig.app.json
+bun x eslint .
+bun x prettier --log-level error -c .

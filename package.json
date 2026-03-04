@@ -72,10 +72,10 @@
 		"react-is": "latest"
 	},
 	"devDependencies": {
-		"@tailwindcss/postcss": "4.2.1",
+		"@tailwindcss/postcss": "^4.2.1",
 		"autoprefixer": "latest",
 		"eslint-config-next": "^16.1.6",
-		"tailwindcss": "4.2.1",
+		"tailwindcss": "^4.2.1",
 		"tailwindcss-animate": "1"
 	}
 }
