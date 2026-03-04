@@ -15,8 +15,8 @@ function on(value) {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	typescript: { ignoreBuildErrors: true },
-	eslint: { ignoreDuringBuilds: true },
-	logging: on(process.env.LOG_FETCH)
+	devIndicators: false,
+	logging: on(globalThis?.process?.env?.LOG_FETCH)
 		? { fetches: { fullUrl: true } }
 		: undefined,
 	experimental: {
@@ -25,7 +25,7 @@ const nextConfig = {
 };
 
 const withBundleAnalyzer = createBundleAnalyzer({
-	enabled: on(process.env.ANALYZE_BUNDLE),
+	enabled: on(globalThis?.process?.env?.ANALYZE_BUNDLE),
 });
 
 export default withBundleAnalyzer(nextConfig);
