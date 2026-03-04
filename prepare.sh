@@ -1,5 +1,4 @@
 #!/bin/bash
 
-if [ -d ".git" ]; then
-  husky
-fi
+# Prepare script - no operations needed
+echo "Preparing..."
