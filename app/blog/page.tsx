@@ -14,6 +14,7 @@ import {
 } from "~/components/ui/card";
 import blogs from "~/data/blogs.json";
 
+// Blog page displaying articles with featured post, categories, and recent posts
 export default function BlogPage(): ReactNode {
 	const featuredPost = blogs[0];
 	const recentPosts = blogs.slice(1);
