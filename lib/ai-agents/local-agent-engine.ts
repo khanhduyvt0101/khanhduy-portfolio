@@ -26,6 +26,17 @@ type FieldProfile = {
   type: string;
 };
 
+type DayTask = {
+  category: string;
+  deadline: string;
+  durationMinutes: number;
+  energy: "high" | "low" | "medium";
+  priority: "high" | "low" | "medium";
+  raw: string;
+  startHintMinutes: number | null;
+  title: string;
+};
+
 const actionWords = [
   "need",
   "please",
@@ -77,6 +88,8 @@ export function runLocalAgent({
   switch (agent.id) {
     case "data-cleaner":
       return runDataCleaner(input, userPrompt);
+    case "day-planner":
+      return runDayPlanner(input, userPrompt);
     case "email-digest":
       return runEmailDigest(input, userPrompt);
     case "file-to-data":
@@ -110,6 +123,127 @@ export function markdownFromResult(result: AgentRunResult) {
   return [`# ${result.title}`, result.summary, sections, artifacts]
     .filter(Boolean)
     .join("\n\n");
+}
+
+function runDayPlanner(input: string, userPrompt: string): AgentRunResult {
+  const tasks = cleanLines(input).map(parseDayTask);
+  const sortedTasks = [...tasks].sort(compareDayTasks);
+  const window = inferPlanningWindow(userPrompt);
+  const schedule = buildDaySchedule(sortedTasks, window);
+  const todayTasks = sortedTasks.filter((task) => task.priority !== "low");
+  const movableTasks = sortedTasks.filter((task) => task.priority === "low");
+  const errands = sortedTasks.filter((task) =>
+    ["errand", "household", "finance", "health"].includes(task.category),
+  );
+  const totalMinutes = sortedTasks.reduce(
+    (total, task) => total + task.durationMinutes,
+    0,
+  );
+
+  return {
+    title: "Realistic day plan",
+    summary: `Planned ${sortedTasks.length} task${sortedTasks.length === 1 ? "" : "s"} into ${schedule.length} time block${schedule.length === 1 ? "" : "s"} with ${formatDuration(totalMinutes)} of estimated work.`,
+    sections: [
+      {
+        title: "Planning constraints",
+        items: [
+          userPrompt ||
+            `Default day window: ${formatTime(window.startMinutes)}-${formatTime(window.endMinutes)}.`,
+          "High-priority items are scheduled first, with short buffers between work blocks.",
+          "Low-priority items are marked as movable instead of overloading the day.",
+        ],
+      },
+      {
+        title: "Top priorities",
+        items: todayTasks.length
+          ? todayTasks.slice(0, 6).map(formatTaskLine)
+          : ["No high or medium priority task detected."],
+      },
+      {
+        title: "Time-blocked plan",
+        items: schedule.length
+          ? schedule.map(
+              (block) =>
+                `${formatTime(block.start)}-${formatTime(block.end)}: ${block.task.title} (${block.task.category}, ${block.task.energy} energy)`,
+            )
+          : ["No schedule could be built from the current input."],
+      },
+      {
+        title: "Errands and admin batch",
+        items: errands.length
+          ? errands.map(formatTaskLine).slice(0, 6)
+          : ["No household, errand, finance, or health admin detected."],
+      },
+      {
+        title: "Move or shrink",
+        items: movableTasks.length
+          ? movableTasks.map(formatTaskLine).slice(0, 6)
+          : [
+              "No obvious low-priority carry-over task detected. Keep a 15-30 minute buffer anyway.",
+            ],
+      },
+    ],
+    artifacts: [
+      {
+        label: "Today checklist",
+        language: "markdown",
+        content: [
+          "## Today",
+          ...todayTasks.map((task) => `- [ ] ${formatTaskLine(task)}`),
+          "",
+          "## Later or optional",
+          ...(movableTasks.length
+            ? movableTasks.map((task) => `- [ ] ${formatTaskLine(task)}`)
+            : ["- [ ] Protect buffer time instead of adding more work."]),
+        ].join("\n"),
+      },
+      {
+        label: "Task plan JSON",
+        language: "json",
+        content: JSON.stringify(
+          {
+            constraints: userPrompt || null,
+            day_window: {
+              start: formatTime(window.startMinutes),
+              end: formatTime(window.endMinutes),
+            },
+            tasks: sortedTasks,
+            schedule: schedule.map((block) => ({
+              start: formatTime(block.start),
+              end: formatTime(block.end),
+              title: block.task.title,
+              category: block.task.category,
+              priority: block.task.priority,
+              energy: block.task.energy,
+            })),
+          },
+          null,
+          2,
+        ),
+      },
+      {
+        label: "Calendar import CSV",
+        language: "csv",
+        content: dayScheduleToCsv(schedule),
+      },
+      {
+        label: "Daily brief",
+        language: "markdown",
+        content: [
+          "## Focus",
+          ...(todayTasks.length
+            ? todayTasks.slice(0, 3).map((task) => `- ${task.title}`)
+            : ["- Pick one priority before adding more tasks."]),
+          "",
+          "## Watch-outs",
+          `- Estimated load: ${formatDuration(totalMinutes)}.`,
+          `- Scheduled load: ${formatDuration(schedule.reduce((total, block) => total + block.task.durationMinutes, 0))}.`,
+          "- Move low-priority tasks if the first two blocks slip.",
+          "- Batch errands before opening new admin tasks.",
+        ].join("\n"),
+      },
+    ],
+  };
 }
 
 function runEmailDigest(input: string, userPrompt: string): AgentRunResult {
@@ -606,6 +740,355 @@ function runJsonSchema(input: string, userPrompt: string): AgentRunResult {
       },
     ],
   };
+}
+
+function parseDayTask(line: string): DayTask {
+  const title = line
+    .replace(/^\s*[-*+]\s*/, "")
+    .replace(/^\s*\d+[.)]\s*/, "")
+    .trim();
+  const durationMinutes = inferTaskDurationMinutes(title);
+  const priority = inferTaskPriority(title);
+
+  return {
+    category: inferTaskCategory(title),
+    deadline: inferTaskDeadline(title),
+    durationMinutes,
+    energy: inferTaskEnergy(title, durationMinutes),
+    priority,
+    raw: line,
+    startHintMinutes: inferStartHintMinutes(title),
+    title,
+  };
+}
+
+function inferPlanningWindow(prompt: string) {
+  const start =
+    matchPromptTime(prompt, /\b(?:start|starting|begin)\s*(?:at)?\s*/i) ??
+    9 * 60;
+  const end =
+    matchPromptTime(
+      prompt,
+      /\b(?:stop|finish|end|done|wrap)\s*(?:by|at)?\s*/i,
+    ) ?? 17 * 60;
+
+  return {
+    endMinutes: Math.max(end, start + 120),
+    startMinutes: start,
+  };
+}
+
+function matchPromptTime(prompt: string, prefix: RegExp) {
+  const match = prompt.match(
+    new RegExp(`${prefix.source}(\\d{1,2})(?::([0-5]\\d))?\\s*(am|pm)?`, "i"),
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  return timePartsToMinutes(match[1] ?? "9", match[2], match[3]);
+}
+
+function inferStartHintMinutes(text: string) {
+  const match = text.match(
+    /\b(?:at|@|after|before)?\s*(\d{1,2})(?::([0-5]\d))?\s*(am|pm)\b/i,
+  );
+
+  if (!match) {
+    const hourMatch = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+    return hourMatch
+      ? timePartsToMinutes(hourMatch[1] ?? "9", hourMatch[2])
+      : null;
+  }
+
+  return timePartsToMinutes(match[1] ?? "9", match[2], match[3]);
+}
+
+function timePartsToMinutes(
+  hourText: string,
+  minuteText?: string,
+  period?: string,
+) {
+  let hour = Number(hourText);
+  const minute = Number(minuteText ?? 0);
+
+  if (period?.toLowerCase() === "pm" && hour < 12) {
+    hour += 12;
+  }
+
+  if (period?.toLowerCase() === "am" && hour === 12) {
+    hour = 0;
+  }
+
+  return hour * 60 + minute;
+}
+
+function inferTaskDurationMinutes(text: string) {
+  const durationMatch = text.match(
+    /\b(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|min|mins|minute|minutes)\b/i,
+  );
+
+  if (durationMatch) {
+    const value = Number(durationMatch[1]);
+    const unit = durationMatch[2]?.toLowerCase() ?? "min";
+    return Math.max(10, Math.round(value * (unit.startsWith("h") ? 60 : 1)));
+  }
+
+  if (/\b(call|reply|email|message|pay|book|order|check)\b/i.test(text)) {
+    return 20;
+  }
+
+  if (/\b(workout|exercise|walk|clean|cook|groceries|shopping)\b/i.test(text)) {
+    return 45;
+  }
+
+  if (
+    /\b(deep work|write|build|review|study|learn|research|design)\b/i.test(text)
+  ) {
+    return 90;
+  }
+
+  return 30;
+}
+
+function inferTaskPriority(text: string): DayTask["priority"] {
+  if (
+    /\b(urgent|asap|today|tonight|deadline|due|appointment|meeting|doctor|dentist|pay|bill|pick up|pickup)\b/i.test(
+      text,
+    )
+  ) {
+    return "high";
+  }
+
+  if (/\b(maybe|someday|optional|if time|later|nice to have)\b/i.test(text)) {
+    return "low";
+  }
+
+  return "medium";
+}
+
+function inferTaskDeadline(text: string) {
+  const match = text.match(
+    /\b(today|tonight|tomorrow|this week|next week|morning|afternoon|evening|eod|after\s+\d{1,2}(?::[0-5]\d)?\s*(?:am|pm)?|before\s+\d{1,2}(?::[0-5]\d)?\s*(?:am|pm)?|\d{1,2}\/\d{1,2})\b/i,
+  );
+
+  return match?.[0] ?? "flexible";
+}
+
+function inferTaskCategory(text: string) {
+  if (
+    /\b(grocery|groceries|shop|shopping|pickup|pick up|dry cleaning|errand)\b/i.test(
+      text,
+    )
+  ) {
+    return "errand";
+  }
+
+  if (/\b(clean|laundry|cook|meal|home|house|repair|trash)\b/i.test(text)) {
+    return "household";
+  }
+
+  if (
+    /\b(bill|budget|spending|subscription|invoice|bank|tax|pay)\b/i.test(text)
+  ) {
+    return "finance";
+  }
+
+  if (
+    /\b(workout|exercise|doctor|dentist|medicine|medication|sleep|walk)\b/i.test(
+      text,
+    )
+  ) {
+    return "health";
+  }
+
+  if (/\b(call|reply|email|message|text|send|contract)\b/i.test(text)) {
+    return "communication";
+  }
+
+  if (/\b(read|study|course|book|learn|lesson)\b/i.test(text)) {
+    return "learning";
+  }
+
+  if (/\b(flight|hotel|trip|travel|passport|visa|route)\b/i.test(text)) {
+    return "travel";
+  }
+
+  if (
+    /\b(build|deep work|project|portfolio|code|review|design|write)\b/i.test(
+      text,
+    )
+  ) {
+    return "work";
+  }
+
+  return "personal";
+}
+
+function inferTaskEnergy(
+  text: string,
+  durationMinutes: number,
+): DayTask["energy"] {
+  if (
+    durationMinutes >= 75 ||
+    /\b(deep work|write|build|study|research|design|review)\b/i.test(text)
+  ) {
+    return "high";
+  }
+
+  if (
+    /\b(call|reply|email|message|pay|book|order|pickup|pick up)\b/i.test(text)
+  ) {
+    return "low";
+  }
+
+  return "medium";
+}
+
+function compareDayTasks(left: DayTask, right: DayTask) {
+  const priorityDiff =
+    taskPriorityScore(right.priority) - taskPriorityScore(left.priority);
+
+  if (priorityDiff !== 0) {
+    return priorityDiff;
+  }
+
+  const leftHint = left.startHintMinutes ?? Number.POSITIVE_INFINITY;
+  const rightHint = right.startHintMinutes ?? Number.POSITIVE_INFINITY;
+  return (
+    taskTimingRank(left) - taskTimingRank(right) ||
+    leftHint - rightHint ||
+    right.durationMinutes - left.durationMinutes
+  );
+}
+
+function taskPriorityScore(priority: DayTask["priority"]) {
+  if (priority === "high") {
+    return 3;
+  }
+
+  if (priority === "medium") {
+    return 2;
+  }
+
+  return 1;
+}
+
+function taskTimingRank(task: DayTask) {
+  if (task.startHintMinutes === null) {
+    return 1;
+  }
+
+  return task.startHintMinutes < 12 * 60 ? 0 : 2;
+}
+
+function buildDaySchedule(
+  tasks: DayTask[],
+  window: { endMinutes: number; startMinutes: number },
+) {
+  const blocks: Array<{ end: number; start: number; task: DayTask }> = [];
+  const fixedTasks = tasks
+    .filter((task) => task.startHintMinutes !== null)
+    .sort((left, right) => {
+      const leftHint = left.startHintMinutes ?? 0;
+      const rightHint = right.startHintMinutes ?? 0;
+      return leftHint - rightHint;
+    });
+  const flexibleTasks = tasks.filter((task) => task.startHintMinutes === null);
+  let cursor = window.startMinutes;
+
+  const scheduleFlexibleTasks = (untilMinutes: number) => {
+    let index = 0;
+
+    while (index < flexibleTasks.length) {
+      const task = flexibleTasks[index];
+      const start = cursor;
+      const end = start + task.durationMinutes;
+
+      if (end > untilMinutes) {
+        index += 1;
+        continue;
+      }
+
+      blocks.push({ end, start, task });
+      cursor = end + getTaskBufferMinutes(task);
+      flexibleTasks.splice(index, 1);
+    }
+  };
+
+  for (const task of fixedTasks) {
+    const fixedStart = Math.max(
+      task.startHintMinutes ?? cursor,
+      window.startMinutes,
+    );
+    scheduleFlexibleTasks(fixedStart);
+
+    const start = Math.max(cursor, fixedStart);
+    const end = start + task.durationMinutes;
+    blocks.push({ end, start, task });
+    cursor = end + getTaskBufferMinutes(task);
+  }
+
+  scheduleFlexibleTasks(window.endMinutes + 60);
+
+  return blocks;
+}
+
+function getTaskBufferMinutes(task: DayTask) {
+  if (task.durationMinutes >= 75) {
+    return 15;
+  }
+
+  if (task.category === "errand" || task.category === "health") {
+    return 10;
+  }
+
+  return 5;
+}
+
+function formatTaskLine(task: DayTask) {
+  return `${task.title} - ${task.priority} priority, ${task.category}, ${formatDuration(task.durationMinutes)}${task.deadline === "flexible" ? "" : `, ${task.deadline}`}`;
+}
+
+function formatDuration(minutes: number) {
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+
+  return remainder ? `${hours}h ${remainder}m` : `${hours}h`;
+}
+
+function formatTime(totalMinutes: number) {
+  const normalizedMinutes = ((totalMinutes % 1440) + 1440) % 1440;
+  const hours24 = Math.floor(normalizedMinutes / 60);
+  const minutes = normalizedMinutes % 60;
+  const period = hours24 >= 12 ? "PM" : "AM";
+  const hour12 = hours24 % 12 || 12;
+
+  return `${hour12}:${String(minutes).padStart(2, "0")} ${period}`;
+}
+
+function dayScheduleToCsv(
+  schedule: Array<{ end: number; start: number; task: DayTask }>,
+) {
+  if (schedule.length === 0) {
+    return "";
+  }
+
+  const rows = schedule.map((block) => ({
+    Description: `${block.task.priority} priority; ${block.task.category}; ${block.task.deadline}`,
+    "End Date": "Today",
+    "End Time": formatTime(block.end),
+    "Start Date": "Today",
+    "Start Time": formatTime(block.start),
+    Subject: block.task.title,
+  }));
+
+  return rowsToCsv(rows);
 }
 
 function cleanLines(input: string) {

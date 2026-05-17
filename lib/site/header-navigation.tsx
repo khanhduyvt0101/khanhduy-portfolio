@@ -284,7 +284,7 @@ export function HeaderNavigation(): ReactNode {
           </MenuPanel>
         </NavigationMenuItem>
 
-        <NavigationMenuItem>
+        <NavigationMenuItem className="max-[430px]:hidden">
           <MenuTrigger active={isActivePath(pathname, "/free-tools")}>
             Tools
           </MenuTrigger>

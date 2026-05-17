@@ -286,6 +286,7 @@ export function AgentWorkbench({
   }, [agent, agent.id, huggingFaceModels]);
 
   const supportsFiles = agent.inputs.includes("file");
+  const prefersDeterministic = agent.executionMode === "deterministic-first";
 
   const renderedMarkdown = useMemo(() => {
     if (modelText) {
@@ -316,7 +317,7 @@ export function AgentWorkbench({
     });
 
     try {
-      if (agent.status === "Browser AI boosted") {
+      if (!prefersDeterministic && agent.status === "Browser AI boosted") {
         try {
           const browserResult = await runBrowserAiAgent({
             agent,
@@ -338,7 +339,7 @@ export function AgentWorkbench({
         }
       }
 
-      if (hasLoadedHuggingFaceModel) {
+      if (!prefersDeterministic && hasLoadedHuggingFaceModel) {
         try {
           const huggingFaceResult = await withTimeout(
             runHuggingFaceAiSdkAgent({
@@ -369,7 +370,9 @@ export function AgentWorkbench({
       } else {
         trackSiteEvent("Agent Runtime Fallback", {
           agent: agent.id,
-          from: "browser-model-unavailable",
+          from: prefersDeterministic
+            ? "deterministic-first"
+            : "browser-model-unavailable",
         });
       }
 

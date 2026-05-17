@@ -1,5 +1,6 @@
 import {
   Bot,
+  CalendarCheck2,
   FileInput,
   Gauge,
   type LucideIcon,
@@ -11,6 +12,7 @@ import type { AgentBlueprint, AgentIconKey } from "./agent-catalog";
 
 const agentIcons: Record<AgentIconKey, LucideIcon> = {
   bot: Bot,
+  calendar: CalendarCheck2,
   data: Gauge,
   email: Mail,
   file: FileInput,

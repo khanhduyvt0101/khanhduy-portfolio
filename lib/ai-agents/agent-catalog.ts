@@ -21,6 +21,7 @@ export type AgentOutput =
   | "table";
 export type AgentIconKey =
   | "bot"
+  | "calendar"
   | "data"
   | "email"
   | "file"
@@ -57,6 +58,7 @@ export type AgentBlueprint = {
   samplePrompt: string;
   sampleInput: string;
   acceptedFiles?: string;
+  executionMode?: "deterministic-first" | "model-first";
   systemPrompt: string;
 };
 
@@ -287,6 +289,61 @@ const agentDefinitions = [
       "The team agreed to ship the new onboarding flow next week if the activation metric stays above 42%. The main concern is support volume from users importing old data. Engineering will add a rollback flag. Design will simplify the empty state. Customer success asked for a migration checklist before launch.",
     systemPrompt:
       "You are a private summarization agent. Summarize only the provided text. Include decisions, risks, and next actions when present.",
+  },
+  {
+    id: "day-planner",
+    name: "Day Planner Agent",
+    tagline: "Turn a messy life-admin brain dump into a realistic day plan.",
+    description:
+      "Paste tasks, appointments, errands, chores, budget reminders, study goals, or wellness notes. The agent prioritizes the list, batches related work, creates a time-blocked plan, and exports a checklist plus calendar-ready rows.",
+    icon: "calendar",
+    inputs: ["text"],
+    outputs: ["checklist", "json", "table", "report"],
+    workflows: [
+      {
+        label: "Daily reset",
+        description: "Build a doable plan from scattered notes.",
+        prompt:
+          "Turn this brain dump into a realistic day plan. Prioritize urgent tasks, batch errands and admin, leave buffer time, and mark what can move.",
+      },
+      {
+        label: "Life admin sprint",
+        description: "Batch chores, errands, money, and messages.",
+        prompt:
+          "Plan a focused life-admin sprint. Group errands, chores, finance tasks, appointments, and messages into a low-friction sequence.",
+      },
+      {
+        label: "Busy week triage",
+        description: "Sort today, later, delegate, and drop.",
+        prompt:
+          "Triage this list into today, later this week, delegate or ask, and drop. Return the smallest useful plan for today.",
+      },
+    ],
+    runtime: "hybrid",
+    modelProfile: "fast",
+    privacy: "Local first",
+    status: "Browser AI boosted",
+    useCases: ["Daily planning", "Household admin", "Errand batching"],
+    stack: [
+      "Chrome Prompt API",
+      "Task parser",
+      "Priority scoring",
+      "Time blocking",
+      ...modelStack("fast"),
+    ],
+    promptLabel: "Planning constraints",
+    promptPlaceholder:
+      "Example: start at 9, stop by 5, keep lunch free, make this realistic.",
+    inputLabel: "Brain dump",
+    inputPlaceholder:
+      "Paste tasks, appointments, chores, errands, reminders, deadlines, and random notes...",
+    samplePrompt:
+      "Start at 8:30, keep a 45 minute lunch, make a realistic plan with errands batched.",
+    sampleInput:
+      "9:30 dentist appointment\nPay electricity bill today\nBuy groceries: rice, eggs, vegetables, coffee\nReply to Minh about the contract\nDeep work on portfolio agent for 2 hours\nPick up dry cleaning after 5pm\nCall mom tonight\n30 min workout\nReview monthly spending and cancel unused subscriptions\nRead 20 pages of the TypeScript book",
+    executionMode: "deterministic-first",
+    systemPrompt:
+      "You are a daily planning agent. Convert messy personal and work tasks into a realistic schedule, priority list, errand batches, and checklist. Do not invent appointments or deadlines.",
   },
   {
     id: "data-cleaner",
