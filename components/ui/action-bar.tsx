@@ -8,8 +8,8 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { useComposedRefs } from "~/lib/compose-refs";
 import { cn } from "~/lib/utils";
-import { useAsRef } from "~/hooks/use-as-ref";
-import { useIsomorphicLayoutEffect } from "~/hooks/use-isomorphic-layout-effect";
+import { useAsRef } from "~/lib/hooks/use-as-ref";
+import { useIsomorphicLayoutEffect } from "~/lib/hooks/use-isomorphic-layout-effect";
 import { Button } from "~/components/ui/button";
 
 const ROOT_NAME = "ActionBar";

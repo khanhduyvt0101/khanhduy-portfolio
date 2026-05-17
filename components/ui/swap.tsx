@@ -3,9 +3,9 @@
 import { Slot as SlotPrimitive } from "radix-ui";
 import * as React from "react";
 import { cn } from "~/lib/utils";
-import { useAsRef } from "~/hooks/use-as-ref";
-import { useIsomorphicLayoutEffect } from "~/hooks/use-isomorphic-layout-effect";
-import { useLazyRef } from "~/hooks/use-lazy-ref";
+import { useAsRef } from "~/lib/hooks/use-as-ref";
+import { useIsomorphicLayoutEffect } from "~/lib/hooks/use-isomorphic-layout-effect";
+import { useLazyRef } from "~/lib/hooks/use-lazy-ref";
 
 interface DivProps extends React.ComponentProps<"div"> {
   asChild?: boolean;

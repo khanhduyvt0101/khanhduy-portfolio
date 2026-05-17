@@ -4,7 +4,7 @@ import { Slot as SlotPrimitive } from "radix-ui";
 import * as React from "react";
 import { useComposedRefs } from "~/lib/compose-refs";
 import { cn } from "~/lib/utils";
-import { useLazyRef } from "~/hooks/use-lazy-ref";
+import { useLazyRef } from "~/lib/hooks/use-lazy-ref";
 
 const ROOT_NAME = "QRCode";
 const CANVAS_NAME = "QRCodeCanvas";

@@ -1,15 +1,16 @@
 import "./globals.css";
 
-import { Provider } from "jotai";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import type { PropsWithChildren, ReactNode } from "react";
-import { ThemeProvider } from "~/components/theme-provider";
-import { Button } from "~/components/ui/button";
+import { ThemeProvider } from "~/lib/components/theme-provider";
 
-import { ColorSchemeControl } from "./color-scheme-control";
-import { defaultSeoDescription, siteName, siteUrl } from "./seo";
+import { ColorSchemeControl } from "~/lib/site/color-scheme-control";
+import { HeaderNavigation } from "~/lib/site/header-navigation";
+import { defaultSeoDescription, siteName, siteUrl } from "~/lib/site/seo";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -26,6 +27,8 @@ const geistMono = Geist_Mono({
   weight: ["400", "500", "600", "700"],
   variable: "--font-geist-mono",
 });
+
+const isVercelRuntime = process.env.VERCEL === "1";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -92,37 +95,36 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
           enableSystem
           disableTransitionOnChange
         >
-          <Provider>
-            <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b">
-              <div className="container mx-auto px-4 max-w-5xl">
-                <header className="flex h-14 items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Link
-                      className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-xl font-black text-transparent"
-                      href="/"
-                    >
-                      Khanh Duy
-                    </Link>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button asChild size="sm" variant="ghost">
-                      <Link href="/free-tools">Free Tools</Link>
-                    </Button>
-                    <ColorSchemeControl />
-                  </div>
-                </header>
-              </div>
+          <div className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-md">
+            <div className="container mx-auto max-w-7xl px-4">
+              <header className="flex h-16 items-center justify-between">
+                <div className="flex min-w-0 items-center gap-3">
+                  <Link
+                    className="truncate bg-[linear-gradient(90deg,var(--foreground),var(--muted-foreground))] bg-clip-text text-xl font-black text-transparent"
+                    href="/"
+                  >
+                    Khanh Duy
+                  </Link>
+                </div>
+                <div className="flex items-center gap-2">
+                  <HeaderNavigation />
+                  <ColorSchemeControl />
+                </div>
+              </header>
             </div>
-            <main className="flex-1">{children}</main>
-            <footer className="h-14 flex items-center justify-center border-t mt-auto">
-              <div className="container mx-auto px-4 max-w-5xl text-center">
-                <span className="text-sm text-muted-foreground">
-                  Made by Khanh Duy
-                </span>
-              </div>
-            </footer>
-          </Provider>
+          </div>
+          <main className="flex-1">{children}</main>
+          <footer className="mt-auto flex h-14 items-center justify-center border-t">
+            <div className="container mx-auto max-w-7xl px-4 text-center">
+              <span className="text-sm text-muted-foreground">
+                Made by Khanh Duy. Software engineer in Ho Chi Minh City,
+                Vietnam.
+              </span>
+            </div>
+          </footer>
         </ThemeProvider>
+        <Analytics mode={isVercelRuntime ? "production" : "development"} />
+        {isVercelRuntime ? <SpeedInsights /> : null}
       </body>
     </html>
   );

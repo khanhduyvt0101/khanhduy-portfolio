@@ -1,4 +1,8 @@
-import { createOgImage, ogImageContentType, ogImageSize } from "../og-image";
+import {
+  createOgImage,
+  ogImageContentType,
+  ogImageSize,
+} from "~/lib/site/og-image";
 
 export const alt = "Free tools gallery by Khanh Duy";
 export const size = ogImageSize;

@@ -15,8 +15,8 @@ import {
 } from "radix-ui";
 import * as React from "react";
 import { cn } from "~/lib/utils";
-import { useAsRef } from "~/hooks/use-as-ref";
-import { useLazyRef } from "~/hooks/use-lazy-ref";
+import { useAsRef } from "~/lib/hooks/use-as-ref";
+import { useLazyRef } from "~/lib/hooks/use-lazy-ref";
 
 const ROOT_NAME = "FileUpload";
 const DROPZONE_NAME = "FileUploadDropzone";

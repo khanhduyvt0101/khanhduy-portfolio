@@ -44,6 +44,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
+import { trackSiteEvent } from "~/lib/site/analytics-events";
 import { cn } from "~/lib/utils";
 import { type FreeTool, freeToolCategories, freeTools } from "./tool-meta";
 
@@ -154,7 +155,12 @@ export function FreeToolsGallery() {
               >
                 <button
                   aria-pressed={isActive}
-                  onClick={() => setActiveCategory(category)}
+                  onClick={() => {
+                    trackSiteEvent("Free Tools Category Selected", {
+                      category,
+                    });
+                    setActiveCategory(category);
+                  }}
                   type="button"
                 >
                   {category}
@@ -253,7 +259,17 @@ function ToolCard({ index, tool }: { index: number; tool: FreeTool }) {
 
       <CardFooter>
         <Button asChild className="w-full" variant="outline">
-          <Link href={`/free-tools/${tool.slug}`}>Open tool</Link>
+          <Link
+            href={`/free-tools/${tool.slug}`}
+            onClick={() =>
+              trackSiteEvent("Free Tool Opened", {
+                source: "gallery_card",
+                tool: tool.slug,
+              })
+            }
+          >
+            Open tool
+          </Link>
         </Button>
       </CardFooter>
     </Card>

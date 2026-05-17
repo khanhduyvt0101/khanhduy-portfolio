@@ -1,5 +1,3 @@
-"use client";
-
 import { IconExternalLink } from "@tabler/icons-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
@@ -20,7 +18,7 @@ const projects = [
     description:
       "Your AI-powered research sidekick. Chat with multiple advanced models (GPT-4, Claude 3, Gemini), discover research gaps, and search millions of papers instantly. Trusted by 2,000+ researchers.",
     link: "https://chatacademia.com",
-    image: "/products/chatacademia-og.png",
+    image: "https://www.chatacademia.com/og.png",
     tags: ["AI Platform", "SaaS", "Next.js", "Research"],
     category: "SaaS Product",
   },
@@ -29,7 +27,7 @@ const projects = [
     description:
       "The scalable AI-powered PDF processing API. Extract structured data from complex documents with high accuracy using generic schemas. Perfect for building RAG pipelines and document analysis tools.",
     link: "https://pdfvector.com",
-    image: "/products/pdfvector-og.png",
+    image: "https://www.pdfvector.com/og.png",
     tags: ["API", "Developer Tool", "PDF Processing", "AI"],
     category: "Developer Tool",
   },

@@ -1,5 +1,9 @@
-import { createOgImage, ogImageContentType, ogImageSize } from "./og-image";
-import { defaultSeoDescription } from "./seo";
+import {
+  createOgImage,
+  ogImageContentType,
+  ogImageSize,
+} from "~/lib/site/og-image";
+import { defaultSeoDescription } from "~/lib/site/seo";
 
 export const alt = "Khanh Duy software engineer and product builder";
 export const size = ogImageSize;

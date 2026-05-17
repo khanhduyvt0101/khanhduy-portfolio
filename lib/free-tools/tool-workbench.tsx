@@ -1,5 +1,6 @@
 "use client";
 
+import { converter, formatHex, parse } from "culori";
 import {
   CopyIcon,
   DownloadIcon,
@@ -7,7 +8,7 @@ import {
   UploadIcon,
 } from "lucide-react";
 import QR from "qrcode";
-import { type ReactNode, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Pill } from "~/components/kibo-ui/pill";
 import { QRCode as QRCodePreview } from "~/components/kibo-ui/qr-code";
 import { Button } from "~/components/ui/button";
@@ -28,7 +29,8 @@ import {
 } from "~/components/ui/stat";
 import { Status, StatusIndicator, StatusLabel } from "~/components/ui/status";
 import { Textarea } from "~/components/ui/textarea";
-import type { FreeTool } from "../tool-meta";
+import type { FreeTool } from "~/lib/free-tools/tool-meta";
+import { trackSiteEvent } from "~/lib/site/analytics-events";
 
 type ToolWorkbenchProps = {
   tool: FreeTool;
@@ -68,7 +70,17 @@ const defaultZones = [
   "Australia/Sydney",
 ];
 
+const toRgb = converter("rgb");
+const toOklch = converter("oklch");
+
 export function ToolWorkbench({ tool }: ToolWorkbenchProps): ReactNode {
+  useEffect(() => {
+    trackSiteEvent("Free Tool Viewed", {
+      category: tool.category,
+      tool: tool.slug,
+    });
+  }, [tool.category, tool.slug]);
+
   switch (tool.slug) {
     case "qr-code-generator":
       return <QRCodeTool />;
@@ -207,7 +219,7 @@ function QRCodeTool(): ReactNode {
   const [robustness, setRobustness] = useState<"L" | "M" | "Q" | "H">("M");
 
   const downloadSvg = async () => {
-    const svg = await QR.toString(data, {
+    const svg = await QR.toString(data.trim() || " ", {
       type: "svg",
       errorCorrectionLevel: robustness,
       margin: 2,
@@ -217,7 +229,7 @@ function QRCodeTool(): ReactNode {
   };
 
   const downloadPng = async () => {
-    const url = await QR.toDataURL(data, {
+    const url = await QR.toDataURL(data.trim() || " ", {
       errorCorrectionLevel: robustness,
       margin: 2,
       width: 1024,
@@ -521,7 +533,7 @@ function Base64Tool(): ReactNode {
     <SimpleTextTool
       input={input}
       inputLabel="Text"
-      onInputChange={setInput}
+      onInputChangeAction={setInput}
       output={output}
       title="Base64 result"
     >
@@ -571,7 +583,7 @@ function UrlEncoderTool(): ReactNode {
     <SimpleTextTool
       input={input}
       inputLabel="URL or text"
-      onInputChange={setInput}
+      onInputChangeAction={setInput}
       output={output}
       title="Converted value"
     >
@@ -604,7 +616,10 @@ function RegexTesterTool(): ReactNode {
 
   const result = useMemo(() => {
     try {
-      const regex = new RegExp(pattern, flags);
+      const regex = new RegExp(
+        pattern,
+        flags.includes("g") ? flags : `${flags}g`,
+      );
       const matches = [...sample.matchAll(regex)];
       return {
         error: "",
@@ -693,7 +708,7 @@ function HashGeneratorTool(): ReactNode {
     <SimpleTextTool
       input={input}
       inputLabel="Text to hash"
-      onInputChange={setInput}
+      onInputChangeAction={setInput}
       output={output || "Click Generate to create a digest."}
       title={algorithm}
     >
@@ -1000,6 +1015,10 @@ function ColorConverterTool(): ReactNode {
             <OutputRow label="HEX" value={converted.hex} />
             <OutputRow label="RGB" value={converted.rgb} />
             <OutputRow label="HSL" value={converted.hsl} />
+            <OutputRow label="OKLCH" value={converted.oklch} />
+            {converted.error ? (
+              <p className="text-destructive text-sm">{converted.error}</p>
+            ) : null}
           </div>
         </ResultBlock>
       }
@@ -1024,25 +1043,42 @@ function ColorConverterTool(): ReactNode {
 function PaletteTool(): ReactNode {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [palette, setPalette] = useState<string[]>([]);
+  const [status, setStatus] = useState("Choose an image to extract colors.");
 
   const loadFile = async (file: File) => {
-    const image = await loadImage(file);
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
+    setStatus("Reading image...");
+    setPalette([]);
 
-    const size = 180;
-    canvas.width = size;
-    canvas.height = size;
-    const context = canvas.getContext("2d");
-    context?.drawImage(image, 0, 0, size, size);
-    const pixels = context?.getImageData(0, 0, size, size).data;
-    if (!pixels) {
-      return;
-    }
+    try {
+      const image = await loadImage(file);
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        setStatus("Preview canvas is not available.");
+        return;
+      }
 
-    setPalette(extractPalette(pixels));
+      const size = 180;
+      canvas.width = size;
+      canvas.height = size;
+      const context = canvas.getContext("2d");
+      context?.clearRect(0, 0, size, size);
+      context?.drawImage(image, 0, 0, size, size);
+      const pixels = context?.getImageData(0, 0, size, size).data;
+      if (!pixels) {
+        setStatus("Could not read image pixels.");
+        return;
+      }
+
+      const nextPalette = extractPalette(pixels);
+      setPalette(nextPalette);
+      setStatus(
+        nextPalette.length > 0
+          ? `Extracted ${nextPalette.length} colors. Click any swatch to copy.`
+          : "No visible colors found in this image.",
+      );
+    } catch {
+      setStatus("Could not load that image. Try a PNG, JPEG, or WebP file.");
+    }
   };
 
   return (
@@ -1054,6 +1090,7 @@ function PaletteTool(): ReactNode {
               className="aspect-square w-full rounded-lg border bg-background"
               ref={canvasRef}
             />
+            <p className="text-muted-foreground text-sm">{status}</p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {palette.map((swatch) => (
                 <button
@@ -1073,7 +1110,7 @@ function PaletteTool(): ReactNode {
         </ResultBlock>
       }
     >
-      <FileDrop onFile={(file) => void loadFile(file)} />
+      <FileDrop onFileAction={(file) => void loadFile(file)} />
     </WorkbenchLayout>
   );
 }
@@ -1085,44 +1122,138 @@ function ImageCanvasTool({ mode }: { mode: "compress" | "resize" }): ReactNode {
   const [width, setWidth] = useState(1200);
   const [height, setHeight] = useState(800);
   const [result, setResult] = useState<FileResult | null>(null);
+  const [status, setStatus] = useState("Choose an image to start.");
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (result?.url) {
+        URL.revokeObjectURL(result.url);
+      }
+    };
+  }, [result?.url]);
+
+  const drawPreview = (
+    image: HTMLImageElement,
+    nextWidth: number,
+    nextHeight: number,
+  ) => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      setStatus("Preview canvas is not available.");
+      return;
+    }
+
+    canvas.width = nextWidth;
+    canvas.height = nextHeight;
+    const context = canvas.getContext("2d");
+    context?.clearRect(0, 0, nextWidth, nextHeight);
+    context?.drawImage(image, 0, 0, nextWidth, nextHeight);
+  };
+
+  const prepareFile = async (nextFile: File) => {
+    setFile(nextFile);
+    setResult(null);
+    setStatus("Loading preview...");
+
+    try {
+      const image = await loadImage(nextFile);
+      const nextWidth = Math.max(1, Math.min(1200, image.naturalWidth));
+      const ratio = image.naturalWidth / image.naturalHeight || 1;
+      const nextHeight = Math.max(1, Math.round(nextWidth / ratio));
+      setWidth(nextWidth);
+      setHeight(nextHeight);
+      drawPreview(image, nextWidth, nextHeight);
+      setStatus(
+        `${nextFile.name} loaded at ${image.naturalWidth} x ${image.naturalHeight}.`,
+      );
+    } catch {
+      setFile(null);
+      setStatus("Could not load that image. Try a PNG, JPEG, or WebP file.");
+    }
+  };
 
   const process = async () => {
     if (!file) {
       return;
     }
 
-    const image = await loadImage(file);
-    const ratio = image.naturalWidth / image.naturalHeight;
-    const nextWidth =
-      mode === "compress" ? Math.min(width, image.naturalWidth) : width;
-    const nextHeight =
-      mode === "compress" ? Math.round(nextWidth / ratio) : height;
-    const canvas = canvasRef.current;
+    setIsProcessing(true);
+    setStatus(
+      mode === "compress" ? "Compressing image..." : "Resizing image...",
+    );
 
-    if (!canvas) {
-      return;
+    try {
+      const image = await loadImage(file);
+      const ratio = image.naturalWidth / image.naturalHeight || 1;
+      const nextWidth =
+        mode === "compress"
+          ? Math.max(1, Math.min(width, image.naturalWidth))
+          : Math.max(1, width);
+      const nextHeight =
+        mode === "compress"
+          ? Math.max(1, Math.round(nextWidth / ratio))
+          : Math.max(1, height);
+      const canvas = canvasRef.current;
+
+      if (!canvas) {
+        setStatus("Preview canvas is not available.");
+        return;
+      }
+
+      canvas.width = nextWidth;
+      canvas.height = nextHeight;
+      const context = canvas.getContext("2d");
+      context?.clearRect(0, 0, nextWidth, nextHeight);
+      context?.drawImage(image, 0, 0, nextWidth, nextHeight);
+      let outputType = "image/webp";
+      let blob: Blob;
+      try {
+        blob = await canvasToBlob(canvas, outputType, quality);
+      } catch {
+        outputType = "image/png";
+        blob = await canvasToBlob(canvas, outputType, 1);
+      }
+      const url = URL.createObjectURL(blob);
+      const extension = outputType === "image/png" ? "png" : "webp";
+      setResult((current) => {
+        if (current?.url) {
+          URL.revokeObjectURL(current.url);
+        }
+        return {
+          name: `${mode === "compress" ? "compressed" : "resized"}.${extension}`,
+          url,
+          size: blob.size,
+          width: nextWidth,
+          height: nextHeight,
+        };
+      });
+      setStatus(
+        `${mode === "compress" ? "Compressed" : "Resized"} to ${nextWidth} x ${nextHeight}.`,
+      );
+    } catch {
+      setStatus(
+        "Could not process that image. Try another file or dimensions.",
+      );
+    } finally {
+      setIsProcessing(false);
     }
-
-    canvas.width = nextWidth;
-    canvas.height = nextHeight;
-    canvas.getContext("2d")?.drawImage(image, 0, 0, nextWidth, nextHeight);
-    const blob = await canvasToBlob(canvas, "image/webp", quality);
-    const url = URL.createObjectURL(blob);
-    setResult({
-      name: `${mode === "compress" ? "compressed" : "resized"}.webp`,
-      url,
-      size: blob.size,
-      width: nextWidth,
-      height: nextHeight,
-    });
   };
 
   return (
     <WorkbenchLayout
       actions={
         <>
-          <Button disabled={!file} onClick={() => void process()} type="button">
-            {mode === "compress" ? "Compress" : "Resize"}
+          <Button
+            disabled={!file || isProcessing}
+            onClick={() => void process()}
+            type="button"
+          >
+            {isProcessing
+              ? "Working..."
+              : mode === "compress"
+                ? "Compress"
+                : "Resize"}
           </Button>
           <Button
             disabled={!result}
@@ -1148,6 +1279,7 @@ function ImageCanvasTool({ mode }: { mode: "compress" | "resize" }): ReactNode {
               className="max-h-[32rem] w-full rounded-lg border bg-background object-contain"
               ref={canvasRef}
             />
+            <p className="text-muted-foreground text-sm">{status}</p>
             {result ? (
               <div className="flex flex-wrap gap-2">
                 <Pill variant="outline">{formatBytes(result.size)}</Pill>
@@ -1162,18 +1294,7 @@ function ImageCanvasTool({ mode }: { mode: "compress" | "resize" }): ReactNode {
     >
       <FileDrop
         accept="image/*"
-        onFile={(nextFile) => {
-          setFile(nextFile);
-          void loadImage(nextFile).then((image) => {
-            setWidth(Math.min(1200, image.naturalWidth));
-            setHeight(
-              Math.round(
-                Math.min(1200, image.naturalWidth) /
-                  (image.naturalWidth / image.naturalHeight),
-              ),
-            );
-          });
-        }}
+        onFileAction={(nextFile) => void prepareFile(nextFile)}
       />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={`Width: ${width}px`}>
@@ -1208,54 +1329,64 @@ function ImageCanvasTool({ mode }: { mode: "compress" | "resize" }): ReactNode {
 function ImagesToPdfTool(): ReactNode {
   const [files, setFiles] = useState<File[]>([]);
   const [status, setStatus] = useState("Add PNG or JPEG images to start.");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const generate = async () => {
     if (files.length === 0) {
       return;
     }
 
-    const { PDFDocument } = await import("pdf-lib");
-    const pdf = await PDFDocument.create();
+    setIsGenerating(true);
+    setStatus("Creating PDF...");
 
-    for (const file of files) {
-      const bytes = await file.arrayBuffer();
-      const image = file.type.includes("png")
-        ? await pdf.embedPng(bytes)
-        : await pdf.embedJpg(bytes);
-      const page = pdf.addPage([612, 792]);
-      const scaled = image.scaleToFit(540, 720);
-      page.drawImage(image, {
-        height: scaled.height,
-        width: scaled.width,
-        x: (612 - scaled.width) / 2,
-        y: (792 - scaled.height) / 2,
-      });
+    try {
+      const { PDFDocument } = await import("pdf-lib");
+      const pdf = await PDFDocument.create();
+
+      for (const file of files) {
+        const bytes = await file.arrayBuffer();
+        const image = isPngFile(file)
+          ? await pdf.embedPng(bytes)
+          : await pdf.embedJpg(bytes);
+        const page = pdf.addPage([612, 792]);
+        const scaled = image.scaleToFit(540, 720);
+        page.drawImage(image, {
+          height: scaled.height,
+          width: scaled.width,
+          x: (612 - scaled.width) / 2,
+          y: (792 - scaled.height) / 2,
+        });
+      }
+
+      const pdfBytes = await pdf.save();
+      const pdfBuffer = pdfBytes.buffer.slice(
+        pdfBytes.byteOffset,
+        pdfBytes.byteOffset + pdfBytes.byteLength,
+      ) as ArrayBuffer;
+      downloadBlob(
+        "images.pdf",
+        new Blob([pdfBuffer], { type: "application/pdf" }),
+      );
+      setStatus(
+        `Created PDF with ${files.length} page${files.length === 1 ? "" : "s"}.`,
+      );
+    } catch {
+      setStatus("Could not create a PDF. Use PNG or JPEG images only.");
+    } finally {
+      setIsGenerating(false);
     }
-
-    const pdfBytes = await pdf.save();
-    const pdfBuffer = pdfBytes.buffer.slice(
-      pdfBytes.byteOffset,
-      pdfBytes.byteOffset + pdfBytes.byteLength,
-    ) as ArrayBuffer;
-    downloadBlob(
-      "images.pdf",
-      new Blob([pdfBuffer], { type: "application/pdf" }),
-    );
-    setStatus(
-      `Created PDF with ${files.length} page${files.length === 1 ? "" : "s"}.`,
-    );
   };
 
   return (
     <WorkbenchLayout
       actions={
         <Button
-          disabled={files.length === 0}
+          disabled={files.length === 0 || isGenerating}
           onClick={() => void generate()}
           type="button"
         >
           <DownloadIcon data-icon="inline-start" />
-          Create PDF
+          {isGenerating ? "Creating..." : "Create PDF"}
         </Button>
       }
       output={
@@ -1268,7 +1399,23 @@ function ImagesToPdfTool(): ReactNode {
                 key={`${file.name}-${file.size}-${file.lastModified}`}
               >
                 <span className="min-w-0 truncate text-sm">{file.name}</span>
-                <Pill variant="outline">{formatBytes(file.size)}</Pill>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Pill variant="outline">{formatBytes(file.size)}</Pill>
+                  <Button
+                    aria-label={`Remove ${file.name}`}
+                    className="h-7 px-2"
+                    onClick={() =>
+                      setFiles((current) =>
+                        current.filter((item) => item !== file),
+                      )
+                    }
+                    size="sm"
+                    type="button"
+                    variant="ghost"
+                  >
+                    Remove
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -1283,7 +1430,17 @@ function ImagesToPdfTool(): ReactNode {
             accept="image/png,image/jpeg"
             className="sr-only"
             multiple
-            onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+            onChange={(event) => {
+              const selectedFiles = Array.from(event.target.files ?? []).filter(
+                isPdfImageFile,
+              );
+              setFiles(selectedFiles);
+              setStatus(
+                selectedFiles.length > 0
+                  ? `${selectedFiles.length} image${selectedFiles.length === 1 ? "" : "s"} ready.`
+                  : "Add PNG or JPEG images to start.",
+              );
+            }}
             type="file"
           />
         </Label>
@@ -1296,14 +1453,14 @@ function SimpleTextTool({
   children,
   input,
   inputLabel,
-  onInputChange,
+  onInputChangeAction,
   output,
   title,
 }: {
   children?: ReactNode;
   input: string;
   inputLabel: string;
-  onInputChange: (value: string) => void;
+  onInputChangeAction: (value: string) => void;
   output: string;
   title: string;
 }): ReactNode {
@@ -1329,7 +1486,7 @@ function SimpleTextTool({
       <Field label={inputLabel}>
         <Textarea
           className="min-h-72 font-mono"
-          onChange={(event) => onInputChange(event.target.value)}
+          onChange={(event) => onInputChangeAction(event.target.value)}
           value={input}
         />
       </Field>
@@ -1339,10 +1496,10 @@ function SimpleTextTool({
 
 function FileDrop({
   accept = "image/*",
-  onFile,
+  onFileAction,
 }: {
   accept?: string;
-  onFile: (file: File) => void;
+  onFileAction: (file: File) => void;
 }): ReactNode {
   return (
     <div className="rounded-lg border border-dashed p-5">
@@ -1355,7 +1512,7 @@ function FileDrop({
           onChange={(event) => {
             const file = event.target.files?.[0];
             if (file) {
-              onFile(file);
+              onFileAction(file);
             }
           }}
           type="file"
@@ -1489,7 +1646,11 @@ function convertBase64(
     const normalized = urlSafe
       ? input.replaceAll("-", "+").replaceAll("_", "/")
       : input;
-    return decodeURIComponent(escape(atob(normalized)));
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      "=",
+    );
+    return decodeURIComponent(escape(atob(padded)));
   } catch {
     return "Invalid Base64 input.";
   }
@@ -1592,16 +1753,43 @@ function renderMarkdown(markdown: string) {
 
 function convertColor(value: string) {
   const fallback = "#2563eb";
-  const hex = /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
-  const red = Number.parseInt(hex.slice(1, 3), 16);
-  const green = Number.parseInt(hex.slice(3, 5), 16);
-  const blue = Number.parseInt(hex.slice(5, 7), 16);
+  const rawParsed = parse(value.trim());
+  const parsed = rawParsed ?? parse(fallback);
+  const rgbColor = parsed ? toRgb(parsed) : undefined;
+  const oklchColor = parsed ? toOklch(parsed) : undefined;
+
+  if (!rgbColor) {
+    return {
+      error:
+        "Invalid color. Try #2563eb, rgb(37 99 235), hsl(221 83% 53%), oklch(0.54 0.19 260), or a named color.",
+      hex: fallback,
+      hsl: "hsl(221, 83%, 53%)",
+      oklch: "oklch(54.1% 0.191 260)",
+      rgb: "rgb(37, 99, 235)",
+    };
+  }
+
+  const red = Math.round((rgbColor.r ?? 0) * 255);
+  const green = Math.round((rgbColor.g ?? 0) * 255);
+  const blue = Math.round((rgbColor.b ?? 0) * 255);
+  const alpha = rgbColor.alpha ?? 1;
   const [hue, saturation, lightness] = rgbToHsl(red, green, blue);
+  const hex = formatHex(rgbColor) ?? fallback;
+  const light = Math.round((oklchColor?.l ?? 0) * 1000) / 10;
+  const chroma = Math.round((oklchColor?.c ?? 0) * 1000) / 1000;
+  const oklchHue = Math.round(oklchColor?.h ?? 0);
 
   return {
+    error: rawParsed
+      ? ""
+      : "Invalid color. Showing a safe fallback until the input is valid.",
     hex,
-    rgb: `rgb(${red}, ${green}, ${blue})`,
+    rgb:
+      alpha < 1
+        ? `rgba(${red}, ${green}, ${blue}, ${Number(alpha.toFixed(2))})`
+        : `rgb(${red}, ${green}, ${blue})`,
     hsl: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+    oklch: `oklch(${light}% ${chroma} ${oklchHue})`,
   };
 }
 
@@ -1661,9 +1849,16 @@ function extractPalette(pixels: Uint8ClampedArray) {
 function loadImage(file: File) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = reject;
-    image.src = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not load image"));
+    };
+    image.src = url;
   });
 }
 
@@ -1672,7 +1867,35 @@ function canvasToBlob(
   type: string,
   quality: number,
 ) {
-  return new Promise<Blob>((resolve) => {
-    canvas.toBlob((blob) => resolve(blob ?? new Blob()), type, quality);
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob || blob.size === 0) {
+          reject(new Error("Could not export canvas"));
+          return;
+        }
+
+        resolve(blob);
+      },
+      type,
+      quality,
+    );
   });
+}
+
+function isPngFile(file: File) {
+  return file.type === "image/png" || file.name.toLowerCase().endsWith(".png");
+}
+
+function isJpegFile(file: File) {
+  const name = file.name.toLowerCase();
+  return (
+    file.type === "image/jpeg" ||
+    name.endsWith(".jpg") ||
+    name.endsWith(".jpeg")
+  );
+}
+
+function isPdfImageFile(file: File) {
+  return isPngFile(file) || isJpegFile(file);
 }

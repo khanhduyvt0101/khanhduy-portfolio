@@ -11,9 +11,9 @@ import {
 import { Pill } from "~/components/kibo-ui/pill";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
-import { createSeoMetadata } from "../../seo";
-import { freeTools, getFreeTool } from "../tool-meta";
-import { ToolWorkbench } from "./tool-workbench";
+import { freeTools, getFreeTool } from "~/lib/free-tools/tool-meta";
+import { ToolWorkbench } from "~/lib/free-tools/tool-workbench";
+import { createSeoMetadata } from "~/lib/site/seo";
 
 type ToolPageProps = {
   params: Promise<{

@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
-import { createOgImage, ogImageContentType, ogImageSize } from "../../og-image";
-import { freeTools, getFreeTool } from "../tool-meta";
+
+import { freeTools, getFreeTool } from "~/lib/free-tools/tool-meta";
+import {
+  createOgImage,
+  ogImageContentType,
+  ogImageSize,
+} from "~/lib/site/og-image";
 
 type ToolOgImageProps = {
   params: Promise<{

@@ -4,8 +4,8 @@ import {
   AnnouncementTag,
   AnnouncementTitle,
 } from "~/components/kibo-ui/announcement";
-import { createSeoMetadata } from "../seo";
-import { FreeToolsGallery } from "./free-tools-gallery";
+import { FreeToolsGallery } from "~/lib/free-tools/free-tools-gallery";
+import { createSeoMetadata } from "~/lib/site/seo";
 
 export const metadata = createSeoMetadata({
   title: "Free Tools",

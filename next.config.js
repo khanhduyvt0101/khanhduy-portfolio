@@ -27,6 +27,16 @@ const nextConfig = {
         pathname: "/photo-*",
         search: "?w=800&h=400&fit=crop",
       },
+      {
+        protocol: "https",
+        hostname: "www.chatacademia.com",
+        pathname: "/og.png",
+      },
+      {
+        protocol: "https",
+        hostname: "www.pdfvector.com",
+        pathname: "/og.png",
+      },
     ],
   },
   experimental: {

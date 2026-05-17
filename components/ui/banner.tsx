@@ -6,8 +6,8 @@ import { Slot as SlotPrimitive } from "radix-ui";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { cn } from "~/lib/utils";
-import { useAsRef } from "~/hooks/use-as-ref";
-import { useLazyRef } from "~/hooks/use-lazy-ref";
+import { useAsRef } from "~/lib/hooks/use-as-ref";
+import { useLazyRef } from "~/lib/hooks/use-lazy-ref";
 import { Button } from "~/components/ui/button";
 
 const BANNER_ANIMATION_DURATION = 400;

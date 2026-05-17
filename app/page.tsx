@@ -1,13 +1,7 @@
 import type { ReactNode } from "react";
 
-import { Infor } from "./infor";
-import { Projects } from "./projects";
+import { PortfolioCommandCenter } from "~/lib/portfolio/portfolio-command-center";
 
 export default function Page(): ReactNode {
-  return (
-    <>
-      <Infor />
-      <Projects />
-    </>
-  );
+  return <PortfolioCommandCenter />;
 }

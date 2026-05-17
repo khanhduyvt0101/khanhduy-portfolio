@@ -8,8 +8,8 @@ import {
 import * as React from "react";
 import { useComposedRefs } from "~/lib/compose-refs";
 import { cn } from "~/lib/utils";
-import { useIsomorphicLayoutEffect } from "~/hooks/use-isomorphic-layout-effect";
-import { useLazyRef } from "~/hooks/use-lazy-ref";
+import { useIsomorphicLayoutEffect } from "~/lib/hooks/use-isomorphic-layout-effect";
+import { useLazyRef } from "~/lib/hooks/use-lazy-ref";
 
 type Direction = "ltr" | "rtl";
 type Orientation = "vertical" | "horizontal";

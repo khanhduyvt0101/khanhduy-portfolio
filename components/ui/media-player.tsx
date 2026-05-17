@@ -41,7 +41,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { useComposedRefs } from "~/lib/compose-refs";
 import { cn } from "~/lib/utils";
-import { useLazyRef } from "~/hooks/use-lazy-ref";
+import { useLazyRef } from "~/lib/hooks/use-lazy-ref";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
