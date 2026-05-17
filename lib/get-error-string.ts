@@ -1,4 +1,3 @@
-import { t } from "i18next";
 import isObject from "lodash/isObject";
 
 export function getErrorString(error?: unknown): string {
@@ -7,7 +6,7 @@ export function getErrorString(error?: unknown): string {
       ? error.message
       : typeof error === "string"
         ? error
-        : "") || t("error.message"),
+        : "") || "Something went wrong.",
   ];
   if (
     isObject(error) &&

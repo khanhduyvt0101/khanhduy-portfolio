@@ -2,13 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "reinstall",
-      "icon": { "id": "package" },
-      "type": "shell",
-      "command": "${workspaceFolder}/reinstall.sh",
-      "problemMatcher": []
-    },
-    {
       "label": "check",
       "icon": { "id": "check-all" },
       "type": "npm",

@@ -1,7 +1,6 @@
 "use client";
 
 import { IconDevices, IconMoon, IconSun } from "@tabler/icons-react";
-import { t } from "i18next";
 import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -19,7 +18,7 @@ export function ColorSchemeControl(): ReactNode {
   const { setTheme } = useTheme();
 
   useEffect(() => {
-    setMounted(true); // eslint-disable-line react-hooks/set-state-in-effect
+    setMounted(true);
   }, []);
 
   if (!mounted) {
@@ -43,15 +42,15 @@ export function ColorSchemeControl(): ReactNode {
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>
           <IconSun className="mr-2 h-4 w-4" />
-          <span>{t("colorScheme.light")}</span>
+          <span>Light</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")}>
           <IconMoon className="mr-2 h-4 w-4" />
-          <span>{t("colorScheme.dark")}</span>
+          <span>Dark</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("system")}>
           <IconDevices className="mr-2 h-4 w-4" />
-          <span>{t("colorScheme.auto")}</span>
+          <span>Auto</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

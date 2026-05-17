@@ -1,5 +1,4 @@
 import {
-  IconArticle,
   IconBrandFacebook,
   IconBrandGithub,
   IconBrandInstagram,
@@ -7,8 +6,9 @@ import {
   IconBrandThreads,
   IconBrandX,
   IconMail,
+  IconTools,
 } from "@tabler/icons-react";
-import { t } from "i18next";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -22,10 +22,9 @@ import {
 
 const socialLinks = [
   {
-    href: "/blog",
-    icon: IconArticle,
-    tooltip: "Blog",
-    color: "text-cyan-500",
+    href: "/free-tools",
+    icon: IconTools,
+    tooltip: "Free Tools",
     internal: true,
   },
   {
@@ -72,57 +71,57 @@ export function Infor(): ReactNode {
         <div className="relative py-20 md:py-32 flex flex-col-reverse md:flex-row items-center justify-between gap-12">
           <div className="w-full md:max-w-lg lg:max-w-xl shrink-0">
             <h1 className="text-4xl md:text-5xl lg:text-[54px] font-black leading-tight text-foreground mb-4">
-              {t("infor:title")}{" "}
+              Software Engineer{" "}
               <span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
                 & Product Builder
               </span>
             </h1>
 
             <p className="text-lg text-muted-foreground leading-relaxed mt-4">
-              {t("infor:description")}
+              Hello, I&apos;m Khanh Duy, a Software Engineer based in Ho Chi
+              Minh City. I specialize in building AI-powered products and
+              scalable solutions. I am currently leading engineering at
+              ChatAcademia and PDF Vector.
             </p>
 
             <div className="flex flex-wrap gap-4 mt-8">
               <TooltipProvider delayDuration={100}>
-                {socialLinks.map(
-                  ({ href, icon: Icon, tooltip, color, internal }) => (
-                    <Tooltip key={href}>
-                      <TooltipTrigger asChild>
-                        <Button
-                          asChild
-                          variant="outline"
-                          size="icon"
-                          className="rounded-full w-12 h-12"
-                        >
-                          {internal ? (
-                            <Link href={href}>
-                              <Icon
-                                className={`w-[70%] h-[70%] stroke-[1.5px] ${color || ""}`}
-                              />
-                            </Link>
-                          ) : (
-                            <a href={href} target="_blank" rel="noreferrer">
-                              <Icon
-                                className={`w-[70%] h-[70%] stroke-[1.5px] ${color || ""}`}
-                              />
-                            </a>
-                          )}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{tooltip}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ),
-                )}
+                {socialLinks.map(({ href, icon: Icon, tooltip, internal }) => (
+                  <Tooltip key={href}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full w-12 h-12"
+                      >
+                        {internal ? (
+                          <Link href={href}>
+                            <Icon className="w-[70%] h-[70%] stroke-[1.5px]" />
+                          </Link>
+                        ) : (
+                          <a href={href} target="_blank" rel="noreferrer">
+                            <Icon className="w-[70%] h-[70%] stroke-[1.5px]" />
+                          </a>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
               </TooltipProvider>
             </div>
           </div>
-          <div className="w-full max-w-[300px] md:max-w-[400px] flex-1 shrink-0">
-            <img
+          <div className="relative aspect-square w-full max-w-[300px] flex-1 shrink-0 overflow-hidden rounded-xl shadow-sm md:max-w-[400px]">
+            <Image
               alt="Khanh Duy Avatar"
-              src="avatar.webp"
-              className="w-full h-auto rounded-xl shadow-sm object-cover"
+              src="/avatar.webp"
+              fill
+              loading="eager"
+              sizes="(max-width: 768px) 300px, 400px"
+              className="object-cover"
             />
           </div>
         </div>

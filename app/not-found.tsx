@@ -1,19 +1,28 @@
 import { IconAlertCircle } from "@tabler/icons-react";
-import { t } from "i18next";
 import type { ReactNode } from "react";
 
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import {
+  Banner,
+  BannerContent,
+  BannerDescription,
+  BannerIcon,
+  BannerTitle,
+} from "~/components/ui/banner";
 
 export default function NotFound(): ReactNode {
   return (
     <div className="container mx-auto max-w-2xl px-4 py-16">
-      <Alert>
-        <IconAlertCircle className="h-4 w-4" />
-        <AlertTitle>{t("notFound.title")}</AlertTitle>
-        <AlertDescription className="mt-2">
-          {t("notFound.message")}
-        </AlertDescription>
-      </Alert>
+      <Banner dismissible={false}>
+        <BannerIcon asChild>
+          <IconAlertCircle />
+        </BannerIcon>
+        <BannerContent>
+          <BannerTitle>404</BannerTitle>
+          <BannerDescription>
+            The page you are looking for does not exist or has been moved.
+          </BannerDescription>
+        </BannerContent>
+      </Banner>
     </div>
   );
 }

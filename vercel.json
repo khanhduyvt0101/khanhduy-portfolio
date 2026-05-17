@@ -1,5 +1,5 @@
 {
-	"buildCommand": "bun run build",
-	"installCommand": "bun install",
-	"outputDirectory": ".next"
+  "buildCommand": "bun run build",
+  "installCommand": "bun install",
+  "outputDirectory": ".next"
 }

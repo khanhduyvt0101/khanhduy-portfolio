@@ -1,8 +1,9 @@
 "use client";
 
 import { IconExternalLink } from "@tabler/icons-react";
+import Image from "next/image";
 import type { ReactNode } from "react";
-import { Badge } from "~/components/ui/badge";
+import { Pill } from "~/components/kibo-ui/pill";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -24,7 +25,7 @@ const projects = [
     category: "SaaS Product",
   },
   {
-    title: "PDFVector",
+    title: "PDF Vector",
     description:
       "The scalable AI-powered PDF processing API. Extract structured data from complex documents with high accuracy using generic schemas. Perfect for building RAG pipelines and document analysis tools.",
     link: "https://pdfvector.com",
@@ -45,24 +46,24 @@ export function Projects(): ReactNode {
         {projects.map((project) => (
           <Card
             key={project.title}
-            className="flex flex-col overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg bg-card"
+            className="flex flex-col gap-0 overflow-hidden py-0 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg bg-card"
           >
-            <div className="relative h-48 w-full overflow-hidden">
-              <img
+            <div className="relative aspect-[16/9] w-full overflow-hidden">
+              <Image
                 alt={project.title}
                 src={project.image}
-                className="object-cover w-full h-full"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
               />
             </div>
 
-            <CardHeader className="pb-4">
+            <CardHeader className="pt-6 pb-4">
               <div className="flex items-center justify-between gap-4">
                 <CardTitle className="text-xl font-bold">
                   {project.title}
                 </CardTitle>
-                <Badge variant="secondary" className="shrink-0">
-                  {project.category}
-                </Badge>
+                <Pill className="shrink-0">{project.category}</Pill>
               </div>
               <CardDescription className="text-sm mt-2 text-muted-foreground line-clamp-3">
                 {project.description}
@@ -75,14 +76,12 @@ export function Projects(): ReactNode {
               </p>
               <div className="flex flex-wrap gap-2">
                 {project.tags.map((tag) => (
-                  <Badge key={tag} variant="outline">
-                    {tag}
-                  </Badge>
+                  <Pill key={tag}>{tag}</Pill>
                 ))}
               </div>
             </CardContent>
 
-            <CardFooter className="pt-0 mt-auto">
+            <CardFooter className="pt-0 pb-6 mt-auto">
               <Button asChild className="w-full" size="lg">
                 <a
                   href={project.link}

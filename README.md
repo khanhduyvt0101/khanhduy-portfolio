@@ -1,78 +1,104 @@
-# Khanh Duy Portfolio Website
+# Khanh Duy Portfolio
 
-This repository contains the source code for my personal portfolio website built with Next.js and styled using TailwindCSS. The website showcases my projects, skills, and experiences, offering a comprehensive look at my professional capabilities.
+Personal portfolio site for Khanh Duy, built with Next.js, React, Tailwind CSS, and shadcn-style UI components. The site showcases profile information, projects, social links, and blog content.
 
-## Features
+Production: https://www.khanhduy.com
 
-- **Responsive Design**: Ensures the website works well on both mobile and desktop devices.
-- **Fast Loading Times**: Leveraging Next.js for server-side rendering to provide faster load times.
-- **Interactive UI**: Modern and interactive user interface designed with TailwindCSS.
+## Stack
 
-## Prerequisites
+- Next.js 16 with the App Router
+- React 19
+- Tailwind CSS 4
+- Bun for dependency management and scripts
+- TypeScript with a single `tsconfig.json`
+- Biome for formatting, import organization, and lint-style checks
+- shadcn/ui with Tailwind v4 CSS-first theming
+- Vercel for deployment
 
-Before you begin, ensure you have the following installed:
+## Requirements
 
-- Node.js (12.x or later)
-- npm (6.x or later) or yarn (1.22.x or later)
+- Node.js 22 or newer
+- Bun 1.3 or newer
 
-## Installation
-
-To get this project up and running on your local machine, follow these steps:
-
-1. **Clone the repository**
+## Setup
 
 ```bash
-git https://github.com/khanhduyvt0101/khanhduy-portfolio.git
+git clone https://github.com/khanhduyvt0101/khanhduy-portfolio.git
 cd khanhduy-portfolio
+bun install
 ```
 
-2. **Install dependencies**
+## Development
 
 ```bash
-npm install
-# or
-yarn install
+bun run dev
 ```
 
-3. **Run the development server**
+The development server runs on:
+
+```text
+http://localhost:46480
+```
+
+## Scripts
 
 ```bash
-npm run dev
-# or
-yarn dev
+bun run check
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The Next.js development server will start in development mode, reloading the page as you edit the files.
-
-## Build and Deployment
-
-To build the application for production, use:
+Runs TypeScript checking with `tsconfig.json`, then checks formatting with Biome.
 
 ```bash
-npm run build
-# or
-yarn build
+bun run format
 ```
 
-This will generate a `.next` folder with all the optimized production assets. To start serving the production build, use:
+Formats the project with Biome.
 
 ```bash
-npm start
-# or
-yarn start
+bun run build
 ```
 
-## Contributing
+Builds the production Next.js app.
 
-Contributions are always welcome! Please read the contributing guidelines first to ensure a smooth workflow.
+```bash
+bun run start
+```
 
-## Acknowledgments
+Serves the production build on port `46480`.
 
-- Thanks to all the contributors who spend time to help improve this project.
-- Inspired by various creative portfolio designs across the web.
+## Tooling Notes
+
+- ESLint and Prettier are not used. Biome is the only formatter/checker.
+- Commitlint is not used.
+- i18n has been removed. The site currently uses static English copy.
+- shadcn/ui is configured for Tailwind v4 without a `tailwind.config.ts` file.
+- `check.sh`, `prepare.sh`, `reinstall.sh`, and `tsconfig.app.json` have been removed.
+- Husky is not used; run `bun run check` manually before committing.
+
+## Vercel
+
+This repo is linked to the Vercel project:
+
+```text
+khanh-duy-projects/khanhduy-portfolio
+```
+
+Useful Vercel commands:
+
+```bash
+bunx vercel pull --yes
+bunx vercel link --yes --project khanhduy-portfolio
+```
+
+## Project Structure
+
+```text
+app/          App Router pages, layout, and route assets
+components/   Shared UI components
+lib/          Small utilities
+public/       Static assets
+```
 
 ## Contact
 
-If you have any questions, feel free to reach out to me at khanhduyvt0101@gmail.com.
-
-Thank you for visiting my portfolio's source code repository!
+Email: khanhduyvt0101@gmail.com

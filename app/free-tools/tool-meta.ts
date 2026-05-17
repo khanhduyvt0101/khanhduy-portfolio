@@ -1,0 +1,351 @@
+export type ToolCategory = "Developer" | "Image" | "PDF" | "Text" | "Design";
+
+export type FreeTool = {
+  title: string;
+  slug: string;
+  category: ToolCategory;
+  summary: string;
+  keywords: string[];
+};
+
+export const freeTools: FreeTool[] = [
+  {
+    title: "QR Code Generator",
+    slug: "qr-code-generator",
+    category: "Developer",
+    summary:
+      "Create QR codes for URLs, Wi-Fi credentials, contacts, and short text.",
+    keywords: [
+      "barcode",
+      "contact",
+      "email",
+      "link",
+      "share",
+      "sms",
+      "text",
+      "url",
+      "vcard",
+      "wifi",
+    ],
+  },
+  {
+    title: "JSON Formatter",
+    slug: "json-formatter",
+    category: "Developer",
+    summary:
+      "Format, validate, and inspect JSON payloads without uploading data.",
+    keywords: [
+      "api",
+      "beautify",
+      "debug",
+      "lint",
+      "minify",
+      "payload",
+      "pretty print",
+      "schema",
+      "validate",
+    ],
+  },
+  {
+    title: "JWT Decoder",
+    slug: "jwt-decoder",
+    category: "Developer",
+    summary:
+      "Decode token headers and payloads while keeping secrets on-device.",
+    keywords: [
+      "auth",
+      "bearer",
+      "claims",
+      "decode",
+      "header",
+      "json web token",
+      "payload",
+      "token",
+    ],
+  },
+  {
+    title: "UUID Generator",
+    slug: "uuid-generator",
+    category: "Developer",
+    summary:
+      "Generate unique IDs for tests, fixtures, prototypes, and databases.",
+    keywords: [
+      "guid",
+      "identifier",
+      "id",
+      "random",
+      "test data",
+      "unique",
+      "v4",
+    ],
+  },
+  {
+    title: "Password Generator",
+    slug: "password-generator",
+    category: "Developer",
+    summary:
+      "Create strong passwords with length, symbol, and readability controls.",
+    keywords: [
+      "credential",
+      "letters",
+      "numbers",
+      "passphrase",
+      "random",
+      "secure",
+      "symbols",
+    ],
+  },
+  {
+    title: "Base64 Encoder",
+    slug: "base64-encoder",
+    category: "Developer",
+    summary:
+      "Encode or decode Base64 strings for API testing and quick debugging.",
+    keywords: ["atob", "btoa", "decode", "encode", "jwt", "string", "unicode"],
+  },
+  {
+    title: "URL Encoder",
+    slug: "url-encoder",
+    category: "Developer",
+    summary:
+      "Encode and decode query strings, redirect URLs, and copied parameters.",
+    keywords: [
+      "decode",
+      "encode",
+      "escape",
+      "link",
+      "parameter",
+      "query",
+      "redirect",
+      "uri",
+    ],
+  },
+  {
+    title: "Regex Tester",
+    slug: "regex-tester",
+    category: "Developer",
+    summary:
+      "Test JavaScript regular expressions against sample text with matches.",
+    keywords: [
+      "expression",
+      "flags",
+      "javascript",
+      "match",
+      "pattern",
+      "replace",
+      "regular expression",
+      "test",
+    ],
+  },
+  {
+    title: "Hash Generator",
+    slug: "hash-generator",
+    category: "Developer",
+    summary:
+      "Generate SHA hashes for text snippets, checksums, and signatures.",
+    keywords: [
+      "checksum",
+      "digest",
+      "sha",
+      "sha-1",
+      "sha-256",
+      "sha-384",
+      "sha-512",
+      "signature",
+    ],
+  },
+  {
+    title: "Timestamp Converter",
+    slug: "timestamp-converter",
+    category: "Developer",
+    summary: "Convert Unix timestamps into readable local and UTC dates.",
+    keywords: [
+      "date",
+      "epoch",
+      "local time",
+      "milliseconds",
+      "seconds",
+      "time",
+      "unix",
+      "utc",
+    ],
+  },
+  {
+    title: "Timezone Converter",
+    slug: "timezone-converter",
+    category: "Developer",
+    summary: "Compare meeting times across cities and remote-work time zones.",
+    keywords: [
+      "city",
+      "compare",
+      "meeting",
+      "remote",
+      "schedule",
+      "time",
+      "utc offset",
+      "world clock",
+    ],
+  },
+  {
+    title: "Word Counter",
+    slug: "word-counter",
+    category: "Text",
+    summary: "Count words, characters, sentences, and reading time for drafts.",
+    keywords: [
+      "characters",
+      "copywriting",
+      "draft",
+      "letters",
+      "reading time",
+      "sentences",
+      "text",
+      "words",
+    ],
+  },
+  {
+    title: "Text Diff Checker",
+    slug: "text-diff-checker",
+    category: "Text",
+    summary:
+      "Compare two snippets, docs, prompts, or config files side by side.",
+    keywords: [
+      "changes",
+      "compare",
+      "diff",
+      "documents",
+      "patch",
+      "prompts",
+      "review",
+      "text",
+    ],
+  },
+  {
+    title: "Markdown Preview",
+    slug: "markdown-preview",
+    category: "Text",
+    summary: "Preview README files, release notes, and docs before publishing.",
+    keywords: [
+      "docs",
+      "github",
+      "markdown",
+      "md",
+      "preview",
+      "readme",
+      "release notes",
+      "render",
+    ],
+  },
+  {
+    title: "CSS Gradient Generator",
+    slug: "css-gradient-generator",
+    category: "Design",
+    summary: "Create clean CSS gradients and copy production-ready snippets.",
+    keywords: [
+      "background",
+      "color",
+      "css",
+      "design",
+      "gradient",
+      "linear",
+      "radial",
+      "snippet",
+    ],
+  },
+  {
+    title: "Color Converter",
+    slug: "color-converter",
+    category: "Design",
+    summary: "Convert HEX, RGB, HSL, OKLCH, and named color values.",
+    keywords: [
+      "hex",
+      "hsl",
+      "named color",
+      "oklch",
+      "palette",
+      "rgb",
+      "theme",
+      "token",
+    ],
+  },
+  {
+    title: "Palette From Image",
+    slug: "palette-from-image",
+    category: "Design",
+    summary: "Extract a usable color palette from a product or brand image.",
+    keywords: [
+      "brand",
+      "colors",
+      "extract",
+      "image",
+      "palette",
+      "photo",
+      "swatches",
+      "theme",
+    ],
+  },
+  {
+    title: "Image Compressor",
+    slug: "image-compressor",
+    category: "Image",
+    summary: "Shrink large screenshots and product images before uploading.",
+    keywords: [
+      "compress",
+      "jpeg",
+      "jpg",
+      "optimize",
+      "photo",
+      "png",
+      "quality",
+      "screenshot",
+      "webp",
+    ],
+  },
+  {
+    title: "Image Resizer",
+    slug: "image-resizer",
+    category: "Image",
+    summary:
+      "Resize images for avatars, social previews, uploads, and app stores.",
+    keywords: [
+      "avatar",
+      "crop",
+      "dimensions",
+      "height",
+      "photo",
+      "resize",
+      "scale",
+      "thumbnail",
+      "width",
+    ],
+  },
+  {
+    title: "Images to PDF",
+    slug: "images-to-pdf",
+    category: "PDF",
+    summary: "Combine receipts, screenshots, and scans into a single PDF file.",
+    keywords: [
+      "combine",
+      "convert",
+      "document",
+      "images",
+      "merge",
+      "pdf",
+      "receipt",
+      "scan",
+      "screenshots",
+    ],
+  },
+];
+
+export const freeToolCategories = [
+  "All",
+  "Developer",
+  "Image",
+  "PDF",
+  "Text",
+  "Design",
+] as const;
+
+export function getFreeTool(slug: string) {
+  return freeTools.find((tool) => tool.slug === slug);
+}
