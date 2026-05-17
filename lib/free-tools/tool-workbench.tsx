@@ -414,9 +414,13 @@ function UuidGeneratorTool(): ReactNode {
   const [count, setCount] = useState(8);
   const [uppercase, setUppercase] = useState(false);
   const [hyphenless, setHyphenless] = useState(false);
-  const [values, setValues] = useState(() => makeUuids(8, false, false));
+  const [values, setValues] = useState<string[]>([]);
 
   const regenerate = () => setValues(makeUuids(count, uppercase, hyphenless));
+
+  useEffect(() => {
+    setValues(makeUuids(8, false, false));
+  }, []);
 
   return (
     <WorkbenchLayout
@@ -438,7 +442,7 @@ function UuidGeneratorTool(): ReactNode {
       output={
         <ResultBlock title="UUIDs">
           <pre className="whitespace-pre-wrap break-all font-mono text-sm">
-            {values.join("\n")}
+            {values.length > 0 ? values.join("\n") : "Preparing UUIDs..."}
           </pre>
         </ResultBlock>
       }
@@ -471,11 +475,13 @@ function UuidGeneratorTool(): ReactNode {
 function PasswordGeneratorTool(): ReactNode {
   const [length, setLength] = useState(24);
   const [sets, setSets] = useState(["upper", "lower", "number", "symbol"]);
-  const [passwords, setPasswords] = useState(() =>
-    makePasswords(5, 24, ["upper", "lower", "number", "symbol"]),
-  );
+  const [passwords, setPasswords] = useState<string[]>([]);
 
   const regenerate = () => setPasswords(makePasswords(5, length, sets));
+
+  useEffect(() => {
+    setPasswords(makePasswords(5, 24, ["upper", "lower", "number", "symbol"]));
+  }, []);
 
   return (
     <WorkbenchLayout
@@ -497,7 +503,9 @@ function PasswordGeneratorTool(): ReactNode {
       output={
         <ResultBlock title="Passwords">
           <pre className="whitespace-pre-wrap break-all font-mono text-sm">
-            {passwords.join("\n")}
+            {passwords.length > 0
+              ? passwords.join("\n")
+              : "Preparing passwords..."}
           </pre>
         </ResultBlock>
       }
@@ -732,10 +740,12 @@ function HashGeneratorTool(): ReactNode {
 }
 
 function TimestampTool(): ReactNode {
-  const [timestamp, setTimestamp] = useState(() =>
-    String(Math.floor(Date.now() / 1000)),
-  );
+  const [timestamp, setTimestamp] = useState("");
   const date = useMemo(() => parseTimestamp(timestamp), [timestamp]);
+
+  useEffect(() => {
+    setTimestamp(String(Math.floor(Date.now() / 1000)));
+  }, []);
 
   return (
     <WorkbenchLayout
@@ -1657,7 +1667,13 @@ function convertBase64(
 }
 
 function parseTimestamp(value: string) {
-  const numeric = Number(value.trim());
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const numeric = Number(trimmed);
   if (!Number.isFinite(numeric)) {
     return null;
   }

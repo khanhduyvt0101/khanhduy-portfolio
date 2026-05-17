@@ -1,4 +1,7 @@
-import { getHuggingFaceModelCandidates } from "./huggingface-models";
+import {
+  getHuggingFaceModelCandidates,
+  type HuggingFaceModelProfile,
+} from "./huggingface-models";
 
 export type AgentRuntime =
   | "browser-ai"
@@ -16,15 +19,33 @@ export type AgentOutput =
   | "schema"
   | "summary"
   | "table";
+export type AgentIconKey =
+  | "bot"
+  | "data"
+  | "email"
+  | "file"
+  | "gauge"
+  | "prompt"
+  | "schema"
+  | "summary";
+
+export type AgentWorkflow = {
+  label: string;
+  description?: string;
+  prompt?: string;
+};
 
 export type AgentBlueprint = {
   id: string;
   name: string;
   tagline: string;
   description: string;
+  icon?: AgentIconKey;
   inputs: AgentInput[];
   outputs: AgentOutput[];
+  workflows?: AgentWorkflow[];
   runtime: AgentRuntime;
+  modelProfile?: HuggingFaceModelProfile;
   privacy: "Local first" | "Hybrid" | "Cloud ready";
   status: "Live" | "Browser AI boosted";
   useCases: string[];
@@ -39,8 +60,11 @@ export type AgentBlueprint = {
   systemPrompt: string;
 };
 
-function modelStack(agentId: string) {
-  return getHuggingFaceModelCandidates(agentId).map((model) => model.label);
+function modelStack(modelProfile?: HuggingFaceModelProfile) {
+  return getHuggingFaceModelCandidates({
+    id: modelProfile ?? "balanced",
+    modelProfile,
+  }).map((model) => model.label);
 }
 
 export type RuntimeLayer = {
@@ -99,16 +123,38 @@ export const runtimeLayers: RuntimeLayer[] = [
   },
 ];
 
-export const agentBlueprints: AgentBlueprint[] = [
+const agentDefinitions = [
   {
     id: "email-digest",
     name: "Email Digest Agent",
     tagline: "Turn long email threads into decisions, blockers, and replies.",
     description:
       "Paste a support thread, founder inbox note, or customer email. The agent extracts the important context and writes a practical reply draft.",
+    icon: "email",
     inputs: ["email", "text"],
     outputs: ["summary", "checklist", "reply"],
+    workflows: [
+      {
+        label: "Support triage",
+        description: "Classify urgency, missing info, and next owner.",
+        prompt:
+          "Triage this support thread. Return urgency, sentiment, missing information, likely owner, and a short customer-safe reply.",
+      },
+      {
+        label: "Executive digest",
+        description: "Summarize decisions, blockers, and deadlines.",
+        prompt:
+          "Summarize this thread for a busy founder. Include decisions, blockers, promised next steps, deadlines, and what to ask next.",
+      },
+      {
+        label: "Reply draft",
+        description: "Write a warm answer with one clear ask.",
+        prompt:
+          "Draft a warm, concise reply. Acknowledge the issue, explain the next step, ask only one needed question, and avoid overpromising.",
+      },
+    ],
     runtime: "hybrid",
+    modelProfile: "reasoning",
     privacy: "Hybrid",
     status: "Browser AI boosted",
     useCases: [
@@ -119,7 +165,7 @@ export const agentBlueprints: AgentBlueprint[] = [
     stack: [
       "Chrome Prompt API",
       "Vercel AI SDK",
-      ...modelStack("email-digest"),
+      ...modelStack("reasoning"),
       "Reply drafting",
     ],
     promptLabel: "What should the reply optimize for?",
@@ -141,9 +187,31 @@ export const agentBlueprints: AgentBlueprint[] = [
     tagline: "Upload text, CSV, JSON, or logs and get structured data back.",
     description:
       "Drop a small file or paste raw content. The agent detects rows, key-value pairs, JSON, and CSV-like tables, then returns copy-ready artifacts.",
+    icon: "file",
     inputs: ["file", "text"],
     outputs: ["json", "csv", "table", "report"],
+    workflows: [
+      {
+        label: "Extract rows",
+        description: "Turn messy text into a table plus JSON.",
+        prompt:
+          "Extract normalized rows. Preserve source values, name each field clearly, and flag missing or uncertain values.",
+      },
+      {
+        label: "Data dictionary",
+        description: "Profile columns for downstream systems.",
+        prompt:
+          "Create structured rows and a data dictionary with inferred field types, sample values, and empty-value notes.",
+      },
+      {
+        label: "Import package",
+        description: "Prepare CSV, JSON, and validation notes.",
+        prompt:
+          "Prepare this content for import into another system. Return CSV, JSON, validation issues, and cleanup recommendations.",
+      },
+    ],
     runtime: "local-model",
+    modelProfile: "reasoning",
     privacy: "Local first",
     status: "Live",
     useCases: ["Invoice rows", "Research datasets", "Receipt cleanup"],
@@ -151,7 +219,7 @@ export const agentBlueprints: AgentBlueprint[] = [
       "File API",
       "CSV parser",
       "JSON normalizer",
-      ...modelStack("file-to-data"),
+      ...modelStack("reasoning"),
     ],
     promptLabel: "What data should be extracted?",
     promptPlaceholder:
@@ -174,16 +242,38 @@ export const agentBlueprints: AgentBlueprint[] = [
       "Summarize pasted content locally before anything touches a server.",
     description:
       "Use Browser AI when available, then a Hugging Face model through Vercel AI SDK, with a deterministic summarization fallback for articles, meeting notes, documentation, and research snippets.",
+    icon: "summary",
     inputs: ["text"],
     outputs: ["summary", "checklist", "report"],
+    workflows: [
+      {
+        label: "Meeting recap",
+        description: "Extract decisions, action items, and open questions.",
+        prompt:
+          "Create a private meeting recap with decisions, action items, owners if present, risks, and open questions.",
+      },
+      {
+        label: "Research brief",
+        description: "Compress source material into a briefing note.",
+        prompt:
+          "Turn this into a research brief with key findings, caveats, evidence points, and recommended next steps.",
+      },
+      {
+        label: "Decision log",
+        description: "Pull out commitments and unresolved risks.",
+        prompt:
+          "Extract a decision log. Include decisions, risks, dependencies, follow-ups, and anything that still needs human review.",
+      },
+    ],
     runtime: "browser-ai",
+    modelProfile: "fast",
     privacy: "Local first",
     status: "Browser AI boosted",
     useCases: ["Article summaries", "Meeting notes", "Research notes"],
     stack: [
       "Chrome Prompt API",
       "Vercel AI SDK",
-      ...modelStack("private-summarizer"),
+      ...modelStack("fast"),
       "Extractive fallback",
     ],
     promptLabel: "Summary style",
@@ -204,9 +294,31 @@ export const agentBlueprints: AgentBlueprint[] = [
     tagline: "Normalize messy lists, copied tables, and exported CSV content.",
     description:
       "Clean whitespace, infer columns, normalize common email/name fields, remove empty rows, deduplicate obvious repeats, and return CSV plus JSON.",
+    icon: "gauge",
     inputs: ["file", "text"],
     outputs: ["csv", "json", "table"],
+    workflows: [
+      {
+        label: "Clean contacts",
+        description: "Normalize names, emails, and duplicates.",
+        prompt:
+          "Clean this contact list. Normalize email casing, trim whitespace, remove exact duplicates, and keep every non-empty field.",
+      },
+      {
+        label: "Spreadsheet prep",
+        description: "Prepare copied rows for spreadsheet import.",
+        prompt:
+          "Prepare this data for spreadsheet import. Normalize column names, remove empty rows, deduplicate, and report quality issues.",
+      },
+      {
+        label: "QA report",
+        description: "Show what changed before exporting.",
+        prompt:
+          "Clean the data and produce a data quality report with removed rows, duplicate count, empty fields, and final columns.",
+      },
+    ],
     runtime: "local-model",
+    modelProfile: "reasoning",
     privacy: "Local first",
     status: "Live",
     useCases: ["Lead lists", "CSV cleanup", "Spreadsheet prep"],
@@ -214,7 +326,7 @@ export const agentBlueprints: AgentBlueprint[] = [
       "Local parser",
       "Deduping",
       "Schema cleanup",
-      ...modelStack("data-cleaner"),
+      ...modelStack("reasoning"),
     ],
     promptLabel: "Cleanup goal",
     promptPlaceholder:
@@ -235,15 +347,37 @@ export const agentBlueprints: AgentBlueprint[] = [
     tagline: "Convert a rough idea into a crisp AI agent instruction.",
     description:
       "Write a reusable prompt with role, context, inputs, workflow, output format, safety checks, and evaluation criteria.",
+    icon: "prompt",
     inputs: ["text"],
     outputs: ["report", "checklist"],
+    workflows: [
+      {
+        label: "Agent spec",
+        description: "Role, mission, workflow, and outputs.",
+        prompt:
+          "Turn this idea into a reusable agent spec with role, mission, input contract, workflow, output format, and quality bar.",
+      },
+      {
+        label: "Guardrail pass",
+        description: "Add failure modes and escalation rules.",
+        prompt:
+          "Strengthen this prompt with guardrails, refusal or escalation cases, uncertainty handling, and anti-hallucination checks.",
+      },
+      {
+        label: "Eval checklist",
+        description: "Create tests for reliable agent behavior.",
+        prompt:
+          "Create the agent prompt plus an evaluation checklist with happy path, missing context, contradiction, edge-case, and safety tests.",
+      },
+    ],
     runtime: "hybrid",
+    modelProfile: "reasoning",
     privacy: "Local first",
     status: "Live",
     useCases: ["Agent specs", "Reusable prompts", "Workflow docs"],
     stack: [
       "Vercel AI SDK",
-      ...modelStack("prompt-builder"),
+      ...modelStack("reasoning"),
       "Prompt patterns",
       "Quality checklist",
     ],
@@ -265,9 +399,31 @@ export const agentBlueprints: AgentBlueprint[] = [
     tagline: "Turn examples into a typed JSON contract.",
     description:
       "Paste JSON, CSV, logs, or a natural-language object description. The agent proposes a practical JSON schema and validation notes.",
+    icon: "schema",
     inputs: ["file", "text"],
     outputs: ["schema", "json", "report"],
+    workflows: [
+      {
+        label: "Strict schema",
+        description: "Infer a JSON Schema for structured output.",
+        prompt:
+          "Create a strict JSON Schema for structured AI output. Include required fields, additionalProperties false, and validation notes.",
+      },
+      {
+        label: "TypeScript contract",
+        description: "Generate schema plus a typed interface.",
+        prompt:
+          "Create JSON Schema plus a TypeScript interface and Zod validator for this example shape.",
+      },
+      {
+        label: "Extraction schema",
+        description: "Design fields for document extraction.",
+        prompt:
+          "Design a schema for document extraction. Include field descriptions, required fields, assumptions, and fields that may need review.",
+      },
+    ],
     runtime: "local-model",
+    modelProfile: "reasoning",
     privacy: "Local first",
     status: "Live",
     useCases: ["API contracts", "Extraction schemas", "Structured outputs"],
@@ -275,7 +431,7 @@ export const agentBlueprints: AgentBlueprint[] = [
       "Schema inference",
       "Type detection",
       "Validation notes",
-      ...modelStack("json-schema"),
+      ...modelStack("reasoning"),
     ],
     promptLabel: "Schema goal",
     promptPlaceholder:
@@ -291,7 +447,10 @@ export const agentBlueprints: AgentBlueprint[] = [
     systemPrompt:
       "You are a schema design agent. Infer a useful JSON Schema from examples. Include assumptions and required fields.",
   },
-];
+] satisfies AgentBlueprint[];
+
+export const agentBlueprints: AgentBlueprint[] =
+  defineAgentBlueprints(agentDefinitions);
 
 export function getRuntimeLayer(runtime: AgentRuntime) {
   return (
@@ -301,4 +460,129 @@ export function getRuntimeLayer(runtime: AgentRuntime) {
 
 export function getAgentBlueprint(id: string) {
   return agentBlueprints.find((agent) => agent.id === id);
+}
+
+export function getAgentWorkflowLabels(agent: AgentBlueprint) {
+  return (
+    agent.workflows?.length
+      ? agent.workflows.map((workflow) => workflow.label)
+      : agent.useCases
+  ).filter(Boolean);
+}
+
+function getAgentWorkflowSearchText(agent: AgentBlueprint) {
+  return (
+    agent.workflows?.flatMap((workflow) => [
+      workflow.label,
+      workflow.description ?? "",
+      workflow.prompt ?? "",
+    ]) ?? []
+  );
+}
+
+export function getAgentSearchText(agent: AgentBlueprint) {
+  return [
+    agent.name,
+    agent.tagline,
+    agent.description,
+    ...agent.inputs,
+    ...agent.outputs,
+    ...agent.useCases,
+    ...getAgentWorkflowLabels(agent),
+    ...getAgentWorkflowSearchText(agent),
+    ...agent.stack,
+  ].join(" ");
+}
+
+function defineAgentBlueprints(agents: AgentBlueprint[]): AgentBlueprint[] {
+  if (process.env.NODE_ENV !== "production") {
+    validateAgentBlueprints(agents);
+  }
+
+  return agents.map((agent) => ({
+    ...agent,
+    icon: agent.icon ?? inferAgentIcon(agent),
+    modelProfile: agent.modelProfile ?? inferAgentModelProfile(agent),
+    workflows:
+      agent.workflows && agent.workflows.length > 0
+        ? agent.workflows
+        : agent.useCases.map((useCase) => ({ label: useCase })),
+    stack: mergeUnique([
+      ...agent.stack,
+      ...modelStack(agent.modelProfile ?? inferAgentModelProfile(agent)),
+    ]),
+  }));
+}
+
+function validateAgentBlueprints(agents: AgentBlueprint[]) {
+  const ids = new Set<string>();
+  const duplicateIds = new Set<string>();
+
+  for (const agent of agents) {
+    if (ids.has(agent.id)) {
+      duplicateIds.add(agent.id);
+    }
+
+    ids.add(agent.id);
+
+    if (
+      agent.inputs.length === 0 ||
+      agent.outputs.length === 0 ||
+      agent.useCases.length === 0 ||
+      agent.stack.length === 0
+    ) {
+      throw new Error(
+        `Agent "${agent.id}" is missing inputs, outputs, use cases, or stack items.`,
+      );
+    }
+  }
+
+  if (duplicateIds.size > 0) {
+    throw new Error(
+      `Duplicate AI agent ids: ${Array.from(duplicateIds).join(", ")}`,
+    );
+  }
+}
+
+function inferAgentIcon(agent: AgentBlueprint): AgentIconKey {
+  if (agent.outputs.includes("schema")) {
+    return "schema";
+  }
+
+  if (agent.outputs.includes("csv") || agent.outputs.includes("table")) {
+    return "data";
+  }
+
+  if (agent.inputs.includes("email")) {
+    return "email";
+  }
+
+  if (agent.inputs.includes("file")) {
+    return "file";
+  }
+
+  if (agent.outputs.includes("summary")) {
+    return "summary";
+  }
+
+  return agent.runtime === "hybrid" ? "prompt" : "bot";
+}
+
+function inferAgentModelProfile(
+  agent: Pick<AgentBlueprint, "outputs" | "runtime">,
+): HuggingFaceModelProfile {
+  if (
+    agent.outputs.includes("json") ||
+    agent.outputs.includes("schema") ||
+    agent.outputs.includes("csv") ||
+    agent.outputs.includes("reply")
+  ) {
+    return "reasoning";
+  }
+
+  return agent.runtime === "browser-ai" ? "fast" : "balanced";
+}
+
+function mergeUnique(values: string[]) {
+  return values.filter((value, index) => values.indexOf(value) === index);
 }

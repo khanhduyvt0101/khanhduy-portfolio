@@ -9,6 +9,13 @@ export type HuggingFaceModelConfig = {
 };
 
 export type HuggingFaceModelDevice = "webgpu" | "wasm";
+export type HuggingFaceModelProfile = "balanced" | "fast" | "reasoning";
+export type HuggingFaceModelTarget =
+  | string
+  | {
+      id: string;
+      modelProfile?: HuggingFaceModelProfile;
+    };
 
 export const HUGGING_FACE_MODELS = {
   qwen3Small: {
@@ -40,43 +47,22 @@ export const HUGGING_FACE_MODELS = {
   },
 } satisfies Record<string, HuggingFaceModelConfig>;
 
-const fallbackModelOrder = [
-  HUGGING_FACE_MODELS.smolLm2Tiny,
-  HUGGING_FACE_MODELS.smolLm2Medium,
-];
-
-const agentModelOrder: Record<string, HuggingFaceModelConfig[]> = {
-  "email-digest": [
-    HUGGING_FACE_MODELS.qwen3Small,
-    HUGGING_FACE_MODELS.smolLm2Tiny,
-  ],
-  "file-to-data": [
-    HUGGING_FACE_MODELS.qwen3Small,
-    HUGGING_FACE_MODELS.smolLm2Tiny,
-  ],
-  "private-summarizer": [
-    HUGGING_FACE_MODELS.smolLm2Tiny,
-    HUGGING_FACE_MODELS.qwen3Small,
-  ],
-  "data-cleaner": [
-    HUGGING_FACE_MODELS.qwen3Small,
-    HUGGING_FACE_MODELS.smolLm2Tiny,
-  ],
-  "prompt-builder": [
-    HUGGING_FACE_MODELS.qwen3Small,
-    HUGGING_FACE_MODELS.smolLm2Tiny,
-  ],
-  "json-schema": [
-    HUGGING_FACE_MODELS.qwen3Small,
-    HUGGING_FACE_MODELS.smolLm2Tiny,
-  ],
-};
+const modelProfiles: Record<HuggingFaceModelProfile, HuggingFaceModelConfig[]> =
+  {
+    balanced: [HUGGING_FACE_MODELS.qwen3Small, HUGGING_FACE_MODELS.smolLm2Tiny],
+    fast: [HUGGING_FACE_MODELS.smolLm2Tiny, HUGGING_FACE_MODELS.qwen3Small],
+    reasoning: [
+      HUGGING_FACE_MODELS.qwen3Small,
+      HUGGING_FACE_MODELS.smolLm2Tiny,
+    ],
+  };
 
 export function getHuggingFaceModelCandidates(
-  agentId: string,
+  target: HuggingFaceModelTarget,
   device: HuggingFaceModelDevice = "webgpu",
 ) {
-  const models = agentModelOrder[agentId] ?? fallbackModelOrder;
+  const models =
+    modelProfiles[getModelProfile(target)] ?? modelProfiles.balanced;
 
   if (device === "wasm") {
     return [...models].sort((left, right) => {
@@ -89,18 +75,18 @@ export function getHuggingFaceModelCandidates(
   return models;
 }
 
-export function getPrimaryHuggingFaceModel(agentId: string) {
-  return getHuggingFaceModelCandidates(agentId)[0];
+export function getPrimaryHuggingFaceModel(target: HuggingFaceModelTarget) {
+  return getHuggingFaceModelCandidates(target)[0];
 }
 
 export function getUniqueHuggingFaceModelCandidates(
-  agentIds: string[],
+  targets: HuggingFaceModelTarget[],
   device: HuggingFaceModelDevice = "webgpu",
 ) {
   const seen = new Set<string>();
 
-  return agentIds
-    .flatMap((agentId) => getHuggingFaceModelCandidates(agentId, device))
+  return targets
+    .flatMap((target) => getHuggingFaceModelCandidates(target, device))
     .filter((model) => {
       if (seen.has(model.id)) {
         return false;
@@ -109,4 +95,20 @@ export function getUniqueHuggingFaceModelCandidates(
       seen.add(model.id);
       return true;
     });
+}
+
+function getModelProfile(
+  target: HuggingFaceModelTarget,
+): HuggingFaceModelProfile {
+  if (typeof target !== "string") {
+    return target.modelProfile ?? inferModelProfileFromId(target.id);
+  }
+
+  return inferModelProfileFromId(target);
+}
+
+function inferModelProfileFromId(agentId: string): HuggingFaceModelProfile {
+  return agentId.includes("summar") || agentId.includes("rewrite")
+    ? "fast"
+    : "balanced";
 }

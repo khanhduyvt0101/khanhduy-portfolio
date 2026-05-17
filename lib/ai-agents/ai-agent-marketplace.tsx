@@ -1,13 +1,9 @@
 import {
-  Bot,
   Cpu,
-  FileInput,
   Gauge,
   type LucideIcon,
-  Mail,
   MonitorCheck,
   ServerCog,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -26,8 +22,10 @@ import {
   type AgentBlueprint,
   type AgentRuntime,
   agentBlueprints,
+  getAgentWorkflowLabels,
   getRuntimeLayer,
 } from "./agent-catalog";
+import { getAgentIcon } from "./agent-presentation";
 import { AgentRuntimeStatus } from "./ai-agent-runtime-status";
 
 const runtimeIcons: Record<AgentRuntime, LucideIcon> = {
@@ -35,15 +33,6 @@ const runtimeIcons: Record<AgentRuntime, LucideIcon> = {
   hybrid: Gauge,
   "local-model": Cpu,
   "server-agent": ServerCog,
-};
-
-const agentIcons: Record<string, LucideIcon> = {
-  "data-cleaner": Gauge,
-  "email-digest": Mail,
-  "file-to-data": FileInput,
-  "json-schema": ServerCog,
-  "private-summarizer": Bot,
-  "prompt-builder": Sparkles,
 };
 
 export function AiAgentMarketplace({
@@ -81,7 +70,7 @@ export function AiAgentMarketplace({
                 Agent shelf
               </p>
               <p className="mt-2 max-w-2xl text-muted-foreground text-sm leading-6">
-                Pick one job. Run it. Copy the result.
+                Pick an agent or workflow. Run it. Copy the result.
               </p>
             </div>
             <div className="flex flex-col items-start gap-2 md:items-end">
@@ -103,7 +92,7 @@ export function AiAgentMarketplace({
 function AgentCard({ agent }: { agent: AgentBlueprint }): ReactNode {
   const runtime = getRuntimeLayer(agent.runtime);
   const RuntimeIcon = runtimeIcons[agent.runtime];
-  const AgentIcon = agentIcons[agent.id] ?? Bot;
+  const AgentIcon = getAgentIcon(agent);
 
   return (
     <Card
@@ -143,7 +132,10 @@ function AgentCard({ agent }: { agent: AgentBlueprint }): ReactNode {
 
         <div className="grid gap-2 border-t pt-4 text-sm sm:grid-cols-2">
           <MiniField label="Input" values={agent.inputs} />
-          <MiniField label="Output" values={agent.outputs.slice(0, 3)} />
+          <MiniField
+            label="Workflows"
+            values={getAgentWorkflowLabels(agent).slice(0, 3)}
+          />
         </div>
       </CardContent>
     </Card>

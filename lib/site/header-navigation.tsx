@@ -6,14 +6,17 @@ import {
   Braces,
   FileText,
   ImageIcon,
+  Keyboard,
   type LucideIcon,
   Paintbrush,
+  Search,
   Sparkles,
   Type,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -23,7 +26,12 @@ import {
   NavigationMenuTrigger,
 } from "~/components/ui/navigation-menu";
 import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
+import { getAgentIcon } from "~/lib/ai-agents/agent-presentation";
 import { freeTools, type ToolCategory } from "~/lib/free-tools/tool-meta";
+import {
+  type PortfolioCommandPaletteOpenDetail,
+  portfolioCommandPaletteOpenEvent,
+} from "~/lib/portfolio/command-palette-events";
 import { cn } from "~/lib/utils";
 
 const toolCategoryIcons: Record<ToolCategory, LucideIcon> = {
@@ -179,12 +187,54 @@ function MenuTrigger({
   return (
     <NavigationMenuTrigger
       className={cn(
-        "h-10 rounded-lg bg-transparent px-4 font-semibold text-base hover:bg-muted focus:bg-muted data-[state=open]:bg-muted",
-        active && "bg-muted text-foreground",
+        "relative h-10 rounded-none bg-transparent px-2.5 font-semibold text-muted-foreground text-sm shadow-none transition-colors hover:bg-transparent hover:text-foreground focus:bg-transparent focus:text-foreground focus-visible:ring-0 data-[state=open]:bg-transparent data-[state=open]:text-foreground data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent after:absolute after:right-2.5 after:bottom-1.5 after:left-2.5 after:h-px after:origin-left after:scale-x-0 after:bg-foreground after:transition-transform after:duration-200 hover:after:scale-x-100 data-[state=open]:after:scale-x-100",
+        active && "text-foreground after:scale-x-100",
       )}
     >
       {children}
     </NavigationMenuTrigger>
+  );
+}
+
+export function HeaderCommandSearch(): ReactNode {
+  const [isOpening, setIsOpening] = useState(false);
+
+  const openCommandPalette = () => {
+    setIsOpening(true);
+    window.setTimeout(() => setIsOpening(false), 360);
+    window.dispatchEvent(
+      new CustomEvent<PortfolioCommandPaletteOpenDetail>(
+        portfolioCommandPaletteOpenEvent,
+        {
+          detail: { source: "header_search" },
+        },
+      ),
+    );
+  };
+
+  return (
+    <button
+      aria-label="Search the site"
+      className={cn(
+        "group/search relative hidden h-10 w-[min(30vw,18rem)] items-center overflow-hidden rounded-lg border bg-background/80 px-3 text-left shadow-xs backdrop-blur-md transition-[width,transform,border-color,background-color,box-shadow] duration-300 ease-out hover:w-[min(32vw,19rem)] hover:border-foreground/20 hover:bg-background hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 md:inline-flex",
+        isOpening &&
+          "scale-[0.985] border-foreground/25 bg-muted shadow-lg shadow-foreground/10",
+      )}
+      onClick={openCommandPalette}
+      type="button"
+    >
+      <span className="absolute inset-y-0 left-0 w-12 bg-[radial-gradient(circle_at_35%_50%,var(--accent),transparent_68%)] opacity-0 transition-opacity duration-300 group-hover/search:opacity-80" />
+      <span className="relative grid size-6 shrink-0 place-items-center rounded-md border bg-muted/60 text-muted-foreground transition-colors duration-300 group-hover/search:text-foreground">
+        <Search className="size-3.5" />
+      </span>
+      <span className="relative ml-2 min-w-0 flex-1 truncate text-muted-foreground text-sm transition-colors duration-300 group-hover/search:text-foreground">
+        Search agents, tools, links
+      </span>
+      <span className="relative ml-3 hidden items-center gap-1 rounded-md border bg-background/80 px-1.5 py-1 font-mono text-[0.68rem] text-muted-foreground shadow-xs lg:inline-flex">
+        <Keyboard className="size-3" />
+        <span>⌘K</span>
+      </span>
+    </button>
   );
 }
 
@@ -194,7 +244,7 @@ export function HeaderNavigation(): ReactNode {
   return (
     <NavigationMenu
       aria-label="Primary"
-      className="flex-none rounded-2xl border bg-background/80 p-1 shadow-xs backdrop-blur-md"
+      className="flex-none"
       delayDuration={90}
       skipDelayDuration={180}
       viewport={false}
@@ -223,7 +273,7 @@ export function HeaderNavigation(): ReactNode {
                       active={pathname === `/ai-agents/${agent.id}`}
                       description={agent.tagline}
                       href={`/ai-agents/${agent.id}`}
-                      icon={Bot}
+                      icon={getAgentIcon(agent)}
                       key={agent.id}
                       title={agent.name.replace(" Agent", "")}
                     />

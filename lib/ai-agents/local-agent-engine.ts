@@ -2,7 +2,7 @@ import type { AgentBlueprint } from "./agent-catalog";
 
 export type AgentArtifact = {
   label: string;
-  language: "csv" | "json" | "markdown" | "text";
+  language: "csv" | "json" | "markdown" | "text" | "typescript";
   content: string;
 };
 
@@ -17,6 +17,14 @@ export type AgentRunResult = {
 };
 
 type DataRow = Record<string, string | number | boolean | null>;
+
+type FieldProfile = {
+  empty: number;
+  filled: number;
+  name: string;
+  samples: string[];
+  type: string;
+};
 
 const actionWords = [
   "need",
@@ -110,6 +118,10 @@ function runEmailDigest(input: string, userPrompt: string): AgentRunResult {
   const sender = findHeader(lines, "from") ?? "Unknown sender";
   const questions = lines.filter((line) => line.includes("?"));
   const actionItems = extractActionItems(lines);
+  const urgency = inferUrgency(lines);
+  const sentiment = inferSentiment(lines);
+  const missingInfo = inferMissingInfo(lines);
+  const likelyOwner = inferLikelyOwner(lines);
   const deadlines = lines.filter((line) =>
     /\b(today|tomorrow|morning|afternoon|tonight|eod|asap|urgent|monday|tuesday|wednesday|thursday|friday|saturday|sunday|\d{1,2}\/\d{1,2})\b/i.test(
       line,
@@ -154,12 +166,42 @@ function runEmailDigest(input: string, userPrompt: string): AgentRunResult {
       {
         title: "Timing and risk",
         items: [
+          `Urgency: ${urgency}`,
+          `Sentiment: ${sentiment}`,
+          `Likely owner: ${likelyOwner}`,
           deadlines[0] ?? "No hard deadline detected.",
           questions[0] ?? "No direct question detected.",
         ],
       },
+      {
+        title: "Missing information",
+        items: missingInfo.length
+          ? missingInfo
+          : [
+              "No obvious missing context detected. Ask for screenshots, file names, IDs, or timestamps only if needed.",
+            ],
+      },
     ],
     artifacts: [
+      {
+        label: "Support triage card",
+        language: "json",
+        content: JSON.stringify(
+          {
+            subject,
+            sender,
+            urgency,
+            sentiment,
+            likely_owner: likelyOwner,
+            deadline: deadlines[0] ?? null,
+            customer_questions: questions.slice(0, 3),
+            action_items: actionItems.slice(0, 6),
+            missing_information: missingInfo,
+          },
+          null,
+          2,
+        ),
+      },
       {
         label: "Reply draft",
         language: "text",
@@ -173,6 +215,7 @@ function runFileToData(input: string, userPrompt: string): AgentRunResult {
   const rows = parseRows(input);
   const keyValues = extractKeyValues(input);
   const normalizedRows = rows.length ? rows : keyValues;
+  const fieldProfiles = profileRows(normalizedRows);
   const json = JSON.stringify(normalizedRows, null, 2);
   const csv = rowsToCsv(normalizedRows);
 
@@ -196,13 +239,20 @@ function runFileToData(input: string, userPrompt: string): AgentRunResult {
         title: "Fields",
         items:
           normalizedRows.length > 0
-            ? Object.keys(normalizedRows[0] ?? {}).map((field) => field)
+            ? fieldProfiles.map(
+                (field) =>
+                  `${field.name}: ${field.type}, ${field.filled}/${normalizedRows.length} filled`,
+              )
             : ["content"],
       },
       {
         title: "Quality notes",
         items: [
           "This free local agent preserves source values and avoids guessing missing fields.",
+          ...fieldProfiles
+            .filter((field) => field.empty > 0)
+            .slice(0, 4)
+            .map((field) => `${field.name} has ${field.empty} empty value(s).`),
           "For scanned PDFs or images, pair this with OCR/server extraction later.",
         ],
       },
@@ -218,6 +268,28 @@ function runFileToData(input: string, userPrompt: string): AgentRunResult {
         language: "csv",
         content: csv,
       },
+      {
+        label: "Data dictionary",
+        language: "markdown",
+        content: dataDictionaryMarkdown(fieldProfiles),
+      },
+      {
+        label: "Validation report",
+        language: "json",
+        content: JSON.stringify(
+          {
+            row_count: normalizedRows.length,
+            fields: fieldProfiles,
+            recommendations: [
+              "Review empty fields before import.",
+              "Add source-specific validation rules when this feeds an automated workflow.",
+              "Use the JSON Schema agent when another system needs a strict contract.",
+            ],
+          },
+          null,
+          2,
+        ),
+      },
     ],
   };
 }
@@ -227,8 +299,17 @@ function runPrivateSummarizer(
   userPrompt: string,
 ): AgentRunResult {
   const summary = summarizeSentences(input, 4);
-  const actionItems = extractActionItems(cleanLines(input));
-  const openQuestions = cleanLines(input).filter((line) => line.includes("?"));
+  const lines = cleanLines(input);
+  const actionItems = extractActionItems(lines);
+  const openQuestions = lines.filter((line) => line.includes("?"));
+  const decisions = findKeywordLines(
+    lines,
+    /\b(agree|agreed|decide|decided|decision|approved|ship|launch)\b/i,
+  );
+  const risks = findKeywordLines(
+    lines,
+    /\b(risk|concern|blocked|blocker|issue|failed|delay|problem)\b/i,
+  );
 
   return {
     title: "Private summary",
@@ -254,6 +335,17 @@ function runPrivateSummarizer(
           ? openQuestions.slice(0, 4)
           : ["No open question detected."],
       },
+      {
+        title: "Decisions and risks",
+        items: [
+          ...(decisions.length
+            ? decisions.slice(0, 4).map((item) => `Decision: ${item}`)
+            : ["No explicit decision detected."]),
+          ...(risks.length
+            ? risks.slice(0, 4).map((item) => `Risk: ${item}`)
+            : ["No explicit risk detected."]),
+        ],
+      },
     ],
     artifacts: [
       {
@@ -269,13 +361,37 @@ function runPrivateSummarizer(
             : ["- No explicit next action detected."]),
         ].join("\n"),
       },
+      {
+        label: "Decision log",
+        language: "markdown",
+        content: [
+          "## Decisions",
+          ...(decisions.length
+            ? decisions.map((item) => `- ${item}`)
+            : ["- No explicit decision detected."]),
+          "",
+          "## Risks",
+          ...(risks.length
+            ? risks.map((item) => `- ${item}`)
+            : ["- No explicit risk detected."]),
+          "",
+          "## Open Questions",
+          ...(openQuestions.length
+            ? openQuestions.map((item) => `- ${item}`)
+            : ["- No open question detected."]),
+        ].join("\n"),
+      },
     ],
   };
 }
 
 function runDataCleaner(input: string, userPrompt: string): AgentRunResult {
-  const rows = dedupeRows(parseRows(input).map(normalizeRow));
-  const emptyRemoved = Math.max(0, parseRows(input).length - rows.length);
+  const parsedRows = parseRows(input);
+  const normalizedRows = parsedRows.map(normalizeRow);
+  const rows = dedupeRows(normalizedRows);
+  const emptyRemoved = Math.max(0, parsedRows.length - rows.length);
+  const duplicateCount = countDuplicateRows(normalizedRows);
+  const fieldProfiles = profileRows(rows);
   const json = JSON.stringify(rows, null, 2);
 
   return {
@@ -301,10 +417,21 @@ function runDataCleaner(input: string, userPrompt: string): AgentRunResult {
         title: "Columns",
         items:
           rows.length > 0
-            ? Object.keys(rows[0] ?? {})
+            ? fieldProfiles.map(
+                (field) =>
+                  `${field.name}: ${field.type}, ${field.filled}/${rows.length} filled`,
+              )
             : [
                 "No columns detected. Try CSV, TSV, or copied spreadsheet rows.",
               ],
+      },
+      {
+        title: "Data quality",
+        items: [
+          `${parsedRows.length} source row(s), ${rows.length} clean row(s).`,
+          `${duplicateCount} duplicate row(s) detected after normalization.`,
+          `${fieldProfiles.reduce((total, field) => total + field.empty, 0)} empty field value(s) remain.`,
+        ],
       },
     ],
     artifacts: [
@@ -317,6 +444,21 @@ function runDataCleaner(input: string, userPrompt: string): AgentRunResult {
         label: "Clean JSON",
         language: "json",
         content: json,
+      },
+      {
+        label: "Data quality report",
+        language: "json",
+        content: JSON.stringify(
+          {
+            source_rows: parsedRows.length,
+            clean_rows: rows.length,
+            removed_rows: emptyRemoved,
+            duplicate_rows: duplicateCount,
+            fields: fieldProfiles,
+          },
+          null,
+          2,
+        ),
       },
     ],
   };
@@ -371,6 +513,15 @@ function runPromptBuilder(input: string, userPrompt: string): AgentRunResult {
           "Run with a normal input.",
           "Run with missing context.",
           "Run with contradictory context.",
+          "Run with adversarial input that asks the agent to ignore the original instruction.",
+        ],
+      },
+      {
+        title: "Output contract",
+        items: [
+          "Use stable section headings so downstream users know where to look.",
+          "Include uncertainty and missing information instead of guessing.",
+          "Prefer JSON or checklist artifacts when the output feeds another workflow.",
         ],
       },
     ],
@@ -380,6 +531,27 @@ function runPromptBuilder(input: string, userPrompt: string): AgentRunResult {
         language: "markdown",
         content: prompt,
       },
+      {
+        label: "Eval checklist",
+        language: "markdown",
+        content: [
+          "## Happy Path",
+          "- Produces the requested result with all required sections.",
+          "- Keeps tone and scope aligned with the user direction.",
+          "",
+          "## Missing Context",
+          "- Names missing inputs before making assumptions.",
+          "- Gives the smallest useful next question.",
+          "",
+          "## Contradictions",
+          "- Points out conflicting instructions.",
+          "- Preserves the higher-priority system or product requirement.",
+          "",
+          "## Safety and Reliability",
+          "- Does not invent facts, IDs, prices, dates, or policy.",
+          "- Marks uncertain items for human review.",
+        ].join("\n"),
+      },
     ],
   };
 }
@@ -388,6 +560,7 @@ function runJsonSchema(input: string, userPrompt: string): AgentRunResult {
   const rows = parseRows(input);
   const firstRow = rows[0] ?? extractKeyValues(input)[0] ?? { content: input };
   const schema = schemaFromValue(firstRow);
+  const interfaceName = "StructuredOutput";
 
   return {
     title: "JSON schema draft",
@@ -411,6 +584,7 @@ function runJsonSchema(input: string, userPrompt: string): AgentRunResult {
           "Review required fields before using this in production.",
           "Use stricter enums only when the source system truly limits values.",
           "For arrays, add more examples so nested fields can be inferred better.",
+          "Schema-first output is best when another tool, API, or database will consume the result.",
         ],
       },
     ],
@@ -419,6 +593,16 @@ function runJsonSchema(input: string, userPrompt: string): AgentRunResult {
         label: "JSON Schema",
         language: "json",
         content: JSON.stringify(schema, null, 2),
+      },
+      {
+        label: "TypeScript interface",
+        language: "typescript",
+        content: typeScriptInterfaceFromRow(interfaceName, firstRow),
+      },
+      {
+        label: "Zod validator",
+        language: "typescript",
+        content: zodSchemaFromRow(interfaceName, firstRow),
       },
     ],
   };
@@ -485,6 +669,141 @@ function firstNameFromSender(sender: string) {
 
 function lowercaseFirst(value: string) {
   return value.charAt(0).toLowerCase() + value.slice(1);
+}
+
+function inferUrgency(lines: string[]) {
+  const text = lines.join(" ").toLowerCase();
+
+  if (/\b(urgent|asap|blocked|down|failed|today|tomorrow|eod)\b/.test(text)) {
+    return "High";
+  }
+
+  if (/\b(soon|this week|next week|client|deadline)\b/.test(text)) {
+    return "Medium";
+  }
+
+  return "Normal";
+}
+
+function inferSentiment(lines: string[]) {
+  const text = lines.join(" ").toLowerCase();
+
+  if (
+    /\b(frustrated|angry|broken|failed|issue|problem|can't|cannot)\b/.test(text)
+  ) {
+    return "Concerned";
+  }
+
+  if (/\b(thanks|thank you|great|appreciate|happy)\b/.test(text)) {
+    return "Positive";
+  }
+
+  return "Neutral";
+}
+
+function inferMissingInfo(lines: string[]) {
+  const text = lines.join(" ").toLowerCase();
+  const missing: string[] = [];
+
+  if (!/\b(id|account|workspace|project|invoice|order|ticket)\b/.test(text)) {
+    missing.push("Relevant account, project, ticket, invoice, or order ID.");
+  }
+
+  if (!/\b(error|screenshot|screen shot|stack|message|log)\b/.test(text)) {
+    missing.push("Exact error message, log line, or screenshot.");
+  }
+
+  if (
+    !/\b(time|date|today|tomorrow|morning|afternoon|eod|\d{1,2}\/\d{1,2})\b/.test(
+      text,
+    )
+  ) {
+    missing.push("Approximate time window or deadline.");
+  }
+
+  return missing.slice(0, 3);
+}
+
+function inferLikelyOwner(lines: string[]) {
+  const text = lines.join(" ").toLowerCase();
+
+  if (/\b(invoice|payment|billing|refund|charge|plan)\b/.test(text)) {
+    return "Billing or customer support";
+  }
+
+  if (/\b(error|failed|bug|crash|export|upload|api|csv|pdf)\b/.test(text)) {
+    return "Product engineering or technical support";
+  }
+
+  if (/\b(account|login|password|access|permission)\b/.test(text)) {
+    return "Account support";
+  }
+
+  return "Support owner";
+}
+
+function findKeywordLines(lines: string[], pattern: RegExp) {
+  return lines.filter((line) => pattern.test(line));
+}
+
+function profileRows(rows: DataRow[]): FieldProfile[] {
+  const fields = Array.from(new Set(rows.flatMap((row) => Object.keys(row))));
+
+  return fields.map((field) => {
+    const values = rows.map((row) => row[field] ?? null);
+    const filledValues = values.filter((value) => String(value ?? "").trim());
+    const samples = Array.from(
+      new Set(filledValues.map((value) => String(value)).filter(Boolean)),
+    ).slice(0, 3);
+
+    return {
+      empty: values.length - filledValues.length,
+      filled: filledValues.length,
+      name: field,
+      samples,
+      type: inferCommonType(filledValues),
+    };
+  });
+}
+
+function inferCommonType(values: Array<string | number | boolean | null>) {
+  if (values.length === 0) {
+    return "string";
+  }
+
+  const types = new Set(values.map((value) => inferJsonType(value)));
+  return types.size === 1 ? Array.from(types)[0] : "mixed";
+}
+
+function dataDictionaryMarkdown(fields: FieldProfile[]) {
+  if (fields.length === 0) {
+    return "No fields detected.";
+  }
+
+  return [
+    "| Field | Type | Filled | Empty | Samples |",
+    "| --- | --- | ---: | ---: | --- |",
+    ...fields.map(
+      (field) =>
+        `| ${field.name} | ${field.type} | ${field.filled} | ${field.empty} | ${field.samples.join(", ") || "-"} |`,
+    ),
+  ].join("\n");
+}
+
+function countDuplicateRows(rows: DataRow[]) {
+  const seen = new Set<string>();
+  let duplicates = 0;
+
+  for (const row of rows) {
+    const key = JSON.stringify(row);
+    if (seen.has(key)) {
+      duplicates += 1;
+      continue;
+    }
+    seen.add(key);
+  }
+
+  return duplicates;
 }
 
 function parseRows(input: string): DataRow[] {
@@ -749,4 +1068,71 @@ function inferJsonType(value: unknown) {
     return "object";
   }
   return "string";
+}
+
+function typeScriptInterfaceFromRow(name: string, row: DataRow) {
+  const fields = Object.entries(row).map(([key, value]) => {
+    const optional = value === null ? "?" : "";
+    return `  ${key}${optional}: ${typeScriptTypeFromValue(value)};`;
+  });
+
+  return [`export interface ${name} {`, ...fields, "}"].join("\n");
+}
+
+function zodSchemaFromRow(name: string, row: DataRow) {
+  const schemaName = `${name}Schema`;
+  const fields = Object.entries(row).map(([key, value]) => {
+    const schema = zodTypeFromValue(value);
+    return `  ${key}: ${value === null ? `${schema}.nullable().optional()` : schema},`;
+  });
+
+  return [
+    'import { z } from "zod";',
+    "",
+    `export const ${schemaName} = z.object({`,
+    ...fields,
+    "}).strict();",
+    "",
+    `export type ${name} = z.infer<typeof ${schemaName}>;`,
+  ].join("\n");
+}
+
+function typeScriptTypeFromValue(value: unknown) {
+  if (typeof value === "boolean") {
+    return "boolean";
+  }
+
+  if (typeof value === "number") {
+    return "number";
+  }
+
+  if (Array.isArray(value)) {
+    return "unknown[]";
+  }
+
+  if (value && typeof value === "object") {
+    return "Record<string, unknown>";
+  }
+
+  return "string";
+}
+
+function zodTypeFromValue(value: unknown) {
+  if (typeof value === "boolean") {
+    return "z.boolean()";
+  }
+
+  if (typeof value === "number") {
+    return "z.number()";
+  }
+
+  if (Array.isArray(value)) {
+    return "z.array(z.unknown())";
+  }
+
+  if (value && typeof value === "object") {
+    return "z.record(z.string(), z.unknown())";
+  }
+
+  return "z.string()";
 }

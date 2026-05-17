@@ -82,7 +82,7 @@ type ModelWarmupState = {
   total: number;
 };
 
-const BROWSER_MODEL_RUN_TIMEOUT_MS = 12_000;
+const BROWSER_MODEL_RUN_TIMEOUT_MS = 30_000;
 const BROWSER_MODEL_WARMUP_TIMEOUT_MS = 90_000;
 
 export function AgentWorkbench({
@@ -99,8 +99,8 @@ export function AgentWorkbench({
   const [fileName, setFileName] = useState("");
   const [copied, setCopied] = useState(false);
   const huggingFaceModels = useMemo(
-    () => getHuggingFaceModelCandidates(agent.id),
-    [agent.id],
+    () => getHuggingFaceModelCandidates(agent),
+    [agent],
   );
   const [modelOptions, setModelOptions] = useState<ModelOption[]>(() =>
     createInitialModelOptions(agent, huggingFaceModels),
@@ -166,7 +166,7 @@ export function AgentWorkbench({
     void (async () => {
       try {
         const preflight = await checkHuggingFaceAgentModelSupport({
-          agentIds: [agent.id],
+          agentIds: [agent],
         });
 
         if (cancelled) {
@@ -191,7 +191,7 @@ export function AgentWorkbench({
 
         const result = await withTimeout(
           preloadHuggingFaceAgentModels({
-            agentIds: [agent.id],
+            agentIds: [agent],
             onProgress: (progress) => {
               if (cancelled || warmupExpired) {
                 return;
@@ -396,6 +396,16 @@ export function AgentWorkbench({
     trackSiteEvent("Agent Sample Loaded", { agent: agent.id });
   };
 
+  const applyWorkflowPreset = (
+    workflow: NonNullable<AgentBlueprint["workflows"]>[number],
+  ) => {
+    setUserPrompt(workflow.prompt ?? workflow.label);
+    trackSiteEvent("Agent Workflow Selected", {
+      agent: agent.id,
+      workflow: workflow.label,
+    });
+  };
+
   const onFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
@@ -545,6 +555,32 @@ export function AgentWorkbench({
                 >
                   {agent.promptLabel}
                 </label>
+                {agent.workflows?.length ? (
+                  <div className="grid gap-2 rounded-lg border bg-muted/20 p-3">
+                    <p className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground">
+                      Workflow presets
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      {agent.workflows.map((workflow) => (
+                        <button
+                          className="rounded-lg border bg-background p-3 text-left shadow-xs transition hover:border-foreground/30 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          key={workflow.label}
+                          onClick={() => applyWorkflowPreset(workflow)}
+                          type="button"
+                        >
+                          <span className="block font-semibold text-sm">
+                            {workflow.label}
+                          </span>
+                          {workflow.description ? (
+                            <span className="mt-1 block text-muted-foreground text-xs leading-5">
+                              {workflow.description}
+                            </span>
+                          ) : null}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 <Textarea
                   id={`${agent.id}-prompt`}
                   onChange={(event) => setUserPrompt(event.target.value)}

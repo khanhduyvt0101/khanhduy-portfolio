@@ -24,7 +24,6 @@ import { AiAgentMarketplace } from "~/lib/ai-agents/ai-agent-marketplace";
 import { freeTools } from "~/lib/free-tools/tool-meta";
 import {
   LocalTime,
-  PortfolioCommandPalette,
   PortfolioSocialLinks,
 } from "~/lib/portfolio/portfolio-interactions";
 import { cn } from "~/lib/utils";
@@ -89,8 +88,6 @@ export function PortfolioCommandCenter(): ReactNode {
 
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground">
-      <PortfolioCommandPalette />
-
       <section className="relative isolate border-b border-border/70">
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-25" />
         <div className="absolute inset-x-0 top-0 -z-10 h-36 bg-[linear-gradient(180deg,var(--accent),transparent)] opacity-45" />

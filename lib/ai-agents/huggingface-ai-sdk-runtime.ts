@@ -8,11 +8,12 @@ import {
   getHuggingFaceModelCandidates,
   getUniqueHuggingFaceModelCandidates,
   type HuggingFaceModelConfig,
+  type HuggingFaceModelTarget,
 } from "./huggingface-models";
 
 const MAX_PROMPT_CHARS = 6000;
-const MODEL_PROGRESS_INTERVAL_MS = 250;
-const MODEL_PROGRESS_PERCENT_STEP = 4;
+const MODEL_PROGRESS_INTERVAL_MS = 500;
+const MODEL_PROGRESS_PERCENT_STEP = 8;
 
 export type HuggingFaceAiSdkStatus =
   | "available"
@@ -94,6 +95,7 @@ type ModelProgressSnapshot = {
 };
 
 const readyModelCache = new Map<string, Promise<TransformersJSLanguageModel>>();
+const modelWorkerCache = new Map<string, Worker>();
 
 async function hasUsableWebGpuAdapter() {
   if (typeof navigator === "undefined") {
@@ -155,6 +157,30 @@ function getModelCacheKey(
   return `${modelConfig.id}:${device}:${getModelDtype(modelConfig, device)}`;
 }
 
+function getModelWorker(cacheKey: string) {
+  if (typeof Worker === "undefined") {
+    return undefined;
+  }
+
+  const cachedWorker = modelWorkerCache.get(cacheKey);
+  if (cachedWorker) {
+    return cachedWorker;
+  }
+
+  try {
+    const worker = new Worker(
+      new URL("./transformers-js.worker.ts", import.meta.url),
+      {
+        type: "module",
+      },
+    );
+    modelWorkerCache.set(cacheKey, worker);
+    return worker;
+  } catch {
+    return undefined;
+  }
+}
+
 function getReadyHuggingFaceModel({
   device,
   modelConfig,
@@ -174,9 +200,11 @@ function getReadyHuggingFaceModel({
   }
 
   const readyModel = (async () => {
+    const worker = getModelWorker(cacheKey);
     const model = transformersJS(modelConfig.id, {
       device,
       dtype: getModelDtype(modelConfig, device),
+      worker,
     });
 
     const availability = await model.availability();
@@ -194,6 +222,8 @@ function getReadyHuggingFaceModel({
   readyModelCache.set(cacheKey, readyModel);
   void readyModel.catch(() => {
     readyModelCache.delete(cacheKey);
+    modelWorkerCache.get(cacheKey)?.terminate();
+    modelWorkerCache.delete(cacheKey);
   });
 
   return readyModel;
@@ -315,7 +345,7 @@ export async function getHuggingFaceAiSdkAvailability(): Promise<HuggingFaceAiSd
 export async function checkHuggingFaceAgentModelSupport({
   agentIds,
 }: {
-  agentIds: string[];
+  agentIds: HuggingFaceModelTarget[];
 }): Promise<HuggingFaceModelPreflightResult> {
   const models = getUniqueHuggingFaceModelCandidates(agentIds);
 
@@ -418,7 +448,7 @@ export async function preloadHuggingFaceAgentModels({
   agentIds,
   onProgress,
 }: {
-  agentIds: string[];
+  agentIds: HuggingFaceModelTarget[];
   onProgress?: (progress: HuggingFaceModelWarmupProgress) => void;
 }): Promise<HuggingFaceModelWarmupResult> {
   if (typeof window === "undefined") {
@@ -458,74 +488,76 @@ export async function preloadHuggingFaceAgentModels({
   const progressSnapshots = new Map<string, ModelProgressSnapshot>();
   let loaded = 0;
 
-  for (const modelConfig of models) {
-    const emitProgress = (progress: HuggingFaceModelWarmupProgress) => {
-      onProgress?.(progress);
-    };
+  await Promise.all(
+    models.map(async (modelConfig) => {
+      const emitProgress = (progress: HuggingFaceModelWarmupProgress) => {
+        onProgress?.(progress);
+      };
 
-    onProgress?.({
-      completed: loaded,
-      currentModel: modelConfig.label,
-      detail:
-        device === "webgpu"
-          ? `Preparing ${modelConfig.label} with WebGPU.`
-          : `Preparing ${modelConfig.label} with WASM.`,
-      status: "checking",
-      total: models.length,
-    });
-
-    await yieldToBrowser();
-
-    try {
-      await getReadyHuggingFaceModel({
-        device,
-        modelConfig,
-        onProgress: (progress) => {
-          const percent = Math.round(progress * 100);
-
-          if (
-            !shouldEmitModelDownloadProgress({
-              modelId: modelConfig.id,
-              percent,
-              progressSnapshots,
-            })
-          ) {
-            return;
-          }
-
-          emitProgress({
-            completed: loaded,
-            currentModel: modelConfig.label,
-            detail: `Downloading ${modelConfig.label}.`,
-            progress: percent,
-            status: "downloading",
-            total: models.length,
-          });
-        },
-        transformersJS,
-      });
-
-      loaded += 1;
       onProgress?.({
         completed: loaded,
         currentModel: modelConfig.label,
-        detail: `${modelConfig.label} is ready.`,
-        status: "ready",
+        detail:
+          device === "webgpu"
+            ? `Preparing ${modelConfig.label} with WebGPU.`
+            : `Preparing ${modelConfig.label} with WASM.`,
+        status: "checking",
         total: models.length,
       });
-    } catch (error) {
-      const normalizedError = getModelWarmupError(error);
-      errors.push(`${modelConfig.label}: ${normalizedError.system}`);
-      onProgress?.({
-        completed: loaded,
-        currentModel: modelConfig.label,
-        detail: normalizedError.friendly,
-        error: normalizedError,
-        status: "error",
-        total: models.length,
-      });
-    }
-  }
+
+      await yieldToBrowser();
+
+      try {
+        await getReadyHuggingFaceModel({
+          device,
+          modelConfig,
+          onProgress: (progress) => {
+            const percent = Math.round(progress * 100);
+
+            if (
+              !shouldEmitModelDownloadProgress({
+                modelId: modelConfig.id,
+                percent,
+                progressSnapshots,
+              })
+            ) {
+              return;
+            }
+
+            emitProgress({
+              completed: loaded,
+              currentModel: modelConfig.label,
+              detail: `Downloading ${modelConfig.label}.`,
+              progress: percent,
+              status: "downloading",
+              total: models.length,
+            });
+          },
+          transformersJS,
+        });
+
+        loaded += 1;
+        onProgress?.({
+          completed: loaded,
+          currentModel: modelConfig.label,
+          detail: `${modelConfig.label} is ready.`,
+          status: "ready",
+          total: models.length,
+        });
+      } catch (error) {
+        const normalizedError = getModelWarmupError(error);
+        errors.push(`${modelConfig.label}: ${normalizedError.system}`);
+        onProgress?.({
+          completed: loaded,
+          currentModel: modelConfig.label,
+          detail: normalizedError.friendly,
+          error: normalizedError,
+          status: "error",
+          total: models.length,
+        });
+      }
+    }),
+  );
 
   return {
     errors,
@@ -701,7 +733,7 @@ export async function runHuggingFaceAiSdkAgent({
   const device = await getBestDevice();
   const errors: string[] = [];
 
-  for (const modelConfig of getHuggingFaceModelCandidates(agent.id, device)) {
+  for (const modelConfig of getHuggingFaceModelCandidates(agent, device)) {
     try {
       onStatus?.({
         message:
