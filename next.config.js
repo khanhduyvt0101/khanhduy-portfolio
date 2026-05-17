@@ -14,7 +14,6 @@ function on(value) {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: { ignoreBuildErrors: true },
   devIndicators: false,
   logging: on(globalThis?.process?.env?.LOG_FETCH)
     ? { fetches: { fullUrl: true } }
@@ -38,9 +37,6 @@ const nextConfig = {
         pathname: "/og.png",
       },
     ],
-  },
-  experimental: {
-    optimizePackageImports: ["@tabler/icons-react", "lucide-react"],
   },
 };
 

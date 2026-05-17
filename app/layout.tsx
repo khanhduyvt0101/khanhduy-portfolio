@@ -7,7 +7,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import type { PropsWithChildren, ReactNode } from "react";
 import { ThemeProvider } from "~/lib/components/theme-provider";
-import { PortfolioCommandPalette } from "~/lib/portfolio/portfolio-interactions";
+import { PortfolioCommandPaletteLoader } from "~/lib/portfolio/portfolio-command-palette-loader";
 
 import { ColorSchemeControl } from "~/lib/site/color-scheme-control";
 import {
@@ -116,7 +116,7 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
               </header>
             </div>
           </div>
-          <PortfolioCommandPalette />
+          <PortfolioCommandPaletteLoader />
           <main className="flex-1">{children}</main>
           <footer className="mt-auto flex h-14 items-center justify-center border-t">
             <div className="container mx-auto max-w-7xl px-4 text-center">

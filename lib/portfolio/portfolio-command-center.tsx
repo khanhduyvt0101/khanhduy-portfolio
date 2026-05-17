@@ -22,10 +22,8 @@ import {
 import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
 import { AiAgentMarketplace } from "~/lib/ai-agents/ai-agent-marketplace";
 import { freeTools } from "~/lib/free-tools/tool-meta";
-import {
-  LocalTime,
-  PortfolioSocialLinks,
-} from "~/lib/portfolio/portfolio-interactions";
+import { LocalTime } from "~/lib/portfolio/local-time";
+import { PortfolioSocialLinks } from "~/lib/portfolio/portfolio-social-links";
 import { CatalogPageNavigation } from "~/lib/site/catalog-page-navigation";
 import { getCatalogPageCount } from "~/lib/site/catalog-pagination";
 import { cn } from "~/lib/utils";
@@ -140,7 +138,7 @@ export function PortfolioCommandCenter(): ReactNode {
                   alt="Khanh Duy"
                   src="/avatar.webp"
                   fill
-                  loading="eager"
+                  preload
                   sizes="(max-width: 1024px) 82vw, 430px"
                   className="object-cover"
                 />
@@ -224,7 +222,6 @@ export function PortfolioCommandCenter(): ReactNode {
                       alt={`${product.name} product preview`}
                       src={product.image}
                       fill
-                      loading="eager"
                       sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-contain p-3"
                     />
