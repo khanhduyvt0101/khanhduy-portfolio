@@ -444,3 +444,32 @@
     display: none;
   }
 }
+
+@layer components {
+  .hero-pet-glint {
+    position: absolute;
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 999px;
+    opacity: 0.75;
+    animation: hero-pet-glint 2.8s ease-in-out var(--glint-delay, 0s) infinite;
+  }
+
+  @keyframes hero-pet-glint {
+    0%,
+    100% {
+      transform: translateY(0) scale(0.72);
+      opacity: 0.2;
+    }
+    45% {
+      transform: translateY(-0.7rem) scale(1);
+      opacity: 0.8;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-pet-glint {
+      animation: none;
+    }
+  }
+}

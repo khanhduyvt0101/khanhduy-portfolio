@@ -1,11 +1,15 @@
+import { IconBrandGithub } from "@tabler/icons-react";
 import {
   ArrowUpRight,
   Braces,
   Code2,
   ExternalLink,
+  FileJson,
   FileText,
+  Layers3,
   type LucideIcon,
   MessageSquareText,
+  Workflow,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,8 +26,10 @@ import {
 import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
 import { AiAgentMarketplace } from "~/lib/ai-agents/ai-agent-marketplace";
 import { freeTools } from "~/lib/free-tools/tool-meta";
+import { HeroPetPlayground } from "~/lib/portfolio/hero-pet-playground";
 import { LocalTime } from "~/lib/portfolio/local-time";
 import { PortfolioSocialLinks } from "~/lib/portfolio/portfolio-social-links";
+import { WorkflowBankCountStat } from "~/lib/portfolio/workflow-bank-count-stat";
 import { CatalogPageNavigation } from "~/lib/site/catalog-page-navigation";
 import { getCatalogPageCount } from "~/lib/site/catalog-pagination";
 import { cn } from "~/lib/utils";
@@ -80,15 +86,36 @@ const featuredTools = [
   .map((slug) => freeTools.find((tool) => tool.slug === slug))
   .filter((tool): tool is (typeof freeTools)[number] => Boolean(tool));
 
+const workflowBank = {
+  href: "https://github.com/khanhduyvt0101/workflows",
+  highlights: [
+    "Invoice, receipt, PO, bank statement, and AP approval automation",
+    "Healthcare, insurance, KYC, compliance, lease, and shipping document flows",
+    "Research, resume, transcript, grant, and knowledge-work extraction recipes",
+  ],
+};
+
 export function PortfolioCommandCenter(): ReactNode {
   const yearsOfExperience = Math.max(
     0,
     new Date().getFullYear() - experienceStartYear,
   );
+  const workflowBankStats = [
+    {
+      label: "format",
+      value: "JSON imports",
+      icon: FileJson,
+    },
+    {
+      label: "coverage",
+      value: "PDF automation",
+      icon: Layers3,
+    },
+  ];
 
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground">
-      <section className="relative isolate border-b border-border/70">
+      <section className="relative isolate overflow-hidden border-b border-border/70">
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-25" />
         <div className="absolute inset-x-0 top-0 -z-10 h-36 bg-[linear-gradient(180deg,var(--accent),transparent)] opacity-45" />
 
@@ -160,6 +187,7 @@ export function PortfolioCommandCenter(): ReactNode {
             </div>
           </div>
         </div>
+        <HeroPetRunway />
       </section>
 
       <section
@@ -253,6 +281,95 @@ export function PortfolioCommandCenter(): ReactNode {
         </div>
       </section>
 
+      <section
+        id="workflow-bank"
+        className="border-b border-border/70 bg-background py-14 md:py-20"
+      >
+        <div className="container mx-auto max-w-7xl px-4">
+          <div className="grid gap-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.55fr)] lg:items-stretch">
+            <div className="relative overflow-hidden rounded-lg border bg-card p-5 shadow-xs md:p-7">
+              <div className="absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(135deg,transparent,var(--muted),transparent)] opacity-60" />
+              <div className="relative">
+                <div className="mb-8 flex flex-wrap items-center gap-2">
+                  <Badge variant="outline" className="rounded-lg">
+                    <Workflow />
+                    Workflow bank
+                  </Badge>
+                  <Badge variant="secondary" className="rounded-lg">
+                    n8n live / Make and Zapier mapped
+                  </Badge>
+                </div>
+
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                  Open source automation library
+                </p>
+                <h2 className="mt-3 max-w-4xl text-4xl font-black leading-tight md:text-6xl">
+                  Ready-to-import document workflows for real operations.
+                </h2>
+                <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
+                  A public bank of PDF Vector powered automations for teams that
+                  need documents to become structured actions: invoices,
+                  contracts, statements, resumes, medical records, and more.
+                </p>
+
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <Button asChild className="rounded-lg" size="lg">
+                    <a
+                      href={workflowBank.href}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <IconBrandGithub />
+                      Open repository
+                      <ArrowUpRight data-icon="inline-end" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                <WorkflowBankCountStat />
+                {workflowBankStats.map((stat) => (
+                  <div
+                    className="rounded-lg border bg-muted/30 p-4"
+                    key={stat.label}
+                  >
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground">
+                        {stat.label}
+                      </span>
+                      <stat.icon className="size-4 text-muted-foreground" />
+                    </div>
+                    <p className="text-xl font-black leading-tight">
+                      {stat.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-lg border bg-card p-4">
+                <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground">
+                  Recipes inside
+                </p>
+                <div className="mt-4 grid gap-3">
+                  {workflowBank.highlights.map((highlight) => (
+                    <div
+                      className="flex gap-3 rounded-lg border bg-background p-3 text-sm leading-6"
+                      key={highlight}
+                    >
+                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+                      <span>{highlight}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <AiAgentMarketplace compact />
 
       <section className="container mx-auto max-w-7xl px-4 py-14 md:py-20">
@@ -303,6 +420,16 @@ export function PortfolioCommandCenter(): ReactNode {
           />
         </div>
       </section>
+    </div>
+  );
+}
+
+function HeroPetRunway(): ReactNode {
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-0">
+      <div className="container mx-auto max-w-7xl px-4">
+        <HeroPetPlayground />
+      </div>
     </div>
   );
 }
