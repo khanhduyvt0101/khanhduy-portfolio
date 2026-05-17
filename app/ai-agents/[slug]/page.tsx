@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import {
@@ -24,7 +25,9 @@ export function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: AgentPageProps) {
+export async function generateMetadata({
+  params,
+}: AgentPageProps): Promise<Metadata> {
   const { slug } = await params;
   const agent = getAgentBlueprint(slug);
 

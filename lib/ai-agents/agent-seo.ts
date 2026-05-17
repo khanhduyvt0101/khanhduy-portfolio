@@ -4,11 +4,14 @@ import type { AgentBlueprint } from "./agent-catalog";
 import { getRuntimeLayer } from "./agent-catalog";
 
 const sharedAgentKeywords = [
-  "free AI agent",
-  "browser AI agent",
+  "free browser AI agent",
+  "free AI tool",
   "private AI tool",
+  "local AI agent",
+  "no signup AI tool",
+  "AI productivity tool",
   "Hugging Face browser model",
-  "Browser AI",
+  "Chrome AI tool",
   "Vercel AI SDK",
 ];
 
@@ -21,9 +24,7 @@ export function getAgentSeo(agent: AgentBlueprint) {
   const runtime = getRuntimeLayer(agent.runtime);
   const path = `/ai-agents/${agent.id}` as const;
   const description = trimDescription(
-    `${agent.tagline} Run this free ${shortName.toLowerCase()} AI agent in your browser for ${agent.outputs
-      .slice(0, 3)
-      .join(", ")} output.`,
+    `${agent.tagline} Free browser AI agent for ${formatUseCases(agent.useCases.slice(0, 3))}.`,
   );
 
   return {
@@ -31,15 +32,17 @@ export function getAgentSeo(agent: AgentBlueprint) {
     imageAlt: `${shortName} free browser AI agent by ${siteName}`,
     keywords: [
       `${shortName} AI agent`,
-      `${shortName} browser AI`,
+      `free ${shortName.toLowerCase()} AI agent`,
+      `${shortName} browser AI tool`,
       `${shortName} free AI tool`,
       `${runtime.name}`,
+      ...agent.outputs.map((output) => `${output} AI tool`),
       ...agent.useCases.map((useCase) => `${useCase} AI agent`),
       ...sharedAgentKeywords,
     ],
     path,
     shortName,
-    title: `${shortName} | Free Browser AI Agent`,
+    title: `${shortName} AI Agent | Free Browser Tool`,
   };
 }
 
@@ -104,4 +107,12 @@ function trimDescription(description: string) {
   }
 
   return `${description.slice(0, 153).trimEnd()}...`;
+}
+
+function formatUseCases(useCases: string[]) {
+  return useCases.map(lowerFirstLetter).join(", ");
+}
+
+function lowerFirstLetter(value: string) {
+  return `${value.charAt(0).toLowerCase()}${value.slice(1)}`;
 }

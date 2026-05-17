@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import {
   Announcement,
@@ -5,28 +6,65 @@ import {
   AnnouncementTitle,
 } from "~/components/kibo-ui/announcement";
 
+import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
+import { getAgentSeo } from "~/lib/ai-agents/agent-seo";
 import { AiAgentMarketplace } from "~/lib/ai-agents/ai-agent-marketplace";
-import { createSeoMetadata } from "~/lib/site/seo";
+import { createSeoMetadata, serializeJsonLd, siteUrl } from "~/lib/site/seo";
 
-export const metadata = createSeoMetadata({
-  title: "Free AI Agents",
+export const metadata: Metadata = createSeoMetadata({
+  title: "Free Browser AI Agents for Email, Files and Data",
   description:
-    "Free browser-first AI agents for email summaries, file extraction, data cleaning, prompt building, and JSON schema generation.",
+    "Run free browser AI agents for email summaries, file extraction, day planning, data cleaning, prompt building, private summarization, and JSON schema generation.",
   imageAlt: "Free browser AI agents by Khanh Duy",
   keywords: [
-    "free AI agents",
+    "free browser AI agents",
     "browser AI agents",
-    "AI agent marketplace",
+    "free AI tools",
+    "AI email summarizer",
+    "AI day planner",
+    "AI data cleaner",
+    "AI prompt builder",
+    "AI JSON schema generator",
+    "private AI summarizer",
+    "file to data AI",
     "private AI tools",
     "Hugging Face browser model",
-    "Browser AI",
+    "Chrome AI tools",
   ],
   path: "/ai-agents",
 });
 
+const aiAgentsJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Free Browser AI Agents",
+  description: metadata.description,
+  url: `${siteUrl}/ai-agents`,
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: agentBlueprints.map((agent, index) => {
+      const seo = getAgentSeo(agent);
+
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        name: `${seo.shortName} AI Agent`,
+        url: `${siteUrl}${seo.path}`,
+      };
+    }),
+  },
+};
+
 export default function AiAgentsPage(): ReactNode {
   return (
     <div className="bg-background">
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is serialized from static agent catalog data and escapes tag starts.
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(aiAgentsJsonLd),
+        }}
+      />
       <section className="border-b bg-muted/30">
         <div className="container mx-auto flex max-w-7xl flex-col gap-8 px-4 py-14 md:py-20">
           <Announcement themed className="w-fit">

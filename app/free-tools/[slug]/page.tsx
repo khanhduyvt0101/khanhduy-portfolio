@@ -12,8 +12,11 @@ import { Pill } from "~/components/kibo-ui/pill";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { freeTools, getFreeTool } from "~/lib/free-tools/tool-meta";
+import {
+  createFreeToolMetadata,
+  serializeFreeToolJsonLd,
+} from "~/lib/free-tools/tool-seo";
 import { ToolWorkbench } from "~/lib/free-tools/tool-workbench";
-import { createSeoMetadata } from "~/lib/site/seo";
 
 type ToolPageProps = {
   params: Promise<{
@@ -39,11 +42,7 @@ export async function generateMetadata({
     };
   }
 
-  return createSeoMetadata({
-    title: `${tool.title} | Free Tools`,
-    description: tool.summary,
-    path: `/free-tools/${tool.slug}`,
-  });
+  return createFreeToolMetadata(tool);
 }
 
 export default async function ToolPage({
@@ -58,6 +57,13 @@ export default async function ToolPage({
 
   return (
     <div className="bg-background">
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is serialized from static tool metadata and escapes tag starts.
+        dangerouslySetInnerHTML={{
+          __html: serializeFreeToolJsonLd(tool),
+        }}
+      />
       <section className="border-b bg-muted/30">
         <div className="container mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10 md:py-14">
           <div>

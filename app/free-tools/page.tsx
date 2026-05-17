@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import {
   Announcement,
@@ -5,18 +6,62 @@ import {
   AnnouncementTitle,
 } from "~/components/kibo-ui/announcement";
 import { FreeToolsGallery } from "~/lib/free-tools/free-tools-gallery";
-import { createSeoMetadata } from "~/lib/site/seo";
+import { freeTools } from "~/lib/free-tools/tool-meta";
+import { getFreeToolSeo } from "~/lib/free-tools/tool-seo";
+import { createSeoMetadata, serializeJsonLd, siteUrl } from "~/lib/site/seo";
 
-export const metadata = createSeoMetadata({
-  title: "Free Tools",
+export const metadata: Metadata = createSeoMetadata({
+  title: "Free Online Developer Tools",
   description:
-    "Free browser tools for QR codes, JSON formatting, images, PDFs, colors, timestamps, passwords, and more.",
+    "Use free browser tools for JSON formatting, JWT decoding, QR codes, image compression, PDFs, colors, timestamps, passwords, and more. No signup.",
+  imageAlt: "Free online browser tools by Khanh Duy",
+  keywords: [
+    "free online developer tools",
+    "free browser tools",
+    "JSON formatter",
+    "JWT decoder",
+    "QR code generator",
+    "image compressor",
+    "images to PDF converter",
+    "timestamp converter",
+    "password generator",
+    "CSS gradient generator",
+    "color converter",
+  ],
   path: "/free-tools",
 });
+
+const freeToolsJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Free Online Developer Tools",
+  description: metadata.description,
+  url: `${siteUrl}/free-tools`,
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: freeTools.map((tool, index) => {
+      const seo = getFreeToolSeo(tool);
+
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        name: seo.title,
+        url: `${siteUrl}/free-tools/${tool.slug}`,
+      };
+    }),
+  },
+};
 
 export default function FreeToolsPage(): ReactNode {
   return (
     <div className="bg-background">
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is serialized from static free-tool catalog data and escapes tag starts.
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(freeToolsJsonLd),
+        }}
+      />
       <section className="border-b bg-muted/30">
         <div className="container mx-auto flex max-w-5xl flex-col gap-8 px-4 py-14 md:py-20">
           <Announcement themed className="w-fit">

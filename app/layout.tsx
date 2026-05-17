@@ -14,7 +14,12 @@ import {
   HeaderCommandSearch,
   HeaderNavigation,
 } from "~/lib/site/header-navigation";
-import { defaultSeoDescription, siteName, siteUrl } from "~/lib/site/seo";
+import {
+  defaultSeoDescription,
+  siteKeywords,
+  siteName,
+  siteUrl,
+} from "~/lib/site/seo";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -37,7 +42,7 @@ const isVercelRuntime = process.env.VERCEL === "1";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Khanh Duy | Software Engineer & Product Builder",
+    default: "Khanh Duy | Full-Stack Developer & AI Product Builder",
     template: `%s | ${siteName}`,
   },
   description: defaultSeoDescription,
@@ -45,14 +50,7 @@ export const metadata: Metadata = {
   authors: [{ name: siteName, url: siteUrl }],
   creator: siteName,
   publisher: siteName,
-  keywords: [
-    "Khanh Duy",
-    "software engineer",
-    "product builder",
-    "AI products",
-    "developer tools",
-    "free browser tools",
-  ],
+  keywords: siteKeywords,
   alternates: {
     canonical: "/",
   },
@@ -73,7 +71,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Khanh Duy | Software Engineer & Product Builder",
+    title: "Khanh Duy | Full-Stack Developer & AI Product Builder",
     description: defaultSeoDescription,
     url: "/",
     siteName,
@@ -82,7 +80,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Khanh Duy | Software Engineer & Product Builder",
+    title: "Khanh Duy | Full-Stack Developer & AI Product Builder",
     description: defaultSeoDescription,
   },
 };

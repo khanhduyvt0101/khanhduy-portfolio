@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
 
+import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
 import { freeTools } from "~/lib/free-tools/tool-meta";
 import { siteUrl } from "~/lib/site/seo";
 
-const lastModified = new Date("2026-05-16T00:00:00.000Z");
+const lastModified = new Date("2026-05-17T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -19,6 +20,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.9,
     },
+    {
+      url: `${siteUrl}/ai-agents`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
   ];
 
   const toolRoutes = freeTools.map((tool) => ({
@@ -28,5 +35,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.75,
   }));
 
-  return [...staticRoutes, ...toolRoutes];
+  const agentRoutes = agentBlueprints.map((agent) => ({
+    url: `${siteUrl}/ai-agents/${agent.id}`,
+    lastModified,
+    changeFrequency: "monthly" as const,
+    priority: 0.75,
+  }));
+
+  return [...staticRoutes, ...toolRoutes, ...agentRoutes];
 }
