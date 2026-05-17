@@ -88,20 +88,12 @@ type RunHuggingFaceAgentInput = {
 
 type TransformersDevice = HuggingFaceAiSdkRun["device"];
 type TransformersDtype = HuggingFaceModelConfig["webgpuDtype"] | "q8" | "q4";
-type ReadyHuggingFaceModel = {
-  config: HuggingFaceModelConfig;
-  model: TransformersJSLanguageModel;
-};
 type ModelProgressSnapshot = {
   lastEmittedAt: number;
   percent: number;
 };
 
 const readyModelCache = new Map<string, Promise<TransformersJSLanguageModel>>();
-
-function hasWebGpu() {
-  return typeof navigator !== "undefined" && Boolean(navigator.gpu);
-}
 
 async function hasUsableWebGpuAdapter() {
   if (typeof navigator === "undefined") {
@@ -127,8 +119,26 @@ async function hasUsableWebGpuAdapter() {
   }
 }
 
-function getDevice(): TransformersDevice {
-  return hasWebGpu() ? "webgpu" : "wasm";
+async function getBestDevice(): Promise<TransformersDevice> {
+  if (isSafariBrowser()) {
+    return "wasm";
+  }
+
+  return (await hasUsableWebGpuAdapter()) ? "webgpu" : "wasm";
+}
+
+function isSafariBrowser() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  const userAgent = navigator.userAgent;
+  return (
+    userAgent.includes("Safari") &&
+    !userAgent.includes("Chrome") &&
+    !userAgent.includes("Chromium") &&
+    !userAgent.includes("Edg/")
+  );
 }
 
 function getModelDtype(
@@ -296,7 +306,7 @@ export async function getHuggingFaceAiSdkAvailability(): Promise<HuggingFaceAiSd
       return "unavailable";
     }
 
-    return hasWebGpu() ? "available" : "downloadable";
+    return (await hasUsableWebGpuAdapter()) ? "available" : "downloadable";
   } catch {
     return "fallback";
   }
@@ -337,63 +347,59 @@ export async function checkHuggingFaceAgentModelSupport({
     });
   }
 
-  if (!(await hasUsableWebGpuAdapter())) {
-    return createUnsupportedPreflightResult({
-      models,
-      system: "No usable WebGPU adapter is available in this browser.",
-    });
-  }
-
-  const device = getDevice();
+  const device = await getBestDevice();
+  const modelsForDevice = getUniqueHuggingFaceModelCandidates(agentIds, device);
   const checkedModels = await Promise.all(
-    models.map(async (modelConfig): Promise<HuggingFaceModelPreflightItem> => {
-      try {
-        const model = transformersModule.transformersJS(modelConfig.id, {
-          device,
-          dtype: getModelDtype(modelConfig, device),
-        });
-        const availability = await model.availability();
+    modelsForDevice.map(
+      async (modelConfig): Promise<HuggingFaceModelPreflightItem> => {
+        try {
+          const model = transformersModule.transformersJS(modelConfig.id, {
+            device,
+            dtype: getModelDtype(modelConfig, device),
+          });
+          const availability = await model.availability();
 
-        if (availability === "available") {
+          if (availability === "available") {
+            return {
+              detail: "Already cached and ready in this browser.",
+              label: modelConfig.label,
+              status: "available",
+            };
+          }
+
+          if (availability === "unavailable") {
+            return {
+              detail: "This model is not available for your browser or device.",
+              error: {
+                friendly:
+                  "This model is not available for your current browser or device.",
+                system: `${modelConfig.id} availability returned unavailable.`,
+              },
+              label: modelConfig.label,
+              status: "unavailable",
+            };
+          }
+
           return {
-            detail: "Already cached and ready in this browser.",
+            detail:
+              device === "webgpu"
+                ? "Supported here. Download will start next with WebGPU."
+                : "Supported here. Download will start next with WASM.",
             label: modelConfig.label,
-            status: "available",
+            status: "downloadable",
+          };
+        } catch (error) {
+          const normalizedError = getModelWarmupError(error);
+
+          return {
+            detail: normalizedError.friendly,
+            error: normalizedError,
+            label: modelConfig.label,
+            status: "error",
           };
         }
-
-        if (availability === "unavailable") {
-          return {
-            detail: "This model is not available for your browser or device.",
-            error: {
-              friendly:
-                "This model is not available for your current browser or device.",
-              system: `${modelConfig.id} availability returned unavailable.`,
-            },
-            label: modelConfig.label,
-            status: "unavailable",
-          };
-        }
-
-        return {
-          detail:
-            device === "webgpu"
-              ? "Supported here. Download will start next with WebGPU."
-              : "Supported here. Download will start next with WASM.",
-          label: modelConfig.label,
-          status: "downloadable",
-        };
-      } catch (error) {
-        const normalizedError = getModelWarmupError(error);
-
-        return {
-          detail: normalizedError.friendly,
-          error: normalizedError,
-          label: modelConfig.label,
-          status: "error",
-        };
-      }
-    }),
+      },
+    ),
   );
 
   return {
@@ -432,7 +438,7 @@ export async function preloadHuggingFaceAgentModels({
       detail: "This browser cannot run Hugging Face Transformers.js.",
       error: {
         friendly:
-          "This browser cannot run local Hugging Face models. Try Chrome with WebGPU enabled, or use a newer desktop browser.",
+          "This browser cannot run local Hugging Face models. Try Safari 26, Chrome, Edge, or another modern browser with WebGPU or WASM support.",
         system: "Transformers.js support check returned false.",
       },
       status: "unsupported",
@@ -446,82 +452,80 @@ export async function preloadHuggingFaceAgentModels({
     };
   }
 
-  const device = getDevice();
-  const models = getUniqueHuggingFaceModelCandidates(agentIds);
+  const device = await getBestDevice();
+  const models = getUniqueHuggingFaceModelCandidates(agentIds, device);
   const errors: string[] = [];
   const progressSnapshots = new Map<string, ModelProgressSnapshot>();
   let loaded = 0;
 
-  await Promise.all(
-    models.map(async (modelConfig) => {
-      const emitProgress = (progress: HuggingFaceModelWarmupProgress) => {
-        onProgress?.(progress);
-      };
+  for (const modelConfig of models) {
+    const emitProgress = (progress: HuggingFaceModelWarmupProgress) => {
+      onProgress?.(progress);
+    };
 
+    onProgress?.({
+      completed: loaded,
+      currentModel: modelConfig.label,
+      detail:
+        device === "webgpu"
+          ? `Preparing ${modelConfig.label} with WebGPU.`
+          : `Preparing ${modelConfig.label} with WASM.`,
+      status: "checking",
+      total: models.length,
+    });
+
+    await yieldToBrowser();
+
+    try {
+      await getReadyHuggingFaceModel({
+        device,
+        modelConfig,
+        onProgress: (progress) => {
+          const percent = Math.round(progress * 100);
+
+          if (
+            !shouldEmitModelDownloadProgress({
+              modelId: modelConfig.id,
+              percent,
+              progressSnapshots,
+            })
+          ) {
+            return;
+          }
+
+          emitProgress({
+            completed: loaded,
+            currentModel: modelConfig.label,
+            detail: `Downloading ${modelConfig.label}.`,
+            progress: percent,
+            status: "downloading",
+            total: models.length,
+          });
+        },
+        transformersJS,
+      });
+
+      loaded += 1;
       onProgress?.({
         completed: loaded,
         currentModel: modelConfig.label,
-        detail:
-          device === "webgpu"
-            ? `Preparing ${modelConfig.label} with WebGPU.`
-            : `Preparing ${modelConfig.label} with WASM.`,
-        status: "checking",
+        detail: `${modelConfig.label} is ready.`,
+        status: "ready",
         total: models.length,
       });
-
-      await yieldToBrowser();
-
-      try {
-        await getReadyHuggingFaceModel({
-          device,
-          modelConfig,
-          onProgress: (progress) => {
-            const percent = Math.round(progress * 100);
-
-            if (
-              !shouldEmitModelDownloadProgress({
-                modelId: modelConfig.id,
-                percent,
-                progressSnapshots,
-              })
-            ) {
-              return;
-            }
-
-            emitProgress({
-              completed: loaded,
-              currentModel: modelConfig.label,
-              detail: `Downloading ${modelConfig.label}.`,
-              progress: percent,
-              status: "downloading",
-              total: models.length,
-            });
-          },
-          transformersJS,
-        });
-
-        loaded += 1;
-        onProgress?.({
-          completed: loaded,
-          currentModel: modelConfig.label,
-          detail: `${modelConfig.label} is ready.`,
-          status: "ready",
-          total: models.length,
-        });
-      } catch (error) {
-        const normalizedError = getModelWarmupError(error);
-        errors.push(`${modelConfig.label}: ${normalizedError.system}`);
-        onProgress?.({
-          completed: loaded,
-          currentModel: modelConfig.label,
-          detail: normalizedError.friendly,
-          error: normalizedError,
-          status: "error",
-          total: models.length,
-        });
-      }
-    }),
-  );
+    } catch (error) {
+      const normalizedError = getModelWarmupError(error);
+      errors.push(`${modelConfig.label}: ${normalizedError.system}`);
+      onProgress?.({
+        completed: loaded,
+        currentModel: modelConfig.label,
+        detail: normalizedError.friendly,
+        error: normalizedError,
+        status: "error",
+        total: models.length,
+      });
+    }
+  }
 
   return {
     errors,
@@ -541,10 +545,10 @@ function createUnsupportedPreflightResult({
     canLoad: false,
     models: models.map((model) => ({
       detail:
-        "This browser cannot run local Hugging Face models. Try Chrome with WebGPU enabled, or use a newer desktop browser.",
+        "This browser cannot run local Hugging Face models. Try Safari 26, Chrome, Edge, or another modern browser with WebGPU or WASM support.",
       error: {
         friendly:
-          "This browser cannot run local Hugging Face models. Try Chrome with WebGPU enabled, or use a newer desktop browser.",
+          "This browser cannot run local Hugging Face models. Try Safari 26, Chrome, Edge, or another modern browser with WebGPU or WASM support.",
         system,
       },
       label: model.label,
@@ -623,7 +627,7 @@ function getModelWarmupError(error: unknown) {
   ) {
     return {
       friendly:
-        "WebGPU is not ready for this model. The agent will try another browser model if one is available.",
+        "WebGPU is not ready for this model. The agent will try a WASM or smaller browser model if one is available.",
       system,
     };
   }
@@ -694,11 +698,10 @@ export async function runHuggingFaceAiSdkAgent({
     throw new Error("Hugging Face browser AI is not available on this device.");
   }
 
-  const device = getDevice();
+  const device = await getBestDevice();
   const errors: string[] = [];
-  const readyModels: ReadyHuggingFaceModel[] = [];
 
-  for (const modelConfig of getHuggingFaceModelCandidates(agent.id)) {
+  for (const modelConfig of getHuggingFaceModelCandidates(agent.id, device)) {
     try {
       onStatus?.({
         message:
@@ -721,10 +724,64 @@ export async function runHuggingFaceAiSdkAgent({
         transformersJS,
       });
 
-      readyModels.push({
-        config: modelConfig,
-        model: readyModel,
+      onStatus?.({
+        message: `Generating with ${modelConfig.label}; AI SDK retry is ready if it fails.`,
+        type: "generating",
       });
+
+      const retryableModel = createRetryable({
+        model: readyModel,
+        onRetry: (context) => {
+          const previousAttempt = context.attempts.at(-1);
+          const isSameModel =
+            previousAttempt &&
+            getModelKey(previousAttempt.model) ===
+              getModelKey(context.current.model);
+
+          onStatus?.({
+            message: isSameModel
+              ? `Retrying ${modelConfig.label} after a transient AI SDK error.`
+              : `Trying ${modelConfig.label} through AI SDK fallback.`,
+            type: "fallback",
+          });
+        },
+        retries: [
+          retryAfterDelay({
+            backoffFactor: 1.6,
+            delay: 250,
+            maxAttempts: 2,
+          }),
+          retryWhenResultIsEmpty({
+            maxOutputTokens: modelConfig.maxOutputTokens,
+            model: readyModel,
+          }),
+        ],
+        reset: "after-request",
+      });
+
+      const result = await generateText({
+        maxOutputTokens: modelConfig.maxOutputTokens,
+        model: retryableModel,
+        prompt: buildModelPrompt({ agent, content, userPrompt }),
+        system: agent.systemPrompt,
+        temperature: 0.2,
+      });
+
+      const text = stripModelScratchpad(result.text);
+
+      if (!text) {
+        throw new Error(
+          "AI SDK retry completed but returned an empty response.",
+        );
+      }
+
+      return {
+        device,
+        modelId: result.response.modelId || modelConfig.id,
+        modelLabel: modelConfig.label,
+        runtime: "huggingface-ai-sdk",
+        text,
+      };
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "unknown model error";
@@ -734,103 +791,6 @@ export async function runHuggingFaceAiSdkAgent({
         type: "fallback",
       });
     }
-  }
-
-  const [primaryModel, ...fallbackModels] = readyModels;
-
-  if (primaryModel) {
-    const modelConfigByKey = new Map(
-      readyModels.map((readyModel) => [
-        getModelKey(readyModel.model),
-        readyModel.config,
-      ]),
-    );
-    let activeModelConfig = primaryModel.config;
-
-    onStatus?.({
-      message: `Generating with ${primaryModel.config.label}; AI SDK retry is ready if it fails.`,
-      type: "generating",
-    });
-
-    const retryableModel = createRetryable({
-      model: primaryModel.model,
-      onRetry: (context) => {
-        const retryModelConfig = modelConfigByKey.get(
-          getModelKey(context.current.model),
-        );
-
-        if (!retryModelConfig) {
-          return;
-        }
-
-        const previousAttempt = context.attempts.at(-1);
-        const isSameModel =
-          previousAttempt &&
-          getModelKey(previousAttempt.model) ===
-            getModelKey(context.current.model);
-
-        activeModelConfig = retryModelConfig;
-        onStatus?.({
-          message: isSameModel
-            ? `Retrying ${retryModelConfig.label} after a transient AI SDK error.`
-            : `Trying ${retryModelConfig.label} through AI SDK fallback.`,
-          type: "fallback",
-        });
-      },
-      onSuccess: (context) => {
-        const successModelConfig = modelConfigByKey.get(
-          getModelKey(context.current.model),
-        );
-
-        if (successModelConfig) {
-          activeModelConfig = successModelConfig;
-        }
-      },
-      retries: [
-        retryAfterDelay({
-          backoffFactor: 1.6,
-          delay: 250,
-          maxAttempts: 2,
-        }),
-        ...fallbackModels.map((fallbackModel) =>
-          retryWhenResultIsEmpty({
-            maxOutputTokens: fallbackModel.config.maxOutputTokens,
-            model: fallbackModel.model,
-          }),
-        ),
-        ...fallbackModels.map((fallbackModel) => ({
-          delay: 200,
-          maxAttempts: 2,
-          model: fallbackModel.model,
-          options: {
-            maxOutputTokens: fallbackModel.config.maxOutputTokens,
-          },
-        })),
-      ],
-      reset: "after-request",
-    });
-
-    const result = await generateText({
-      maxOutputTokens: primaryModel.config.maxOutputTokens,
-      model: retryableModel,
-      prompt: buildModelPrompt({ agent, content, userPrompt }),
-      system: agent.systemPrompt,
-      temperature: 0.2,
-    });
-
-    const text = stripModelScratchpad(result.text);
-
-    if (!text) {
-      throw new Error("AI SDK retry completed but returned an empty response.");
-    }
-
-    return {
-      device,
-      modelId: result.response.modelId || activeModelConfig.id,
-      modelLabel: activeModelConfig.label,
-      runtime: "huggingface-ai-sdk",
-      text,
-    };
   }
 
   throw new Error(

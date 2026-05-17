@@ -82,6 +82,9 @@ type ModelWarmupState = {
   total: number;
 };
 
+const BROWSER_MODEL_RUN_TIMEOUT_MS = 12_000;
+const BROWSER_MODEL_WARMUP_TIMEOUT_MS = 90_000;
+
 export function AgentWorkbench({
   agent,
 }: {
@@ -117,9 +120,6 @@ export function AgentWorkbench({
         model.state === "downloading"),
   );
   const hasUsableModel = hasLoadedHuggingFaceModel || hasUsableBrowserAiModel;
-  const isWaitingForFirstModel =
-    modelWarmup.phase === "loading" && !hasUsableModel;
-  const canRunAgent = !isWaitingForFirstModel;
   const shouldShowModelUnavailableNotice =
     modelWarmup.phase === "unavailable" &&
     !hasUsableModel &&
@@ -127,6 +127,7 @@ export function AgentWorkbench({
 
   useEffect(() => {
     let cancelled = false;
+    let warmupExpired = false;
 
     setModelOptions(createInitialModelOptions(agent, huggingFaceModels));
     setModelWarmup({
@@ -188,25 +189,61 @@ export function AgentWorkbench({
           return;
         }
 
-        const result = await preloadHuggingFaceAgentModels({
-          agentIds: [agent.id],
-          onProgress: (progress) => {
-            if (cancelled) {
-              return;
-            }
+        const result = await withTimeout(
+          preloadHuggingFaceAgentModels({
+            agentIds: [agent.id],
+            onProgress: (progress) => {
+              if (cancelled || warmupExpired) {
+                return;
+              }
 
-            startTransition(() => {
-              setModelOptions((currentOptions) =>
-                updateModelOptionsFromProgress(currentOptions, progress),
-              );
-              setModelWarmup({
-                loaded: progress.completed,
-                message: getWarmupMessage(progress),
-                phase: getWarmupPhase(progress),
-                total: progress.total || huggingFaceModels.length,
+              startTransition(() => {
+                setModelOptions((currentOptions) =>
+                  updateModelOptionsFromProgress(currentOptions, progress),
+                );
+                setModelWarmup({
+                  loaded: progress.completed,
+                  message: getWarmupMessage(progress),
+                  phase: getWarmupPhase(progress),
+                  total: progress.total || huggingFaceModels.length,
+                });
               });
+            },
+          }),
+          BROWSER_MODEL_WARMUP_TIMEOUT_MS,
+          "Browser model warmup took too long.",
+        ).catch((error) => {
+          if (cancelled) {
+            return {
+              errors: [],
+              loaded: 0,
+              total: huggingFaceModels.length,
+            };
+          }
+
+          warmupExpired = true;
+          startTransition(() => {
+            setModelWarmup({
+              loaded: 0,
+              message:
+                "The browser model is taking too long. The agent can still run with its local fallback.",
+              phase: "unavailable",
+              total: huggingFaceModels.length,
             });
-          },
+            setModelOptions((currentOptions) =>
+              markActiveModelTimeout(currentOptions, error),
+            );
+          });
+
+          return {
+            errors: [
+              error instanceof Error
+                ? error.message
+                : "Browser model warmup took too long.",
+            ],
+            loaded: 0,
+            total: huggingFaceModels.length,
+          };
         });
 
         if (cancelled) {
@@ -268,10 +305,6 @@ export function AgentWorkbench({
   }, [actualModelUsed, renderedMarkdown]);
 
   const runAgent = async () => {
-    if (!canRunAgent) {
-      return;
-    }
-
     setIsRunning(true);
     setCopied(false);
     setModelText("");
@@ -307,11 +340,15 @@ export function AgentWorkbench({
 
       if (hasLoadedHuggingFaceModel) {
         try {
-          const huggingFaceResult = await runHuggingFaceAiSdkAgent({
-            agent,
-            content,
-            userPrompt,
-          });
+          const huggingFaceResult = await withTimeout(
+            runHuggingFaceAiSdkAgent({
+              agent,
+              content,
+              userPrompt,
+            }),
+            BROWSER_MODEL_RUN_TIMEOUT_MS,
+            "Browser model took too long to respond.",
+          );
           setModelText(huggingFaceResult.text);
           setActualModelUsed(
             `${huggingFaceResult.modelLabel} (${huggingFaceResult.device.toUpperCase()})`,
@@ -463,9 +500,9 @@ export function AgentWorkbench({
                           Browser models unavailable
                         </p>
                         <p className="mt-1 text-amber-900/75 text-xs leading-5 dark:text-amber-100/75">
-                          This browser does not expose the GPU/WebGPU runtime
-                          these local models need. The agent can still run with
-                          its built-in fallback.
+                          This browser could not load a WebGPU or WASM model for
+                          this agent. The built-in local fallback still keeps
+                          the workflow usable.
                         </p>
                       </div>
                     </div>
@@ -556,20 +593,16 @@ export function AgentWorkbench({
               <div className="flex flex-wrap gap-2">
                 <Button
                   className="rounded-lg"
-                  disabled={isRunning || !canRunAgent}
+                  disabled={isRunning}
                   onClick={runAgent}
                   type="button"
                 >
-                  {isRunning || !canRunAgent ? (
+                  {isRunning ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     <Sparkles />
                   )}
-                  {isRunning
-                    ? "Running"
-                    : canRunAgent
-                      ? "Run agent"
-                      : "Loading model"}
+                  {isRunning ? "Running" : "Run agent"}
                 </Button>
                 <Button
                   className="rounded-lg"
@@ -688,6 +721,19 @@ export function AgentWorkbench({
   );
 }
 
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message: string,
+) {
+  return Promise.race([
+    promise,
+    new Promise<never>((_resolve, reject) => {
+      window.setTimeout(() => reject(new Error(message)), timeoutMs);
+    }),
+  ]);
+}
+
 function createInitialModelOptions(
   _agent: AgentBlueprint,
   huggingFaceModels: HuggingFaceModelConfig[],
@@ -759,10 +805,11 @@ function updateBrowserAiModelOption(
 }
 
 function normalizePrimaryModelOption(modelOptions: ModelOption[]) {
+  const orderedModelOptions = orderModelOptionsByAvailability(modelOptions);
   let hasPrimary = false;
 
-  return modelOptions.map((model) => {
-    if (!hasPrimary) {
+  return orderedModelOptions.map((model) => {
+    if (!hasPrimary && canModelBePrimary(model)) {
       hasPrimary = true;
       return {
         ...model,
@@ -777,6 +824,47 @@ function normalizePrimaryModelOption(modelOptions: ModelOption[]) {
   });
 }
 
+function canModelBePrimary(model: ModelOption) {
+  return model.state !== "error" && model.state !== "unavailable";
+}
+
+function orderModelOptionsByAvailability(modelOptions: ModelOption[]) {
+  return modelOptions
+    .map((model, index) => ({ index, model }))
+    .sort((left, right) => {
+      const priorityDiff =
+        getModelAvailabilityPriority(left.model) -
+        getModelAvailabilityPriority(right.model);
+
+      return priorityDiff || left.index - right.index;
+    })
+    .map(({ model }) => model);
+}
+
+function getModelAvailabilityPriority(model: ModelOption) {
+  if (model.state === "ready") {
+    return 0;
+  }
+
+  if (
+    model.state === "downloading" ||
+    model.state === "downloadable" ||
+    model.state === "checking"
+  ) {
+    return 1;
+  }
+
+  if (model.state === "queued") {
+    return 2;
+  }
+
+  if (model.state === "error") {
+    return 3;
+  }
+
+  return 4;
+}
+
 function updateModelOptionsFromPreflight(
   modelOptions: ModelOption[],
   preflight: HuggingFaceModelPreflightResult,
@@ -784,46 +872,81 @@ function updateModelOptionsFromPreflight(
   const preflightByLabel = new Map(
     preflight.models.map((model) => [model.label, model]),
   );
+  const preflightOrderByLabel = new Map(
+    preflight.models.map((model, index) => [model.label, index]),
+  );
 
-  return modelOptions.map((model) => {
-    if (model.kind !== "hf") {
-      return model;
-    }
+  return normalizePrimaryModelOption(
+    orderModelOptionsByPreflight(
+      modelOptions.map((model) => {
+        if (model.kind !== "hf") {
+          return model;
+        }
 
-    const preflightModel = preflightByLabel.get(model.label);
+        const preflightModel = preflightByLabel.get(model.label);
 
-    if (!preflightModel) {
-      return model;
-    }
+        if (!preflightModel) {
+          return model;
+        }
 
-    if (preflightModel.status === "available") {
-      return {
-        ...model,
-        detail: preflightModel.detail,
-        progress: 100,
-        state: "ready",
-      };
-    }
+        if (preflightModel.status === "available") {
+          return {
+            ...model,
+            detail: preflightModel.detail,
+            progress: 100,
+            state: "ready",
+          };
+        }
 
-    if (preflightModel.status === "downloadable") {
-      return {
-        ...model,
-        detail: preflightModel.detail,
-        progress: undefined,
-        state: "checking",
-      };
-    }
+        if (preflightModel.status === "downloadable") {
+          return {
+            ...model,
+            detail: preflightModel.detail,
+            progress: undefined,
+            state: "checking",
+          };
+        }
 
-    return {
-      ...model,
-      detail: preflight.canLoad
-        ? preflightModel.detail
-        : "Not available in this browser.",
-      error: preflightModel.error,
-      progress: undefined,
-      state: preflight.canLoad ? "error" : "unavailable",
-    };
-  });
+        return {
+          ...model,
+          detail: preflight.canLoad
+            ? preflightModel.detail
+            : "Not available in this browser.",
+          error: preflightModel.error,
+          progress: undefined,
+          state: preflight.canLoad ? "error" : "unavailable",
+        };
+      }),
+      preflightOrderByLabel,
+    ),
+  );
+}
+
+function orderModelOptionsByPreflight(
+  modelOptions: ModelOption[],
+  preflightOrderByLabel: Map<string, number>,
+) {
+  return modelOptions
+    .map((model, index) => ({ index, model }))
+    .sort((left, right) => {
+      const leftOrder = preflightOrderByLabel.get(left.model.label);
+      const rightOrder = preflightOrderByLabel.get(right.model.label);
+
+      if (leftOrder === undefined && rightOrder === undefined) {
+        return left.index - right.index;
+      }
+
+      if (leftOrder === undefined) {
+        return -1;
+      }
+
+      if (rightOrder === undefined) {
+        return 1;
+      }
+
+      return leftOrder - rightOrder;
+    })
+    .map(({ model }) => model);
 }
 
 function updateModelOptionsFromProgress(
@@ -832,64 +955,99 @@ function updateModelOptionsFromProgress(
 ): ModelOption[] {
   if (!progress.currentModel) {
     if (progress.status === "unsupported") {
-      return modelOptions.map((model) =>
-        model.kind === "hf"
-          ? {
-              ...model,
-              detail:
-                "This browser cannot run local Hugging Face models. Try Chrome with WebGPU enabled, or use a newer desktop browser.",
-              error: progress.error,
-              state: "unavailable",
-            }
-          : model,
+      return normalizePrimaryModelOption(
+        modelOptions.map((model) =>
+          model.kind === "hf"
+            ? {
+                ...model,
+                detail:
+                  "This browser cannot run local Hugging Face models. Try Safari 26, Chrome, Edge, or another modern browser with WebGPU or WASM support.",
+                error: progress.error,
+                state: "unavailable",
+              }
+            : model,
+        ),
       );
     }
 
     return modelOptions;
   }
 
-  return modelOptions.map((model) => {
-    if (model.label !== progress.currentModel) {
-      return model;
-    }
+  return normalizePrimaryModelOption(
+    modelOptions.map((model) => {
+      if (model.label !== progress.currentModel) {
+        return model;
+      }
 
-    if (progress.status === "downloading") {
+      if (progress.status === "downloading") {
+        return {
+          ...model,
+          detail: "Downloading model weights into the browser cache.",
+          progress: progress.progress,
+          state: "downloading",
+        };
+      }
+
+      if (progress.status === "ready") {
+        return {
+          ...model,
+          detail: "Ready in this browser.",
+          progress: 100,
+          state: "ready",
+        };
+      }
+
+      if (progress.status === "error" || progress.status === "unsupported") {
+        return {
+          ...model,
+          detail:
+            progress.error?.friendly ??
+            "This model could not load. The agent will use another ready model when possible.",
+          error: progress.error,
+          progress: undefined,
+          state: "error",
+        };
+      }
+
       return {
         ...model,
-        detail: "Downloading model weights into the browser cache.",
-        progress: progress.progress,
-        state: "downloading",
+        detail: "Checking browser support and cache.",
+        progress: undefined,
+        state: "checking",
       };
-    }
+    }),
+  );
+}
 
-    if (progress.status === "ready") {
-      return {
-        ...model,
-        detail: "Ready in this browser.",
-        progress: 100,
-        state: "ready",
-      };
-    }
+function markActiveModelTimeout(
+  modelOptions: ModelOption[],
+  error: unknown,
+): ModelOption[] {
+  const system =
+    error instanceof Error
+      ? error.message
+      : "Browser model warmup took too long.";
 
-    if (progress.status === "error" || progress.status === "unsupported") {
+  return normalizePrimaryModelOption(
+    modelOptions.map((model) => {
+      if (model.state !== "checking" && model.state !== "downloading") {
+        return model;
+      }
+
       return {
         ...model,
         detail:
-          progress.error?.friendly ??
-          "This model could not load. The agent will use another ready model when possible.",
-        error: progress.error,
+          "This browser model is taking too long to prepare. The agent will use the local fallback instead.",
+        error: {
+          friendly:
+            "This browser model is taking too long to prepare. The local fallback is active.",
+          system,
+        },
         progress: undefined,
-        state: "error",
+        state: "unavailable",
       };
-    }
-
-    return {
-      ...model,
-      detail: "Checking browser support and cache.",
-      progress: undefined,
-      state: "checking",
-    };
-  });
+    }),
+  );
 }
 
 function getPreflightReadyCount(preflight: HuggingFaceModelPreflightResult) {
@@ -927,31 +1085,36 @@ function finalizeModelOptions(
   modelOptions: ModelOption[],
   hasLoadedModel: boolean,
 ): ModelOption[] {
-  return modelOptions.map((model) => {
-    if (model.kind !== "hf") {
-      return model;
-    }
+  return normalizePrimaryModelOption(
+    modelOptions.map((model) => {
+      if (model.kind !== "hf") {
+        return model;
+      }
 
-    if (!hasLoadedModel && model.state === "error") {
+      if (!hasLoadedModel && model.state === "error") {
+        return {
+          ...model,
+          detail: "Not available in this browser.",
+          state: "unavailable",
+        };
+      }
+
+      if (
+        model.state !== "queued" &&
+        !(hasLoadedModel && model.state === "checking")
+      ) {
+        return model;
+      }
+
       return {
         ...model,
-        detail: "Not available in this browser.",
-        state: "unavailable",
+        detail: hasLoadedModel
+          ? "Standby fallback. Another browser model is ready."
+          : "Not available in this browser.",
+        state: hasLoadedModel ? "queued" : "unavailable",
       };
-    }
-
-    if (model.state !== "queued") {
-      return model;
-    }
-
-    return {
-      ...model,
-      detail: hasLoadedModel
-        ? "Not needed for this run path yet."
-        : "Not available in this browser.",
-      state: hasLoadedModel ? "queued" : "unavailable",
-    };
-  });
+    }),
+  );
 }
 
 function getWarmupMessage(progress: HuggingFaceModelWarmupProgress) {

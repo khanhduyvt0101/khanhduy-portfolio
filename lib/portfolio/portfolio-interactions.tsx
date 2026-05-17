@@ -161,7 +161,6 @@ export function PortfolioSocialLinks(): ReactNode {
 export function PortfolioCommandPalette(): ReactNode {
   const router = useRouter();
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [copied, setCopied] = useState<"email" | "brief" | null>(null);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -187,8 +186,6 @@ export function PortfolioCommandPalette(): ReactNode {
     async (kind: "email" | "brief", value: string) => {
       await navigator.clipboard.writeText(value);
       trackSiteEvent("Clipboard Copied", { kind });
-      setCopied(kind);
-      window.setTimeout(() => setCopied(null), 1600);
     },
     [],
   );
@@ -253,91 +250,81 @@ export function PortfolioCommandPalette(): ReactNode {
   };
 
   return (
-    <>
-      <CommandDialog
-        className="border-border/70 bg-background/95 shadow-2xl backdrop-blur-xl sm:max-w-2xl"
-        description="Search products, links, and quick actions."
-        onOpenChange={setPaletteOpen}
-        open={paletteOpen}
-        title="Khanh Duy Command Center"
-      >
-        <CommandInput placeholder="Search products, tools, links..." />
-        <CommandList className="max-h-[420px]">
-          <CommandEmpty>No matching action.</CommandEmpty>
-          <CommandGroup heading="Quick actions">
-            {commandActions.map((action) => (
-              <CommandItem
-                key={action.title}
-                onSelect={() => runCommand(action)}
-                value={`${action.title} ${action.description}`}
-              >
-                <action.icon />
-                <div className="flex min-w-0 flex-col">
-                  <span>{action.title}</span>
-                  <span className="truncate text-muted-foreground text-xs">
-                    {action.description}
-                  </span>
-                </div>
-                {action.shortcut ? (
-                  <CommandShortcut>{action.shortcut}</CommandShortcut>
-                ) : null}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="AI agents">
-            {agentBlueprints.map((agent) => (
-              <CommandItem
-                key={agent.id}
-                onSelect={() => {
-                  setPaletteOpen(false);
-                  router.push(`/ai-agents/${agent.id}`);
-                }}
-                value={`${agent.name} ${agent.tagline} ${agent.description} ${agent.stack.join(" ")}`}
-              >
-                <Bot />
-                <div className="flex min-w-0 flex-col">
-                  <span>{agent.name}</span>
-                  <span className="truncate text-muted-foreground text-xs">
-                    {agent.tagline}
-                  </span>
-                </div>
-                <CommandShortcut>{agent.privacy}</CommandShortcut>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Featured tools">
-            {freeTools.slice(0, 8).map((tool) => (
-              <CommandItem
-                key={tool.slug}
-                onSelect={() => {
-                  setPaletteOpen(false);
-                  router.push(`/free-tools/${tool.slug}`);
-                }}
-                value={`${tool.title} ${tool.summary} ${tool.keywords.join(" ")}`}
-              >
-                <Braces />
-                <div className="flex min-w-0 flex-col">
-                  <span>{tool.title}</span>
-                  <span className="truncate text-muted-foreground text-xs">
-                    {tool.summary}
-                  </span>
-                </div>
-                <CommandShortcut>{tool.category}</CommandShortcut>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
-      </CommandDialog>
-
-      <div className="container mx-auto max-w-7xl px-4 pb-8">
-        <p className="text-muted-foreground text-sm" aria-live="polite">
-          {copied
-            ? `${copied === "email" ? "Email" : "Brief"} copied.`
-            : "Press Cmd/Ctrl + K for quick search."}
-        </p>
-      </div>
-    </>
+    <CommandDialog
+      className="border-border/70 bg-background/95 shadow-2xl backdrop-blur-xl sm:max-w-2xl"
+      description="Search products, links, and quick actions."
+      onOpenChange={setPaletteOpen}
+      open={paletteOpen}
+      title="Khanh Duy Command Center"
+    >
+      <CommandInput placeholder="Search products, tools, links..." />
+      <CommandList className="max-h-[420px]">
+        <CommandEmpty>No matching action.</CommandEmpty>
+        <CommandGroup heading="Quick actions">
+          {commandActions.map((action) => (
+            <CommandItem
+              key={action.title}
+              onSelect={() => runCommand(action)}
+              value={`${action.title} ${action.description}`}
+            >
+              <action.icon />
+              <div className="flex min-w-0 flex-col">
+                <span>{action.title}</span>
+                <span className="truncate text-muted-foreground text-xs">
+                  {action.description}
+                </span>
+              </div>
+              {action.shortcut ? (
+                <CommandShortcut>{action.shortcut}</CommandShortcut>
+              ) : null}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup heading="AI agents">
+          {agentBlueprints.map((agent) => (
+            <CommandItem
+              key={agent.id}
+              onSelect={() => {
+                setPaletteOpen(false);
+                router.push(`/ai-agents/${agent.id}`);
+              }}
+              value={`${agent.name} ${agent.tagline} ${agent.description} ${agent.stack.join(" ")}`}
+            >
+              <Bot />
+              <div className="flex min-w-0 flex-col">
+                <span>{agent.name}</span>
+                <span className="truncate text-muted-foreground text-xs">
+                  {agent.tagline}
+                </span>
+              </div>
+              <CommandShortcut>{agent.privacy}</CommandShortcut>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup heading="Featured tools">
+          {freeTools.slice(0, 8).map((tool) => (
+            <CommandItem
+              key={tool.slug}
+              onSelect={() => {
+                setPaletteOpen(false);
+                router.push(`/free-tools/${tool.slug}`);
+              }}
+              value={`${tool.title} ${tool.summary} ${tool.keywords.join(" ")}`}
+            >
+              <Braces />
+              <div className="flex min-w-0 flex-col">
+                <span>{tool.title}</span>
+                <span className="truncate text-muted-foreground text-xs">
+                  {tool.summary}
+                </span>
+              </div>
+              <CommandShortcut>{tool.category}</CommandShortcut>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </CommandList>
+    </CommandDialog>
   );
 }

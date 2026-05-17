@@ -3,9 +3,12 @@ export type HuggingFaceModelConfig = {
   label: string;
   bestFor: string;
   maxOutputTokens: number;
+  wasmPriority: number;
   webgpuDtype: "q4" | "q4f16" | "fp16";
   wasmDtype: "q8" | "q4";
 };
+
+export type HuggingFaceModelDevice = "webgpu" | "wasm";
 
 export const HUGGING_FACE_MODELS = {
   qwen3Small: {
@@ -13,6 +16,7 @@ export const HUGGING_FACE_MODELS = {
     label: "Qwen3 0.6B",
     bestFor: "multi-step reasoning, extraction, JSON, schemas, and replies",
     maxOutputTokens: 640,
+    wasmPriority: 20,
     webgpuDtype: "q4f16",
     wasmDtype: "q8",
   },
@@ -21,6 +25,7 @@ export const HUGGING_FACE_MODELS = {
     label: "SmolLM2 360M",
     bestFor: "summaries, rewrite-style responses, and general instructions",
     maxOutputTokens: 560,
+    wasmPriority: 10,
     webgpuDtype: "q4",
     wasmDtype: "q8",
   },
@@ -29,6 +34,7 @@ export const HUGGING_FACE_MODELS = {
     label: "SmolLM2 135M",
     bestFor: "fast browser fallback on smaller devices",
     maxOutputTokens: 420,
+    wasmPriority: 0,
     webgpuDtype: "q4",
     wasmDtype: "q8",
   },
@@ -66,19 +72,35 @@ const agentModelOrder: Record<string, HuggingFaceModelConfig[]> = {
   ],
 };
 
-export function getHuggingFaceModelCandidates(agentId: string) {
-  return agentModelOrder[agentId] ?? fallbackModelOrder;
+export function getHuggingFaceModelCandidates(
+  agentId: string,
+  device: HuggingFaceModelDevice = "webgpu",
+) {
+  const models = agentModelOrder[agentId] ?? fallbackModelOrder;
+
+  if (device === "wasm") {
+    return [...models].sort((left, right) => {
+      const priorityDiff = left.wasmPriority - right.wasmPriority;
+
+      return priorityDiff || models.indexOf(left) - models.indexOf(right);
+    });
+  }
+
+  return models;
 }
 
 export function getPrimaryHuggingFaceModel(agentId: string) {
   return getHuggingFaceModelCandidates(agentId)[0];
 }
 
-export function getUniqueHuggingFaceModelCandidates(agentIds: string[]) {
+export function getUniqueHuggingFaceModelCandidates(
+  agentIds: string[],
+  device: HuggingFaceModelDevice = "webgpu",
+) {
   const seen = new Set<string>();
 
   return agentIds
-    .flatMap((agentId) => getHuggingFaceModelCandidates(agentId))
+    .flatMap((agentId) => getHuggingFaceModelCandidates(agentId, device))
     .filter((model) => {
       if (seen.has(model.id)) {
         return false;

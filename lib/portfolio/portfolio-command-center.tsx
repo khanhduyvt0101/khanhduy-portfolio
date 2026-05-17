@@ -105,10 +105,10 @@ export function PortfolioCommandCenter(): ReactNode {
                 Software engineer simplifying ideas with technology.
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-                I am Khanh Duy, a full-stack developer based in Ho Chi Minh
-                City. I have {yearsOfExperience}+ years of experience building
-                web and mobile products with JavaScript, React, TypeScript, and
-                Next.js.
+                I'm Khanh Duy, a full-stack developer in Ho Chi Minh City. For{" "}
+                {yearsOfExperience}+ years, I've shipped web and mobile products
+                that turn complex ideas into fast, simple, reliable experiences
+                with JavaScript, React, TypeScript, and Next.js.
               </p>
             </div>
 
