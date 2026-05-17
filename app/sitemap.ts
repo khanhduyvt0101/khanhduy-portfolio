@@ -2,6 +2,10 @@ import type { MetadataRoute } from "next";
 
 import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
 import { freeTools } from "~/lib/free-tools/tool-meta";
+import {
+  getCatalogPageCount,
+  getCatalogPageHref,
+} from "~/lib/site/catalog-pagination";
 import { siteUrl } from "~/lib/site/seo";
 
 const lastModified = new Date("2026-05-17T00:00:00.000Z");
@@ -42,5 +46,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.75,
   }));
 
-  return [...staticRoutes, ...toolRoutes, ...agentRoutes];
+  const freeToolsPageRoutes = Array.from(
+    { length: getCatalogPageCount(freeTools) - 1 },
+    (_, index) => ({
+      url: `${siteUrl}${getCatalogPageHref("/free-tools", index + 2)}`,
+      lastModified,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }),
+  );
+
+  const aiAgentsPageRoutes = Array.from(
+    { length: getCatalogPageCount(agentBlueprints) - 1 },
+    (_, index) => ({
+      url: `${siteUrl}${getCatalogPageHref("/ai-agents", index + 2)}`,
+      lastModified,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }),
+  );
+
+  return [
+    ...staticRoutes,
+    ...freeToolsPageRoutes,
+    ...aiAgentsPageRoutes,
+    ...toolRoutes,
+    ...agentRoutes,
+  ];
 }

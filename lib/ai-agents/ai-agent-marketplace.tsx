@@ -17,6 +17,11 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { CatalogPageNavigation } from "~/lib/site/catalog-page-navigation";
+import {
+  getCatalogPageCount,
+  getCatalogPageItems,
+} from "~/lib/site/catalog-pagination";
 import { cn } from "~/lib/utils";
 import {
   type AgentBlueprint,
@@ -36,10 +41,24 @@ const runtimeIcons: Record<AgentRuntime, LucideIcon> = {
 };
 
 export function AiAgentMarketplace({
+  agents,
+  basePath = "/ai-agents",
   compact = false,
+  currentPage = 1,
+  pageCount,
 }: {
+  agents?: AgentBlueprint[];
+  basePath?: string;
   compact?: boolean;
+  currentPage?: number;
+  pageCount?: number;
 }): ReactNode {
+  const visibleAgents =
+    agents ??
+    (compact ? getCatalogPageItems(agentBlueprints, 1) : agentBlueprints);
+  const resolvedPageCount =
+    pageCount ?? (compact ? getCatalogPageCount(agentBlueprints) : 1);
+
   return (
     <section
       className={cn(
@@ -60,7 +79,7 @@ export function AiAgentMarketplace({
               </h2>
             </div>
             <Button asChild className="w-fit rounded-lg">
-              <Link href="/ai-agents">Open agents</Link>
+              <Link href="/ai-agents">Show all</Link>
             </Button>
           </div>
         ) : (
@@ -70,7 +89,8 @@ export function AiAgentMarketplace({
                 Agent shelf
               </p>
               <p className="mt-2 max-w-2xl text-muted-foreground text-sm leading-6">
-                Pick an agent or workflow. Run it. Copy the result.
+                Pick an agent or workflow. Run it. Copy the result. Page{" "}
+                {currentPage} of {resolvedPageCount}.
               </p>
             </div>
             <div className="flex flex-col items-start gap-2 md:items-end">
@@ -80,10 +100,17 @@ export function AiAgentMarketplace({
         )}
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {agentBlueprints.map((agent) => (
+          {visibleAgents.map((agent) => (
             <AgentCard agent={agent} key={agent.id} />
           ))}
         </div>
+
+        <CatalogPageNavigation
+          basePath={basePath}
+          currentPage={currentPage}
+          label="AI agents pages"
+          pageCount={resolvedPageCount}
+        />
       </div>
     </section>
   );

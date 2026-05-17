@@ -45,6 +45,12 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { trackSiteEvent } from "~/lib/site/analytics-events";
+import { CatalogPageNavigation } from "~/lib/site/catalog-page-navigation";
+import {
+  catalogItemsPerPage,
+  getCatalogPageCount,
+  getCatalogPageItems,
+} from "~/lib/site/catalog-pagination";
 import { cn } from "~/lib/utils";
 import { type FreeTool, freeToolCategories, freeTools } from "./tool-meta";
 
@@ -73,12 +79,24 @@ const toolIcons: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
   "images-to-pdf": FileTextIcon,
 };
 
-export function FreeToolsGallery() {
+export function FreeToolsGallery({
+  basePath = "/free-tools",
+  currentPage = 1,
+  pageCount = getCatalogPageCount(freeTools),
+  tools = getCatalogPageItems(freeTools, currentPage),
+}: {
+  basePath?: string;
+  currentPage?: number;
+  pageCount?: number;
+  tools?: FreeTool[];
+}) {
   const [activeCategory, setActiveCategory] =
     useState<FreeToolCategoryFilter>("All");
+  const [filteredPage, setFilteredPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const normalizedSearchQuery = normalizeSearchText(searchQuery);
+  const isFiltered = activeCategory !== "All" || Boolean(normalizedSearchQuery);
 
   useEffect(() => {
     const focusSearchInput = (event: KeyboardEvent) => {
@@ -101,7 +119,7 @@ export function FreeToolsGallery() {
     };
   }, []);
 
-  const visibleTools = useMemo(() => {
+  const matchingTools = useMemo(() => {
     const categoryTools =
       activeCategory === "All"
         ? freeTools
@@ -121,6 +139,16 @@ export function FreeToolsGallery() {
       .map(({ tool }) => tool);
   }, [activeCategory, normalizedSearchQuery]);
 
+  const filteredPageCount = getCatalogPageCount(matchingTools);
+  const activePage = isFiltered ? filteredPage : currentPage;
+  const visibleTools = isFiltered
+    ? getCatalogPageItems(matchingTools, filteredPage)
+    : tools;
+  const resultCount = isFiltered ? matchingTools.length : freeTools.length;
+  const shownStart =
+    visibleTools.length > 0 ? (activePage - 1) * catalogItemsPerPage + 1 : 0;
+  const shownEnd =
+    visibleTools.length > 0 ? shownStart + visibleTools.length - 1 : 0;
   const resultText = `${visibleTools.length} ${
     visibleTools.length === 1 ? "tool" : "tools"
   }`;
@@ -159,6 +187,7 @@ export function FreeToolsGallery() {
                     trackSiteEvent("Free Tools Category Selected", {
                       category,
                     });
+                    setFilteredPage(1);
                     setActiveCategory(category);
                   }}
                   type="button"
@@ -177,7 +206,10 @@ export function FreeToolsGallery() {
           <Input
             aria-label="Search free tools"
             className="h-11 pr-24 pl-9"
-            onChange={(event) => setSearchQuery(event.target.value)}
+            onChange={(event) => {
+              setFilteredPage(1);
+              setSearchQuery(event.target.value);
+            }}
             placeholder="Search by name, feature, function, or description..."
             ref={searchInputRef}
             type="search"
@@ -189,6 +221,7 @@ export function FreeToolsGallery() {
                 aria-label="Clear search"
                 className="size-7"
                 onClick={() => {
+                  setFilteredPage(1);
                   setSearchQuery("");
                   searchInputRef.current?.focus();
                 }}
@@ -212,7 +245,11 @@ export function FreeToolsGallery() {
       <div className="grid gap-5 md:grid-cols-2">
         {visibleTools.length > 0 ? (
           visibleTools.map((tool, index) => (
-            <ToolCard index={index} key={tool.slug} tool={tool} />
+            <ToolCard
+              index={(activePage - 1) * catalogItemsPerPage + index}
+              key={tool.slug}
+              tool={tool}
+            />
           ))
         ) : (
           <Card className="rounded-lg md:col-span-2">
@@ -224,6 +261,21 @@ export function FreeToolsGallery() {
             </CardHeader>
           </Card>
         )}
+      </div>
+
+      <div className="flex flex-col items-center gap-3">
+        <p className="text-center text-muted-foreground text-sm">
+          {visibleTools.length > 0
+            ? `Showing ${shownStart}-${shownEnd} of ${resultCount} tools`
+            : "No matching tools to page through"}
+        </p>
+        <CatalogPageNavigation
+          basePath={basePath}
+          currentPage={activePage}
+          label="Free tools pages"
+          onPageSelect={isFiltered ? setFilteredPage : undefined}
+          pageCount={isFiltered ? filteredPageCount : pageCount}
+        />
       </div>
     </section>
   );

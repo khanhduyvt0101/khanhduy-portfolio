@@ -1,7 +1,6 @@
 import {
   ArrowUpRight,
   Braces,
-  Clock3,
   Code2,
   ExternalLink,
   FileText,
@@ -20,12 +19,15 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
 import { AiAgentMarketplace } from "~/lib/ai-agents/ai-agent-marketplace";
 import { freeTools } from "~/lib/free-tools/tool-meta";
 import {
   LocalTime,
   PortfolioSocialLinks,
 } from "~/lib/portfolio/portfolio-interactions";
+import { CatalogPageNavigation } from "~/lib/site/catalog-page-navigation";
+import { getCatalogPageCount } from "~/lib/site/catalog-pagination";
 import { cn } from "~/lib/utils";
 
 const experienceStartYear = 2021;
@@ -117,14 +119,14 @@ export function PortfolioCommandCenter(): ReactNode {
               />
               <HeroMetric icon={Braces} label="Stack" value="JS / TS / React" />
               <HeroMetric
-                icon={Clock3}
-                label="Local time"
-                value={<LocalTime />}
+                icon={FileText}
+                label="Free tools"
+                value={`${freeTools.length} tools`}
               />
               <HeroMetric
                 icon={MessageSquareText}
-                label="Base"
-                value="Vietnam"
+                label="AI agents"
+                value={`${agentBlueprints.length} agents`}
               />
             </div>
 
@@ -268,7 +270,7 @@ export function PortfolioCommandCenter(): ReactNode {
           </div>
           <Button asChild variant="outline" className="w-fit rounded-lg">
             <Link href="/free-tools">
-              Browse all {freeTools.length}
+              Show all
               <ArrowUpRight data-icon="inline-end" />
             </Link>
           </Button>
@@ -290,6 +292,18 @@ export function PortfolioCommandCenter(): ReactNode {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        <div className="mt-7 flex flex-col items-center gap-3">
+          <p className="text-center text-muted-foreground text-sm">
+            Showing 1-{featuredTools.length} of {freeTools.length} free tools
+          </p>
+          <CatalogPageNavigation
+            basePath="/free-tools"
+            currentPage={1}
+            label="Free tools pages"
+            pageCount={getCatalogPageCount(freeTools)}
+          />
         </div>
       </section>
     </div>
