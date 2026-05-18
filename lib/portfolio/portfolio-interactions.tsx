@@ -48,6 +48,7 @@ import {
   type ToolCategory,
 } from "~/lib/free-tools/tool-meta";
 import {
+  isPortfolioCommandPaletteShortcut,
   type PortfolioCommandPaletteOpenDetail,
   portfolioCommandPaletteOpenEvent,
 } from "~/lib/portfolio/command-palette-events";
@@ -317,7 +318,7 @@ export function PortfolioCommandPalette({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      if (isPortfolioCommandPaletteShortcut(event)) {
         event.preventDefault();
         setPaletteOpen((current) => {
           if (!current) {

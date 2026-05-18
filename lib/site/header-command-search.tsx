@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   type PortfolioCommandPaletteOpenDetail,
   portfolioCommandPaletteOpenEvent,
+  portfolioCommandPaletteShortcutLabel,
 } from "~/lib/portfolio/command-palette-events";
 import { cn } from "~/lib/utils";
 
@@ -27,6 +28,7 @@ export function HeaderCommandSearch(): ReactNode {
 
   return (
     <button
+      aria-keyshortcuts="Meta+K Control+K"
       aria-label="Search the site"
       className={cn(
         "group/search relative hidden h-10 w-[min(30vw,18rem)] items-center overflow-hidden rounded-lg border bg-background/80 px-3 text-left shadow-xs backdrop-blur-md transition-[width,transform,border-color,background-color,box-shadow] duration-300 ease-out hover:w-[min(32vw,19rem)] hover:border-foreground/20 hover:bg-background hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 md:inline-flex",
@@ -45,7 +47,7 @@ export function HeaderCommandSearch(): ReactNode {
       </span>
       <span className="relative ml-3 hidden items-center gap-1 rounded-md border bg-background/80 px-1.5 py-1 font-mono text-[0.68rem] text-muted-foreground shadow-xs lg:inline-flex">
         <Keyboard className="size-3" />
-        <span>⌘K</span>
+        <span>{portfolioCommandPaletteShortcutLabel}</span>
       </span>
     </button>
   );

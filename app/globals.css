@@ -446,6 +446,10 @@
 }
 
 @layer components {
+  .site-header-transition {
+    view-transition-name: site-header;
+  }
+
   .hero-pet-glint {
     position: absolute;
     width: 0.42rem;
@@ -455,12 +459,197 @@
     animation: hero-pet-glint 2.8s ease-in-out var(--glint-delay, 0s) infinite;
   }
 
-  .hero-pet-wanderer {
+  .hero-pet-stage {
     position: absolute;
-    bottom: 0.125rem;
-    left: -7.25rem;
-    animation: hero-pet-walk 24s linear infinite;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .hero-pet-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 11.375rem;
+    height: 7rem;
+    border: 0;
+    background: transparent;
+    cursor: grab;
+    outline: none;
+    padding: 0;
+    pointer-events: auto;
+    touch-action: none;
     will-change: transform;
+  }
+
+  .hero-pet-button:active {
+    cursor: grabbing;
+  }
+
+  .hero-pet-button[data-dragging="true"] {
+    cursor: grabbing;
+  }
+
+  @media (max-width: 767px) {
+    .hero-pet-button {
+      width: 8.5625rem;
+      height: 5.25rem;
+    }
+  }
+
+  .hero-pet-button:focus-visible {
+    border-radius: 999px;
+    box-shadow: 0 0 0 0.25rem color-mix(in oklch, var(--ring), transparent 65%);
+  }
+
+  .hero-pet-sprite {
+    display: block;
+    position: relative;
+    transform-origin: 50% 78%;
+    will-change: transform;
+  }
+
+  .hero-pet-bubble {
+    position: absolute;
+    top: -1.45rem;
+    left: 54%;
+    z-index: 2;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--popover);
+    box-shadow: 0 0.65rem 1.4rem
+      color-mix(in oklch, var(--foreground), transparent 88%);
+    color: var(--popover-foreground);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    opacity: 0;
+    padding: 0.42rem 0.58rem;
+    pointer-events: none;
+    text-transform: uppercase;
+    transform: translate3d(-50%, 0.25rem, 0) scale(0.92);
+    transition:
+      opacity 160ms ease,
+      transform 160ms ease;
+    white-space: nowrap;
+  }
+
+  .hero-pet-bubble::after {
+    position: absolute;
+    right: 1.05rem;
+    bottom: -0.28rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--popover);
+    content: "";
+    transform: rotate(45deg);
+  }
+
+  .hero-pet-button:is(:hover, :focus-visible) .hero-pet-bubble,
+  .hero-pet-button[data-petted="true"] .hero-pet-bubble,
+  .hero-pet-button[data-dragging="true"] .hero-pet-bubble {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+
+  .hero-pet-aura {
+    position: absolute;
+    top: 1.45rem;
+    left: 1.45rem;
+    width: 7.4rem;
+    height: 4.25rem;
+    border-radius: 999px;
+    background: var(--primary);
+    filter: blur(1.1rem);
+    opacity: 0.16;
+    transform: translateZ(0);
+  }
+
+  .hero-pet-shadow {
+    position: absolute;
+    top: 4.62rem;
+    left: 2.15rem;
+    width: 6.5rem;
+    height: 0.72rem;
+    border-radius: 999px;
+    background: var(--foreground);
+    filter: blur(0.25rem);
+    opacity: 0.18;
+  }
+
+  .hero-pet-button[data-petted="true"] .hero-pet-sprite {
+    animation: hero-pet-petted 700ms cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  }
+
+  .hero-pet-button[data-dragging="true"] .hero-pet-sprite {
+    animation: none;
+    filter: drop-shadow(
+      0 0.65rem 1rem color-mix(in oklch, var(--chart-2), transparent 72%)
+    );
+  }
+
+  .hero-pet-heart {
+    position: absolute;
+    top: var(--heart-y);
+    left: var(--heart-x);
+    width: 0.72rem;
+    height: 0.72rem;
+    border-radius: 0.18rem;
+    background: color-mix(in oklch, var(--chart-5), var(--chart-1) 36%);
+    opacity: 0;
+    pointer-events: none;
+    transform: rotate(45deg);
+    animation: hero-pet-heart-float 950ms ease-out forwards;
+  }
+
+  .hero-pet-heart::before,
+  .hero-pet-heart::after {
+    position: absolute;
+    width: 0.72rem;
+    height: 0.72rem;
+    border-radius: 999px;
+    background: inherit;
+    content: "";
+  }
+
+  .hero-pet-heart::before {
+    left: -0.36rem;
+  }
+
+  .hero-pet-heart::after {
+    top: -0.36rem;
+  }
+
+  @supports (view-transition-name: none) {
+    ::view-transition-group(site-header) {
+      animation: none;
+      z-index: 20;
+    }
+
+    ::view-transition-old(.page-soft),
+    ::view-transition-new(.page-soft),
+    ::view-transition-old(.page-forward),
+    ::view-transition-new(.page-forward) {
+      animation-duration: 180ms;
+      animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    ::view-transition-old(.page-soft),
+    ::view-transition-old(.page-forward) {
+      animation-name: page-fade-out;
+    }
+
+    ::view-transition-new(.page-soft) {
+      animation-name: page-fade-in;
+    }
+
+    ::view-transition-new(.page-forward) {
+      animation-name: page-slide-in;
+    }
   }
 
   @keyframes hero-pet-glint {
@@ -475,32 +664,65 @@
     }
   }
 
-  @keyframes hero-pet-walk {
+  @keyframes hero-pet-heart-float {
     0% {
-      transform: translateX(0) scaleX(1);
+      opacity: 0;
+      transform: translate3d(0, 0, 0) rotate(45deg) scale(0.68);
     }
-    46% {
-      transform: translateX(calc(100vw + 9rem)) scaleX(1);
-    }
-    50% {
-      transform: translateX(calc(100vw + 9rem)) scaleX(-1);
-    }
-    96% {
-      transform: translateX(0) scaleX(-1);
+    18% {
+      opacity: 0.9;
     }
     100% {
-      transform: translateX(0) scaleX(1);
+      opacity: 0;
+      transform: translate3d(-0.4rem, -2.35rem, 0) rotate(45deg) scale(1);
+    }
+  }
+
+  @keyframes hero-pet-petted {
+    0%,
+    100% {
+      filter: drop-shadow(0 0.35rem 0.8rem transparent);
+    }
+    50% {
+      filter: drop-shadow(
+        0 0.55rem 1rem color-mix(in oklch, var(--chart-4), transparent 60%)
+      );
+    }
+  }
+
+  @keyframes page-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes page-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes page-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .hero-pet-glint,
-    .hero-pet-wanderer {
+    .hero-pet-button[data-petted="true"] .hero-pet-sprite,
+    .hero-pet-button[data-dragging="true"] .hero-pet-sprite,
+    .hero-pet-heart {
       animation: none;
     }
 
-    .hero-pet-wanderer {
-      transform: translateX(22vw);
+    @supports (view-transition-name: none) {
+      ::view-transition-group(*),
+      ::view-transition-old(*),
+      ::view-transition-new(*) {
+        animation: none;
+      }
     }
   }
 }

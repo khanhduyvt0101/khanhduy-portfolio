@@ -65,6 +65,7 @@ function MenuFeature({
       <Link
         className="group grid gap-4 rounded-2xl border bg-muted/35 p-4 text-foreground outline-none transition-colors duration-200 hover:border-foreground/20 hover:bg-muted/75 focus:border-foreground/20 focus:bg-muted/75"
         href={href}
+        transitionTypes={["nav-forward"]}
       >
         <span className="flex items-center justify-between gap-3">
           <span className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
@@ -113,6 +114,7 @@ function MenuItemLink({
           active && "border-border bg-muted text-foreground",
         )}
         href={href}
+        transitionTypes={["nav-forward"]}
       >
         <span className="flex items-center gap-2 font-semibold text-sm leading-5">
           <Icon aria-hidden="true" />

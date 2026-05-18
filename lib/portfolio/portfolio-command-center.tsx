@@ -425,8 +425,8 @@ export function PortfolioCommandCenter(): ReactNode {
 
 function HeroPetRunway(): ReactNode {
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0">
-      <div className="container mx-auto max-w-7xl px-4">
+    <div className="pointer-events-none absolute inset-0 z-20">
+      <div className="container relative mx-auto h-full max-w-7xl px-4">
         <HeroPetPlayground />
       </div>
     </div>

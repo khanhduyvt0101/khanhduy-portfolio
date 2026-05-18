@@ -34,12 +34,14 @@ export function HeaderNavigationLoader(): ReactNode {
       <Link
         className="rounded-lg px-2.5 py-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
         href="/ai-agents"
+        transitionTypes={["nav-forward"]}
       >
         Agents
       </Link>
       <Link
         className="rounded-lg px-2.5 py-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 max-[430px]:hidden"
         href="/free-tools"
+        transitionTypes={["nav-forward"]}
       >
         Tools
       </Link>

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import {
+  isPortfolioCommandPaletteShortcut,
   type PortfolioCommandPaletteOpenDetail,
   portfolioCommandPaletteOpenEvent,
 } from "~/lib/portfolio/command-palette-events";
@@ -34,7 +35,7 @@ export function PortfolioCommandPaletteLoader(): ReactNode {
       setOpenRequest({ id: requestId, source });
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      if (isPortfolioCommandPaletteShortcut(event)) {
         event.preventDefault();
         openPalette("keyboard_shortcut");
       }

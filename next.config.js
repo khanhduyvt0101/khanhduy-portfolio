@@ -15,6 +15,9 @@ function on(value) {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: false,
+  experimental: {
+    viewTransition: true,
+  },
   logging: on(globalThis?.process?.env?.LOG_FETCH)
     ? { fetches: { fullUrl: true } }
     : undefined,

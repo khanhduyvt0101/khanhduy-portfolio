@@ -37,7 +37,7 @@ const socialLinks = [
   },
   {
     label: "Instagram",
-    href: "https://www.instagram.com/_khanhduy",
+    href: "https://www.instagram.com/_khanhduy/",
     icon: IconBrandInstagram,
   },
   {
@@ -55,20 +55,38 @@ const socialLinks = [
 export function PortfolioSocialLinks(): ReactNode {
   return (
     <div className="flex flex-wrap gap-2">
-      {socialLinks.map(({ href, icon: Icon, label, tone }) => (
-        <Button
-          asChild
-          className={cn("size-12 rounded-lg p-0", tone ?? "bg-background/80")}
-          key={href}
-          size="sm"
-          title={label}
-          variant={tone ? "default" : "outline"}
-        >
-          <a aria-label={label} href={href} rel="noreferrer" target="_blank">
-            <Icon className="size-5" stroke={1.8} />
-          </a>
-        </Button>
-      ))}
+      {socialLinks.map(({ href, icon: Icon, label, tone }) => {
+        const external = !href.startsWith("mailto:");
+
+        return (
+          <Button
+            asChild
+            className={cn(
+              "group relative size-12 overflow-visible rounded-lg p-0",
+              tone ?? "bg-background/80",
+            )}
+            key={href}
+            size="sm"
+            variant={tone ? "default" : "outline"}
+          >
+            <a
+              aria-label={label}
+              href={href}
+              rel={external ? "noreferrer" : undefined}
+              target={external ? "_blank" : undefined}
+              title={label}
+            >
+              <Icon className="size-5" stroke={1.8} />
+              <span
+                aria-hidden="true"
+                className="-translate-x-1/2 pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-20 rounded-md border bg-popover px-2.5 py-1.5 text-popover-foreground text-xs opacity-0 shadow-md transition-[opacity,transform] duration-150 group-hover:-translate-y-0.5 group-hover:opacity-100 group-focus-visible:-translate-y-0.5 group-focus-visible:opacity-100"
+              >
+                {label}
+              </span>
+            </a>
+          </Button>
+        );
+      })}
     </div>
   );
 }

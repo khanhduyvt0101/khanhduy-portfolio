@@ -5,7 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import type { PropsWithChildren, ReactNode } from "react";
+import { type PropsWithChildren, type ReactNode, ViewTransition } from "react";
 import { ThemeProvider } from "~/lib/components/theme-provider";
 import { PortfolioCommandPaletteLoader } from "~/lib/portfolio/portfolio-command-palette-loader";
 
@@ -93,13 +93,14 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
           enableSystem
           disableTransitionOnChange
         >
-          <div className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-md">
+          <div className="site-header-transition sticky top-0 z-10 border-b bg-background/80 backdrop-blur-md">
             <div className="container mx-auto max-w-7xl px-4">
               <header className="flex h-16 items-center justify-between gap-4">
                 <div className="flex min-w-0 flex-1 items-center gap-4">
                   <Link
                     className="shrink-0 truncate bg-[linear-gradient(90deg,var(--foreground),var(--muted-foreground))] bg-clip-text text-xl font-black text-transparent"
                     href="/"
+                    transitionTypes={["nav-forward"]}
                   >
                     Khanh Duy
                   </Link>
@@ -113,7 +114,13 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
             </div>
           </div>
           <PortfolioCommandPaletteLoader />
-          <main className="flex-1">{children}</main>
+          <ViewTransition
+            default="page-soft"
+            enter="page-forward"
+            exit="page-soft"
+          >
+            <main className="flex-1">{children}</main>
+          </ViewTransition>
           <footer className="mt-auto flex h-14 items-center justify-center border-t">
             <div className="container mx-auto max-w-7xl px-4 text-center">
               <span className="text-sm text-muted-foreground">
