@@ -470,16 +470,31 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 11.375rem;
-    height: 7rem;
+    width: 128px;
+    height: 128px;
     border: 0;
     background: transparent;
     cursor: grab;
+    image-rendering: auto;
     outline: none;
     padding: 0;
     pointer-events: auto;
     touch-action: none;
-    will-change: transform;
+    transition: filter 140ms ease;
+    user-select: none;
+    will-change: transform, background-position;
+  }
+
+  .hero-pet-sprite-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    background-repeat: no-repeat;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateZ(0);
+    will-change: opacity, background-position;
   }
 
   .hero-pet-button:active {
@@ -492,21 +507,14 @@
 
   @media (max-width: 767px) {
     .hero-pet-button {
-      width: 8.5625rem;
-      height: 5.25rem;
+      width: 96px;
+      height: 96px;
     }
   }
 
   .hero-pet-button:focus-visible {
     border-radius: 999px;
     box-shadow: 0 0 0 0.25rem color-mix(in oklch, var(--ring), transparent 65%);
-  }
-
-  .hero-pet-sprite {
-    display: block;
-    position: relative;
-    transform-origin: 50% 78%;
-    will-change: transform;
   }
 
   .hero-pet-bubble {
@@ -556,40 +564,16 @@
     transform: translate3d(-50%, 0, 0) scale(1);
   }
 
-  .hero-pet-aura {
-    position: absolute;
-    top: 1.45rem;
-    left: 1.45rem;
-    width: 7.4rem;
-    height: 4.25rem;
-    border-radius: 999px;
-    background: var(--primary);
-    filter: blur(1.1rem);
-    opacity: 0.16;
-    transform: translateZ(0);
-  }
-
-  .hero-pet-shadow {
-    position: absolute;
-    top: 4.62rem;
-    left: 2.15rem;
-    width: 6.5rem;
-    height: 0.72rem;
-    border-radius: 999px;
-    background: var(--foreground);
-    filter: blur(0.25rem);
-    opacity: 0.18;
-  }
-
-  .hero-pet-button[data-petted="true"] .hero-pet-sprite {
+  .hero-pet-button[data-petted="true"] {
     animation: hero-pet-petted 700ms cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
   }
 
-  .hero-pet-button[data-dragging="true"] .hero-pet-sprite {
+  .hero-pet-button[data-dragging="true"] {
     animation: none;
     filter: drop-shadow(
       0 0.65rem 1rem color-mix(in oklch, var(--chart-2), transparent 72%)
     );
+    transition: filter 120ms ease;
   }
 
   .hero-pet-heart {
@@ -711,8 +695,8 @@
 
   @media (prefers-reduced-motion: reduce) {
     .hero-pet-glint,
-    .hero-pet-button[data-petted="true"] .hero-pet-sprite,
-    .hero-pet-button[data-dragging="true"] .hero-pet-sprite,
+    .hero-pet-button[data-petted="true"],
+    .hero-pet-button[data-dragging="true"],
     .hero-pet-heart {
       animation: none;
     }

@@ -118,7 +118,7 @@ export function PortfolioCommandCenter(): ReactNode {
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-25" />
         <div className="absolute inset-x-0 top-0 -z-10 h-36 bg-[linear-gradient(180deg,var(--accent),transparent)] opacity-45" />
 
-        <div className="container mx-auto grid max-w-7xl gap-8 px-4 py-8 md:py-12 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-center">
+        <div className="container relative z-20 mx-auto grid max-w-7xl gap-8 px-4 py-8 md:py-12 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-center">
           <div className="flex min-w-0 flex-col gap-6">
             <div className="max-w-4xl">
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
@@ -425,7 +425,7 @@ export function PortfolioCommandCenter(): ReactNode {
 
 function HeroPetRunway(): ReactNode {
   return (
-    <div className="pointer-events-none absolute inset-0 z-20">
+    <div className="pointer-events-none absolute inset-0 z-30">
       <div className="container relative mx-auto h-full max-w-7xl px-4">
         <HeroPetPlayground />
       </div>
