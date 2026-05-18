@@ -8,7 +8,7 @@ import {
 } from "~/lib/site/catalog-pagination";
 import { siteUrl } from "~/lib/site/seo";
 
-const lastModified = new Date("2026-05-17T00:00:00.000Z");
+const lastModified = new Date("2026-05-18T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [

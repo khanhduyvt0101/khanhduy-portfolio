@@ -15,6 +15,18 @@ const sharedAgentKeywords = [
   "Vercel AI SDK",
 ];
 
+const agentKeywordOverrides: Record<string, string[]> = {
+  "subscription-audit": [
+    "subscription tracker",
+    "recurring bill tracker",
+    "subscription audit",
+    "cancel subscriptions checklist",
+    "renewal reminder tool",
+    "personal finance AI tool",
+    "local subscription manager",
+  ],
+};
+
 export function getAgentShortName(agent: AgentBlueprint) {
   return agent.name.replace(/ Agent$/, "");
 }
@@ -38,6 +50,7 @@ export function getAgentSeo(agent: AgentBlueprint) {
       `${runtime.name}`,
       ...agent.outputs.map((output) => `${output} AI tool`),
       ...agent.useCases.map((useCase) => `${useCase} AI agent`),
+      ...(agentKeywordOverrides[agent.id] ?? []),
       ...sharedAgentKeywords,
     ],
     path,

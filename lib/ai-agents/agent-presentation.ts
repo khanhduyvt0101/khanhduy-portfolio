@@ -7,6 +7,7 @@ import {
   Mail,
   ServerCog,
   Sparkles,
+  WalletCards,
 } from "lucide-react";
 import type { AgentBlueprint, AgentIconKey } from "./agent-catalog";
 
@@ -16,6 +17,7 @@ const agentIcons: Record<AgentIconKey, LucideIcon> = {
   data: Gauge,
   email: Mail,
   file: FileInput,
+  finance: WalletCards,
   gauge: Gauge,
   prompt: Sparkles,
   schema: ServerCog,

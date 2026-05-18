@@ -25,6 +25,7 @@ export type AgentIconKey =
   | "data"
   | "email"
   | "file"
+  | "finance"
   | "gauge"
   | "prompt"
   | "schema"
@@ -397,6 +398,67 @@ const agentDefinitions = [
     acceptedFiles: ".txt,.csv,.tsv,.md,.log",
     systemPrompt:
       "You are a data cleaning agent. Normalize messy rows into a clean table, report assumptions, and never drop non-empty information silently.",
+  },
+  {
+    id: "subscription-audit",
+    name: "Subscription Audit Agent",
+    tagline:
+      "Find recurring charges, renewal risks, and realistic cancellation targets.",
+    description:
+      "Paste bank statement lines, app store receipts, renewal emails, or a rough list of monthly bills. The agent groups recurring charges, estimates monthly and annual cost, flags likely waste, and returns a cancellation checklist plus renewal calendar rows.",
+    icon: "finance",
+    inputs: ["text", "file"],
+    outputs: ["checklist", "csv", "json", "report", "table"],
+    workflows: [
+      {
+        label: "Subscription cleanup",
+        description: "Spot forgotten tools, trials, and duplicate services.",
+        prompt:
+          "Audit this list for subscriptions to cancel, downgrade, keep, or review. Prioritize unused, duplicate, trial, and nice-to-have items.",
+      },
+      {
+        label: "Monthly bill map",
+        description: "Separate essential bills from discretionary spend.",
+        prompt:
+          "Group these recurring charges into essential bills, useful subscriptions, review items, and cancel candidates. Estimate monthly and annual cost.",
+      },
+      {
+        label: "Renewal watchlist",
+        description: "Create reminder rows before upcoming charges.",
+        prompt:
+          "Build a renewal watchlist with upcoming dates, review notes, and cancellation prep tasks before the next charge.",
+      },
+    ],
+    runtime: "hybrid",
+    modelProfile: "fast",
+    privacy: "Local first",
+    status: "Browser AI boosted",
+    useCases: [
+      "Subscription cleanup",
+      "Recurring bill review",
+      "Renewal reminders",
+    ],
+    stack: [
+      "Chrome Prompt API",
+      "Recurring charge parser",
+      "Savings heuristics",
+      "Calendar CSV export",
+      ...modelStack("fast"),
+    ],
+    promptLabel: "Audit goal",
+    promptPlaceholder:
+      "Example: find cancel candidates, keep essentials, and make reminders before renewals.",
+    inputLabel: "Subscriptions, bills, or statement lines",
+    inputPlaceholder:
+      "Paste recurring charges, renewal emails, app receipts, or bank statement lines...",
+    samplePrompt:
+      "Find likely cancellation targets, keep essential bills, and create renewal reminders.",
+    sampleInput:
+      "Netflix Premium $22.99 monthly renews May 23\nApple iCloud+ $2.99 monthly family photos keep\nChatGPT Plus $20 monthly used daily for work\nNotion AI $10 monthly maybe cancel\nGym membership $49 monthly unused since March\nAdobe trial $29.99 after May 28 cancel if not using\nDomain khanhduy.dev $18 yearly renews 08/14\nInternet bill $45 monthly essential\nSpotify Family $16.99 monthly shared with family",
+    acceptedFiles: ".txt,.csv,.tsv,.md,.log",
+    executionMode: "deterministic-first",
+    systemPrompt:
+      "You are a subscription and recurring bill audit agent. Use only the provided charges. Estimate monthly and annual impact, identify keep/review/cancel candidates, and create practical reminders. Do not provide investment or legal advice.",
   },
   {
     id: "prompt-builder",

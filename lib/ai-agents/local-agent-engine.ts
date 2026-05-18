@@ -37,6 +37,29 @@ type DayTask = {
   title: string;
 };
 
+type SubscriptionCadence =
+  | "annual"
+  | "monthly"
+  | "quarterly"
+  | "unknown"
+  | "weekly";
+
+type SubscriptionDecision = "cancel" | "keep" | "review";
+
+type SubscriptionCharge = {
+  amount: number;
+  annualCost: number;
+  cadence: SubscriptionCadence;
+  category: string;
+  confidence: "high" | "low" | "medium";
+  decision: SubscriptionDecision;
+  monthlyCost: number;
+  name: string;
+  nextCharge: string;
+  raw: string;
+  reason: string;
+};
+
 const actionWords = [
   "need",
   "please",
@@ -100,6 +123,8 @@ export function runLocalAgent({
       return runPromptBuilder(input, userPrompt);
     case "private-summarizer":
       return runPrivateSummarizer(input, userPrompt);
+    case "subscription-audit":
+      return runSubscriptionAudit(input, userPrompt);
     default:
       return runPrivateSummarizer(input, userPrompt);
   }
@@ -598,6 +623,135 @@ function runDataCleaner(input: string, userPrompt: string): AgentRunResult {
   };
 }
 
+function runSubscriptionAudit(
+  input: string,
+  userPrompt: string,
+): AgentRunResult {
+  const charges = parseSubscriptionCharges(input);
+  const sortedCharges = [...charges].sort(compareSubscriptionCharges);
+  const keepCharges = sortedCharges.filter(
+    (charge) => charge.decision === "keep",
+  );
+  const reviewCharges = sortedCharges.filter(
+    (charge) => charge.decision === "review",
+  );
+  const cancelCharges = sortedCharges.filter(
+    (charge) => charge.decision === "cancel",
+  );
+  const monthlyCost = sumCharges(sortedCharges, "monthlyCost");
+  const annualCost = sumCharges(sortedCharges, "annualCost");
+  const possibleMonthlySavings = sumCharges(cancelCharges, "monthlyCost");
+  const possibleAnnualSavings = sumCharges(cancelCharges, "annualCost");
+
+  return {
+    title: "Recurring charge audit",
+    summary:
+      sortedCharges.length > 0
+        ? `Found ${sortedCharges.length} recurring charge${sortedCharges.length === 1 ? "" : "s"} totaling about ${formatMoney(monthlyCost)}/mo or ${formatMoney(annualCost)}/yr. Cancel candidates represent up to ${formatMoney(possibleMonthlySavings)}/mo.`
+        : "No recurring charges were detected. Paste lines with service names and amounts like Netflix $22.99 monthly.",
+    sections: [
+      {
+        title: "Audit request",
+        items: [
+          userPrompt ||
+            "Review recurring charges, protect essentials, and flag likely waste.",
+          "Local fallback uses amounts, cadence words, usage clues, and renewal dates from the pasted text.",
+          "Review every cancellation before acting, especially utilities, insurance, family plans, and work tools.",
+        ],
+      },
+      {
+        title: "Spending snapshot",
+        items: [
+          `${sortedCharges.length} recurring charge${sortedCharges.length === 1 ? "" : "s"} detected.`,
+          `Estimated recurring cost: ${formatMoney(monthlyCost)} monthly / ${formatMoney(annualCost)} yearly.`,
+          `Possible cancellation savings: ${formatMoney(possibleMonthlySavings)} monthly / ${formatMoney(possibleAnnualSavings)} yearly.`,
+          `${countByCadence(sortedCharges, "annual")} annual, ${countByCadence(sortedCharges, "monthly")} monthly, ${countByCadence(sortedCharges, "weekly")} weekly, ${countByCadence(sortedCharges, "quarterly")} quarterly, ${countByCadence(sortedCharges, "unknown")} unknown cadence.`,
+        ],
+      },
+      {
+        title: "Cancel first",
+        items: cancelCharges.length
+          ? cancelCharges.slice(0, 6).map(formatSubscriptionLine)
+          : [
+              "No obvious cancel-first subscription detected from the current text.",
+            ],
+      },
+      {
+        title: "Review before next charge",
+        items: reviewCharges.length
+          ? reviewCharges.slice(0, 8).map(formatSubscriptionLine)
+          : [
+              "No review queue detected. Recheck annual plans and app-store purchases manually.",
+            ],
+      },
+      {
+        title: "Likely keep",
+        items: keepCharges.length
+          ? keepCharges.slice(0, 8).map(formatSubscriptionLine)
+          : ["No essential or clearly used recurring bill detected."],
+      },
+      {
+        title: "Missing details to add",
+        items: [
+          "Next charge date for every item you may cancel.",
+          "Owner or shared-with person for family and team plans.",
+          "Last-used date for apps, gyms, courses, cloud storage, and trials.",
+          "Cancellation URL or app-store billing location for each cancel candidate.",
+        ],
+      },
+    ],
+    artifacts: [
+      {
+        label: "Subscription audit CSV",
+        language: "csv",
+        content: rowsToCsv(
+          sortedCharges.map((charge) => ({
+            name: charge.name,
+            amount: charge.amount,
+            cadence: charge.cadence,
+            monthly_cost: roundMoney(charge.monthlyCost),
+            annual_cost: roundMoney(charge.annualCost),
+            category: charge.category,
+            decision: charge.decision,
+            next_charge: charge.nextCharge,
+            confidence: charge.confidence,
+            reason: charge.reason,
+          })),
+        ),
+      },
+      {
+        label: "Savings plan JSON",
+        language: "json",
+        content: JSON.stringify(
+          {
+            totals: {
+              monthly_cost: roundMoney(monthlyCost),
+              annual_cost: roundMoney(annualCost),
+              possible_monthly_savings: roundMoney(possibleMonthlySavings),
+              possible_annual_savings: roundMoney(possibleAnnualSavings),
+            },
+            cancel_first: cancelCharges,
+            review_queue: reviewCharges,
+            keep: keepCharges,
+          },
+          null,
+          2,
+        ),
+      },
+      {
+        label: "Cancellation checklist",
+        language: "markdown",
+        content: subscriptionChecklistMarkdown(cancelCharges, reviewCharges),
+      },
+      {
+        label: "Renewal reminder CSV",
+        language: "csv",
+        content: rowsToCsv(renewalReminderRows(sortedCharges)),
+      },
+    ],
+  };
+}
+
 function runPromptBuilder(input: string, userPrompt: string): AgentRunResult {
   const objective = summarizeSentences(input, 1)[0] ?? input.slice(0, 180);
   const prompt = [
@@ -740,6 +894,365 @@ function runJsonSchema(input: string, userPrompt: string): AgentRunResult {
       },
     ],
   };
+}
+
+function parseSubscriptionCharges(input: string): SubscriptionCharge[] {
+  const lines = cleanLines(input);
+  const lineCharges = lines
+    .map(parseSubscriptionLine)
+    .filter((charge): charge is SubscriptionCharge => Boolean(charge));
+
+  if (lineCharges.length > 0) {
+    return lineCharges;
+  }
+
+  return parseRows(input)
+    .map(subscriptionFromRow)
+    .filter((charge): charge is SubscriptionCharge => Boolean(charge));
+}
+
+function parseSubscriptionLine(line: string): SubscriptionCharge | null {
+  const amount = extractMoneyAmount(line);
+
+  if (amount === null) {
+    return null;
+  }
+
+  const cadence = inferSubscriptionCadence(line);
+  const name = inferSubscriptionName(line);
+  const decision = inferSubscriptionDecision(line, name);
+  const category = inferSubscriptionCategory(line, name);
+  const nextCharge = inferSubscriptionNextCharge(line);
+  const monthlyCost = monthlyCostFromCadence(amount, cadence);
+  const annualCost = monthlyCost * 12;
+
+  return {
+    amount,
+    annualCost,
+    cadence,
+    category,
+    confidence: cadence === "unknown" ? "medium" : "high",
+    decision,
+    monthlyCost,
+    name,
+    nextCharge,
+    raw: line,
+    reason: subscriptionDecisionReason(line, decision, category),
+  };
+}
+
+function subscriptionFromRow(row: DataRow): SubscriptionCharge | null {
+  const entries = Object.entries(row);
+  const amountEntry = entries.find(
+    ([key, value]) =>
+      /amount|cost|price|charge|total/i.test(key) && typeof value === "number",
+  );
+
+  if (!amountEntry) {
+    return null;
+  }
+
+  const nameEntry = entries.find(([key]) =>
+    /name|merchant|service|vendor|description|subscription/i.test(key),
+  );
+  const cadenceEntry = entries.find(([key]) =>
+    /cadence|frequency|cycle|period|renewal/i.test(key),
+  );
+  const dateEntry = entries.find(([key]) => /date|renew|due|next/i.test(key));
+  const text = entries.map(([, value]) => String(value ?? "")).join(" ");
+  const amount = Number(amountEntry[1]);
+  const cadence = cadenceEntry
+    ? inferSubscriptionCadence(String(cadenceEntry[1]))
+    : inferSubscriptionCadence(text);
+  const name =
+    nameEntry && String(nameEntry[1]).trim()
+      ? String(nameEntry[1]).trim()
+      : inferSubscriptionName(text);
+  const decision = inferSubscriptionDecision(text, name);
+  const category = inferSubscriptionCategory(text, name);
+  const monthlyCost = monthlyCostFromCadence(amount, cadence);
+
+  return {
+    amount,
+    annualCost: monthlyCost * 12,
+    cadence,
+    category,
+    confidence: "medium",
+    decision,
+    monthlyCost,
+    name,
+    nextCharge:
+      dateEntry && String(dateEntry[1]).trim()
+        ? String(dateEntry[1]).trim()
+        : inferSubscriptionNextCharge(text),
+    raw: JSON.stringify(row),
+    reason: subscriptionDecisionReason(text, decision, category),
+  };
+}
+
+function extractMoneyAmount(text: string) {
+  const currencyMatch = text.match(
+    /(?:[$]|usd|eur|gbp|vnd)\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i,
+  );
+
+  if (currencyMatch?.[1]) {
+    return Number(currencyMatch[1].replace(/,/g, ""));
+  }
+
+  const numericMatches = Array.from(
+    text.matchAll(
+      /\b([0-9][0-9,]*(?:\.[0-9]{1,2})?)\s*(?:usd|eur|gbp|vnd)?\s*(?:\/\s*(?:mo|month|yr|year|week|quarter))?\b/gi,
+    ),
+  );
+  const likelyAmount =
+    numericMatches.find((match) => match[1]?.includes(".")) ??
+    numericMatches.at(-1);
+
+  if (!likelyAmount?.[1]) {
+    return null;
+  }
+
+  const value = Number(likelyAmount[1].replace(/,/g, ""));
+  return Number.isFinite(value) ? value : null;
+}
+
+function inferSubscriptionCadence(text: string): SubscriptionCadence {
+  if (/\b(annual|annually|yearly|per year|\/yr|\/year|1y)\b/i.test(text)) {
+    return "annual";
+  }
+
+  if (/\b(quarterly|per quarter|\/qtr|every 3 months)\b/i.test(text)) {
+    return "quarterly";
+  }
+
+  if (/\b(weekly|per week|\/wk|\/week)\b/i.test(text)) {
+    return "weekly";
+  }
+
+  if (/\b(monthly|per month|\/mo|\/month|every month|renews)\b/i.test(text)) {
+    return "monthly";
+  }
+
+  return "unknown";
+}
+
+function inferSubscriptionName(text: string) {
+  return (
+    text
+      .replace(/(?:[$]|usd|eur|gbp|vnd)\s*[0-9][0-9,]*(?:\.[0-9]{1,2})?/gi, "")
+      .replace(/\b[0-9][0-9,]*(?:\.[0-9]{1,2})?\s*(?:usd|eur|gbp|vnd)\b/gi, "")
+      .replace(
+        /\b(monthly|annual|annually|yearly|weekly|quarterly|renews?|renewal|due|after|before|every|per|keep|cancel|review|maybe|unused|used daily|essential)\b/gi,
+        "",
+      )
+      .replace(/\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/g, "")
+      .replace(
+        /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{1,2}\b/gi,
+        "",
+      )
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 80) || "Unnamed recurring charge"
+  );
+}
+
+function inferSubscriptionDecision(
+  text: string,
+  name: string,
+): SubscriptionDecision {
+  const combined = `${text} ${name}`.toLowerCase();
+
+  if (
+    /\b(cancel|unused|not using|forgot|duplicate|trial|free trial|waste|too expensive|kill|churn)\b/.test(
+      combined,
+    )
+  ) {
+    return "cancel";
+  }
+
+  if (
+    /\b(essential|rent|mortgage|insurance|internet|phone|electric|water|gas|utility|school|medical|medicine|needed|daily|work|family|shared)\b/.test(
+      combined,
+    )
+  ) {
+    return "keep";
+  }
+
+  return "review";
+}
+
+function inferSubscriptionCategory(text: string, name: string) {
+  const combined = `${text} ${name}`.toLowerCase();
+
+  if (/\b(netflix|spotify|hulu|disney|youtube|music|stream)\b/.test(combined)) {
+    return "entertainment";
+  }
+
+  if (
+    /\b(chatgpt|notion|adobe|figma|github|cloud|saas|domain|hosting)\b/.test(
+      combined,
+    )
+  ) {
+    return "software";
+  }
+
+  if (/\b(gym|fitness|doctor|medical|medicine|health)\b/.test(combined)) {
+    return "health";
+  }
+
+  if (
+    /\b(internet|phone|electric|water|gas|utility|rent|insurance)\b/.test(
+      combined,
+    )
+  ) {
+    return "essential bill";
+  }
+
+  if (/\b(course|book|school|learn|education)\b/.test(combined)) {
+    return "learning";
+  }
+
+  return "subscription";
+}
+
+function inferSubscriptionNextCharge(text: string) {
+  const explicitDate = text.match(
+    /\b(?:renews?|renewal|due|after|before|on)?\s*((?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b/i,
+  );
+
+  return explicitDate?.[1]?.trim() ?? "unknown";
+}
+
+function monthlyCostFromCadence(amount: number, cadence: SubscriptionCadence) {
+  if (cadence === "annual") {
+    return amount / 12;
+  }
+
+  if (cadence === "quarterly") {
+    return amount / 3;
+  }
+
+  if (cadence === "weekly") {
+    return (amount * 52) / 12;
+  }
+
+  return amount;
+}
+
+function subscriptionDecisionReason(
+  text: string,
+  decision: SubscriptionDecision,
+  category: string,
+) {
+  if (decision === "cancel") {
+    if (/\b(trial|free trial)\b/i.test(text)) {
+      return "Trial or promo language detected; confirm before it converts.";
+    }
+
+    if (/\b(unused|not using|forgot|duplicate)\b/i.test(text)) {
+      return "Usage text suggests this is not currently needed.";
+    }
+
+    return "Cancellation wording or waste signal detected.";
+  }
+
+  if (decision === "keep") {
+    return category === "essential bill"
+      ? "Essential bill or utility language detected."
+      : "Usage, work, family, or shared-plan language detected.";
+  }
+
+  return "No strong keep or cancel signal; review usage and next charge date.";
+}
+
+function compareSubscriptionCharges(
+  left: SubscriptionCharge,
+  right: SubscriptionCharge,
+) {
+  return (
+    subscriptionDecisionRank(left.decision) -
+      subscriptionDecisionRank(right.decision) ||
+    right.monthlyCost - left.monthlyCost ||
+    left.name.localeCompare(right.name)
+  );
+}
+
+function subscriptionDecisionRank(decision: SubscriptionDecision) {
+  if (decision === "cancel") {
+    return 0;
+  }
+
+  if (decision === "review") {
+    return 1;
+  }
+
+  return 2;
+}
+
+function sumCharges(
+  charges: SubscriptionCharge[],
+  field: "annualCost" | "monthlyCost",
+) {
+  return charges.reduce((total, charge) => total + charge[field], 0);
+}
+
+function countByCadence(
+  charges: SubscriptionCharge[],
+  cadence: SubscriptionCadence,
+) {
+  return charges.filter((charge) => charge.cadence === cadence).length;
+}
+
+function formatSubscriptionLine(charge: SubscriptionCharge) {
+  return `${charge.name}: ${formatMoney(charge.monthlyCost)}/mo (${charge.cadence}, ${charge.category}) - ${charge.reason}${charge.nextCharge === "unknown" ? "" : ` Next charge: ${charge.nextCharge}.`}`;
+}
+
+function subscriptionChecklistMarkdown(
+  cancelCharges: SubscriptionCharge[],
+  reviewCharges: SubscriptionCharge[],
+) {
+  return [
+    "## Cancel first",
+    ...(cancelCharges.length
+      ? cancelCharges.map(
+          (charge) =>
+            `- [ ] ${charge.name} - ${formatMoney(charge.monthlyCost)}/mo. ${charge.reason}`,
+        )
+      : ["- [ ] No obvious cancel-first item detected from this input."]),
+    "",
+    "## Review before renewal",
+    ...(reviewCharges.length
+      ? reviewCharges.map(
+          (charge) =>
+            `- [ ] ${charge.name} - check usage, owner, and next charge${charge.nextCharge === "unknown" ? "." : ` on ${charge.nextCharge}.`}`,
+        )
+      : [
+          "- [ ] Add annual plans, app-store subscriptions, and card-only charges.",
+        ]),
+    "",
+    "## Before canceling",
+    "- Export invoices or data you may need later.",
+    "- Confirm family, team, storage, and work dependencies.",
+    "- Save cancellation confirmation numbers or emails.",
+  ].join("\n");
+}
+
+function renewalReminderRows(charges: SubscriptionCharge[]): DataRow[] {
+  return charges
+    .filter((charge) => charge.nextCharge !== "unknown")
+    .map((charge) => ({
+      Description: `${charge.decision.toUpperCase()}: ${charge.reason} Estimated ${formatMoney(charge.monthlyCost)}/mo.`,
+      "Start Date": charge.nextCharge,
+      Subject: `Review ${charge.name} renewal`,
+    }));
+}
+
+function formatMoney(value: number) {
+  return `$${roundMoney(value).toFixed(2)}`;
+}
+
+function roundMoney(value: number) {
+  return Math.round(value * 100) / 100;
 }
 
 function parseDayTask(line: string): DayTask {
