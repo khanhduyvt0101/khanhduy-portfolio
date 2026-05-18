@@ -10,10 +10,8 @@ import { ThemeProvider } from "~/lib/components/theme-provider";
 import { PortfolioCommandPaletteLoader } from "~/lib/portfolio/portfolio-command-palette-loader";
 
 import { ColorSchemeControl } from "~/lib/site/color-scheme-control";
-import {
-  HeaderCommandSearch,
-  HeaderNavigation,
-} from "~/lib/site/header-navigation";
+import { HeaderCommandSearch } from "~/lib/site/header-command-search";
+import { HeaderNavigationLoader } from "~/lib/site/header-navigation-loader";
 import {
   defaultSeoDescription,
   siteKeywords,
@@ -25,7 +23,6 @@ const geist = Geist({
   subsets: ["latin"],
   adjustFontFallback: false,
   display: "swap",
-  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-geist-sans",
 });
 
@@ -33,7 +30,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   adjustFontFallback: false,
   display: "swap",
-  weight: ["400", "500", "600", "700"],
   variable: "--font-geist-mono",
 });
 
@@ -110,7 +106,7 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
                   <HeaderCommandSearch />
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <HeaderNavigation />
+                  <HeaderNavigationLoader />
                   <ColorSchemeControl />
                 </div>
               </header>

@@ -455,6 +455,14 @@
     animation: hero-pet-glint 2.8s ease-in-out var(--glint-delay, 0s) infinite;
   }
 
+  .hero-pet-wanderer {
+    position: absolute;
+    bottom: 0.125rem;
+    left: -7.25rem;
+    animation: hero-pet-walk 24s linear infinite;
+    will-change: transform;
+  }
+
   @keyframes hero-pet-glint {
     0%,
     100% {
@@ -467,9 +475,32 @@
     }
   }
 
+  @keyframes hero-pet-walk {
+    0% {
+      transform: translateX(0) scaleX(1);
+    }
+    46% {
+      transform: translateX(calc(100vw + 9rem)) scaleX(1);
+    }
+    50% {
+      transform: translateX(calc(100vw + 9rem)) scaleX(-1);
+    }
+    96% {
+      transform: translateX(0) scaleX(-1);
+    }
+    100% {
+      transform: translateX(0) scaleX(1);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .hero-pet-glint {
+    .hero-pet-glint,
+    .hero-pet-wanderer {
       animation: none;
+    }
+
+    .hero-pet-wanderer {
+      transform: translateX(22vw);
     }
   }
 }

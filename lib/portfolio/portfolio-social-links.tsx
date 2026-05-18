@@ -1,5 +1,3 @@
-"use client";
-
 import {
   IconBrandFacebook,
   IconBrandGithub,
@@ -11,13 +9,6 @@ import {
 } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { Button } from "~/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
-import { trackSiteEvent } from "~/lib/site/analytics-events";
 import { cn } from "~/lib/utils";
 
 const email = "khanhduyvt0101@gmail.com";
@@ -63,41 +54,21 @@ const socialLinks = [
 
 export function PortfolioSocialLinks(): ReactNode {
   return (
-    <TooltipProvider delayDuration={120}>
-      <div className="flex flex-wrap gap-2">
-        {socialLinks.map(({ href, icon: Icon, label, tone }) => (
-          <Tooltip key={href}>
-            <TooltipTrigger asChild>
-              <Button
-                asChild
-                className={cn(
-                  "size-12 rounded-lg p-0",
-                  tone ?? "bg-background/80",
-                )}
-                size="sm"
-                variant={tone ? "default" : "outline"}
-              >
-                <a
-                  aria-label={label}
-                  href={href}
-                  onClick={() =>
-                    trackSiteEvent("Social Link Clicked", {
-                      platform: label,
-                    })
-                  }
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <Icon className="size-5" stroke={1.8} />
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent sideOffset={8}>
-              <p>{label}</p>
-            </TooltipContent>
-          </Tooltip>
-        ))}
-      </div>
-    </TooltipProvider>
+    <div className="flex flex-wrap gap-2">
+      {socialLinks.map(({ href, icon: Icon, label, tone }) => (
+        <Button
+          asChild
+          className={cn("size-12 rounded-lg p-0", tone ?? "bg-background/80")}
+          key={href}
+          size="sm"
+          title={label}
+          variant={tone ? "default" : "outline"}
+        >
+          <a aria-label={label} href={href} rel="noreferrer" target="_blank">
+            <Icon className="size-5" stroke={1.8} />
+          </a>
+        </Button>
+      ))}
+    </div>
   );
 }

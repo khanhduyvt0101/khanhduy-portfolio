@@ -27,7 +27,6 @@ import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
 import { AiAgentMarketplace } from "~/lib/ai-agents/ai-agent-marketplace";
 import { freeTools } from "~/lib/free-tools/tool-meta";
 import { HeroPetPlayground } from "~/lib/portfolio/hero-pet-playground";
-import { LocalTime } from "~/lib/portfolio/local-time";
 import { PortfolioSocialLinks } from "~/lib/portfolio/portfolio-social-links";
 import { WorkflowBankCountStat } from "~/lib/portfolio/workflow-bank-count-stat";
 import { CatalogPageNavigation } from "~/lib/site/catalog-page-navigation";
@@ -178,7 +177,7 @@ export function PortfolioCommandCenter(): ReactNode {
                   Currently
                 </p>
                 <Badge variant="secondary" className="rounded-lg">
-                  Vietnam / <LocalTime />
+                  Vietnam / GMT+7
                 </Badge>
               </div>
               <p className="mt-3 text-xl font-black leading-tight">

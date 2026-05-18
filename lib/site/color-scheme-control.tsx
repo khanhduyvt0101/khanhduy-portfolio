@@ -3,7 +3,6 @@
 import { IconDevices, IconMoon, IconSun } from "@tabler/icons-react";
 import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -14,21 +13,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 
 export function ColorSchemeControl(): ReactNode {
-  const [mounted, setMounted] = useState(false);
   const { setTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div
-        className="w-9 h-9 bg-muted animate-pulse rounded-md"
-        suppressHydrationWarning
-      />
-    );
-  }
 
   return (
     <DropdownMenu>
