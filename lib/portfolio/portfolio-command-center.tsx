@@ -2,13 +2,14 @@ import { IconBrandGithub } from "@tabler/icons-react";
 import {
   ArrowUpRight,
   Braces,
+  CheckCircle2,
   Code2,
   ExternalLink,
   FileJson,
   FileText,
-  Layers3,
   type LucideIcon,
   MessageSquareText,
+  Terminal,
   Workflow,
 } from "lucide-react";
 import Image from "next/image";
@@ -28,7 +29,10 @@ import { AiAgentMarketplace } from "~/lib/ai-agents/ai-agent-marketplace";
 import { freeTools } from "~/lib/free-tools/tool-meta";
 import { HeroPetPlayground } from "~/lib/portfolio/hero-pet-playground";
 import { PortfolioSocialLinks } from "~/lib/portfolio/portfolio-social-links";
-import { WorkflowBankCountStat } from "~/lib/portfolio/workflow-bank-count-stat";
+import {
+  WorkflowBankFileIndex,
+  WorkflowBankGithubStats,
+} from "~/lib/portfolio/workflow-bank-count-stat";
 import { CatalogPageNavigation } from "~/lib/site/catalog-page-navigation";
 import { getCatalogPageCount } from "~/lib/site/catalog-pagination";
 import { cn } from "~/lib/utils";
@@ -87,6 +91,8 @@ const featuredTools = [
 
 const workflowBank = {
   href: "https://github.com/khanhduyvt0101/workflows",
+  cloneUrl: "https://github.com/khanhduyvt0101/workflows.git",
+  repository: "khanhduyvt0101/workflows",
   highlights: [
     "Invoice, receipt, PO, bank statement, and AP approval automation",
     "Healthcare, insurance, KYC, compliance, lease, and shipping document flows",
@@ -99,19 +105,6 @@ export function PortfolioCommandCenter(): ReactNode {
     0,
     new Date().getFullYear() - experienceStartYear,
   );
-  const workflowBankStats = [
-    {
-      label: "format",
-      value: "JSON imports",
-      icon: FileJson,
-    },
-    {
-      label: "coverage",
-      value: "PDF automation",
-      icon: Layers3,
-    },
-  ];
-
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground">
       <section className="relative isolate overflow-hidden border-b border-border/70">
@@ -282,88 +275,135 @@ export function PortfolioCommandCenter(): ReactNode {
 
       <section
         id="workflow-bank"
-        className="border-b border-border/70 bg-background py-14 md:py-20"
+        className="relative overflow-hidden border-b border-border/70 bg-muted/20 py-14 md:py-20"
       >
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:72px_72px] opacity-20" />
         <div className="container mx-auto max-w-7xl px-4">
-          <div className="grid gap-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.55fr)] lg:items-stretch">
-            <div className="relative overflow-hidden rounded-lg border bg-card p-5 shadow-xs md:p-7">
-              <div className="absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(135deg,transparent,var(--muted),transparent)] opacity-60" />
-              <div className="relative">
+          <div className="relative mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+            <div className="max-w-3xl">
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                Open source automation library
+              </p>
+              <h2 className="mt-3 text-4xl font-black leading-tight md:text-6xl">
+                Document workflows, packaged like a product.
+              </h2>
+              <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
+                A public GitHub workbench for PDF Vector workflows: clone it,
+                inspect the JSON, and drop real document automation into the
+                tools your team already operates.
+              </p>
+            </div>
+            <Button asChild variant="outline" className="w-fit rounded-lg">
+              <a href={workflowBank.href} rel="noreferrer" target="_blank">
+                <IconBrandGithub data-icon="inline-start" />
+                View GitHub
+                <ArrowUpRight data-icon="inline-end" />
+              </a>
+            </Button>
+          </div>
+
+          <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1.04fr)_minmax(340px,0.6fr)] lg:items-start">
+            <div className="min-w-0 overflow-hidden rounded-lg border bg-foreground text-background shadow-2xl">
+              <div className="border-background/15 border-b p-5 md:p-7">
                 <div className="mb-8 flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className="rounded-lg">
+                  <Badge
+                    variant="outline"
+                    className="rounded-lg border-background/20 bg-background/10 text-background"
+                  >
                     <Workflow />
                     Workflow bank
                   </Badge>
-                  <Badge variant="secondary" className="rounded-lg">
-                    n8n live / Make and Zapier mapped
+                  <Badge
+                    variant="outline"
+                    className="rounded-lg border-background/20 bg-background/10 text-background"
+                  >
+                    n8n / Make / Zapier
                   </Badge>
                 </div>
 
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                  Open source automation library
-                </p>
-                <h2 className="mt-3 max-w-4xl text-4xl font-black leading-tight md:text-6xl">
-                  Ready-to-import document workflows for real operations.
-                </h2>
-                <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
-                  A public bank of PDF Vector powered automations for teams that
-                  need documents to become structured actions: invoices,
-                  contracts, statements, resumes, medical records, and more.
-                </p>
+                <div className="flex w-full min-w-0 flex-col justify-between gap-5 md:flex-row md:items-start">
+                  <div className="w-full min-w-0">
+                    <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-background/55">
+                      GitHub repository
+                    </p>
+                    <h3 className="mt-3 w-full max-w-full break-words text-xl font-black leading-tight [overflow-wrap:anywhere] md:text-3xl">
+                      {workflowBank.repository}
+                    </h3>
+                    <p className="mt-4 max-w-2xl text-background/70 text-base leading-7">
+                      Awesome PDF Automation Workflows, a curated collection of
+                      ready-to-use document extraction and PDF processing
+                      recipes for operational teams.
+                    </p>
+                  </div>
 
-                <div className="mt-7 flex flex-wrap gap-3">
-                  <Button asChild className="rounded-lg" size="lg">
+                  <Button
+                    asChild
+                    className="w-fit rounded-lg bg-background text-foreground hover:bg-background/90"
+                    size="lg"
+                  >
                     <a
                       href={workflowBank.href}
                       rel="noreferrer"
                       target="_blank"
                     >
-                      <IconBrandGithub />
+                      <IconBrandGithub data-icon="inline-start" />
                       Open repository
                       <ArrowUpRight data-icon="inline-end" />
                     </a>
                   </Button>
                 </div>
               </div>
-            </div>
 
-            <div className="grid gap-3">
-              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-                <WorkflowBankCountStat />
-                {workflowBankStats.map((stat) => (
-                  <div
-                    className="rounded-lg border bg-muted/30 p-4"
-                    key={stat.label}
-                  >
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <span className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground">
-                        {stat.label}
+              <div className="grid min-w-0 gap-5 p-5 md:p-7">
+                <div className="min-w-0 rounded-lg border border-background/15 bg-background/8 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Terminal className="size-4 text-background/60" />
+                      <span className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-background/60">
+                        clone source
                       </span>
-                      <stat.icon className="size-4 text-muted-foreground" />
                     </div>
-                    <p className="text-xl font-black leading-tight">
-                      {stat.value}
+                    <Badge
+                      variant="outline"
+                      className="rounded-lg border-background/20 text-background"
+                    >
+                      public
+                    </Badge>
+                  </div>
+                  <div className="mt-4 grid gap-2 font-mono text-sm">
+                    <p className="min-w-0 overflow-x-auto whitespace-nowrap rounded-lg border border-background/15 bg-background px-3 py-2 text-foreground">
+                      git clone {workflowBank.cloneUrl}
+                    </p>
+                    <p className="flex min-w-0 items-center gap-2 rounded-lg border border-background/15 px-3 py-2 text-background/70">
+                      <FileJson className="size-4 shrink-0" />
+                      <span className="truncate">
+                        n8n-workflows/*.json {"->"} import, adapt, run
+                      </span>
                     </p>
                   </div>
-                ))}
-              </div>
+                </div>
 
-              <div className="rounded-lg border bg-card p-4">
-                <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground">
-                  Recipes inside
-                </p>
-                <div className="mt-4 grid gap-3">
+                <div className="grid min-w-0 gap-3 md:grid-cols-3">
                   {workflowBank.highlights.map((highlight) => (
                     <div
-                      className="flex gap-3 rounded-lg border bg-background p-3 text-sm leading-6"
+                      className="min-w-0 rounded-lg border border-background/15 bg-background/8 p-4"
                       key={highlight}
                     >
-                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
-                      <span>{highlight}</span>
+                      <CheckCircle2 className="mb-4 size-5 text-background/65" />
+                      <p className="break-words text-background/78 text-sm leading-6">
+                        {highlight}
+                      </p>
                     </div>
                   ))}
                 </div>
               </div>
+            </div>
+
+            <div className="grid gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <WorkflowBankGithubStats />
+              </div>
+              <WorkflowBankFileIndex />
             </div>
           </div>
         </div>
