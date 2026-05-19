@@ -85,6 +85,27 @@ type ModelWarmupState = {
 const BROWSER_MODEL_RUN_TIMEOUT_MS = 30_000;
 const BROWSER_MODEL_WARMUP_TIMEOUT_MS = 90_000;
 
+function scheduleModelWarmup(callback: () => void) {
+  const browserWindow = window as Window &
+    typeof globalThis & {
+      cancelIdleCallback?: (handle: number) => void;
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions,
+      ) => number;
+    };
+
+  if (browserWindow.requestIdleCallback) {
+    const idleId = browserWindow.requestIdleCallback(callback, {
+      timeout: 2400,
+    });
+    return () => browserWindow.cancelIdleCallback?.(idleId);
+  }
+
+  const timeoutId = browserWindow.setTimeout(callback, 1600);
+  return () => browserWindow.clearTimeout(timeoutId);
+}
+
 export function AgentWorkbench({
   agent,
 }: {
@@ -132,7 +153,7 @@ export function AgentWorkbench({
     setModelOptions(createInitialModelOptions(agent, huggingFaceModels));
     setModelWarmup({
       loaded: 0,
-      message: "Checking browser model support.",
+      message: "Model warmup will begin after the page settles.",
       phase: "loading",
       total: huggingFaceModels.length,
     });
@@ -163,125 +184,128 @@ export function AgentWorkbench({
         });
     }
 
-    void (async () => {
-      try {
-        const preflight = await checkHuggingFaceAgentModelSupport({
-          agentIds: [agent],
-        });
-
-        if (cancelled) {
-          return;
-        }
-
-        startTransition(() => {
-          setModelOptions((currentOptions) =>
-            updateModelOptionsFromPreflight(currentOptions, preflight),
-          );
-          setModelWarmup({
-            loaded: getPreflightReadyCount(preflight),
-            message: getPreflightWarmupMessage(preflight),
-            phase: getPreflightWarmupPhase(preflight),
-            total: preflight.total || huggingFaceModels.length,
-          });
-        });
-
-        if (!preflight.canLoad) {
-          return;
-        }
-
-        const result = await withTimeout(
-          preloadHuggingFaceAgentModels({
+    const cancelScheduledWarmup = scheduleModelWarmup(() => {
+      void (async () => {
+        try {
+          const preflight = await checkHuggingFaceAgentModelSupport({
             agentIds: [agent],
-            onProgress: (progress) => {
-              if (cancelled || warmupExpired) {
-                return;
-              }
+          });
 
-              startTransition(() => {
-                setModelOptions((currentOptions) =>
-                  updateModelOptionsFromProgress(currentOptions, progress),
-                );
-                setModelWarmup({
-                  loaded: progress.completed,
-                  message: getWarmupMessage(progress),
-                  phase: getWarmupPhase(progress),
-                  total: progress.total || huggingFaceModels.length,
-                });
-              });
-            },
-          }),
-          BROWSER_MODEL_WARMUP_TIMEOUT_MS,
-          "Browser model warmup took too long.",
-        ).catch((error) => {
           if (cancelled) {
+            return;
+          }
+
+          startTransition(() => {
+            setModelOptions((currentOptions) =>
+              updateModelOptionsFromPreflight(currentOptions, preflight),
+            );
+            setModelWarmup({
+              loaded: getPreflightReadyCount(preflight),
+              message: getPreflightWarmupMessage(preflight),
+              phase: getPreflightWarmupPhase(preflight),
+              total: preflight.total || huggingFaceModels.length,
+            });
+          });
+
+          if (!preflight.canLoad) {
+            return;
+          }
+
+          const result = await withTimeout(
+            preloadHuggingFaceAgentModels({
+              agentIds: [agent],
+              onProgress: (progress) => {
+                if (cancelled || warmupExpired) {
+                  return;
+                }
+
+                startTransition(() => {
+                  setModelOptions((currentOptions) =>
+                    updateModelOptionsFromProgress(currentOptions, progress),
+                  );
+                  setModelWarmup({
+                    loaded: progress.completed,
+                    message: getWarmupMessage(progress),
+                    phase: getWarmupPhase(progress),
+                    total: progress.total || huggingFaceModels.length,
+                  });
+                });
+              },
+            }),
+            BROWSER_MODEL_WARMUP_TIMEOUT_MS,
+            "Browser model warmup took too long.",
+          ).catch((error) => {
+            if (cancelled) {
+              return {
+                errors: [],
+                loaded: 0,
+                total: huggingFaceModels.length,
+              };
+            }
+
+            warmupExpired = true;
+            startTransition(() => {
+              setModelWarmup({
+                loaded: 0,
+                message:
+                  "The browser model is taking too long. The agent can still run with its local fallback.",
+                phase: "unavailable",
+                total: huggingFaceModels.length,
+              });
+              setModelOptions((currentOptions) =>
+                markActiveModelTimeout(currentOptions, error),
+              );
+            });
+
             return {
-              errors: [],
+              errors: [
+                error instanceof Error
+                  ? error.message
+                  : "Browser model warmup took too long.",
+              ],
               loaded: 0,
               total: huggingFaceModels.length,
             };
-          }
-
-          warmupExpired = true;
-          startTransition(() => {
-            setModelWarmup({
-              loaded: 0,
-              message:
-                "The browser model is taking too long. The agent can still run with its local fallback.",
-              phase: "unavailable",
-              total: huggingFaceModels.length,
-            });
-            setModelOptions((currentOptions) =>
-              markActiveModelTimeout(currentOptions, error),
-            );
           });
 
-          return {
-            errors: [
-              error instanceof Error
-                ? error.message
-                : "Browser model warmup took too long.",
-            ],
+          if (cancelled) {
+            return;
+          }
+
+          setModelWarmup({
+            loaded: result.loaded,
+            message:
+              result.loaded > 0
+                ? `${result.loaded}/${result.total} browser model${result.total === 1 ? "" : "s"} ready.`
+                : "No browser model loaded. The agent can still run with its local fallback.",
+            phase: result.loaded > 0 ? "ready" : "unavailable",
+            total: result.total,
+          });
+          setModelOptions((currentOptions) =>
+            finalizeModelOptions(currentOptions, result.loaded > 0),
+          );
+        } catch {
+          if (cancelled) {
+            return;
+          }
+
+          setModelWarmup({
             loaded: 0,
+            message:
+              "No browser model loaded. The agent can still run with its local fallback.",
+            phase: "unavailable",
             total: huggingFaceModels.length,
-          };
-        });
-
-        if (cancelled) {
-          return;
+          });
+          setModelOptions((currentOptions) =>
+            finalizeModelOptions(currentOptions, false),
+          );
         }
-
-        setModelWarmup({
-          loaded: result.loaded,
-          message:
-            result.loaded > 0
-              ? `${result.loaded}/${result.total} browser model${result.total === 1 ? "" : "s"} ready.`
-              : "No browser model loaded. The agent can still run with its local fallback.",
-          phase: result.loaded > 0 ? "ready" : "unavailable",
-          total: result.total,
-        });
-        setModelOptions((currentOptions) =>
-          finalizeModelOptions(currentOptions, result.loaded > 0),
-        );
-      } catch {
-        if (cancelled) {
-          return;
-        }
-
-        setModelWarmup({
-          loaded: 0,
-          message:
-            "No browser model loaded. The agent can still run with its local fallback.",
-          phase: "unavailable",
-          total: huggingFaceModels.length,
-        });
-        setModelOptions((currentOptions) =>
-          finalizeModelOptions(currentOptions, false),
-        );
-      }
-    })();
+      })();
+    });
 
     return () => {
       cancelled = true;
+      cancelScheduledWarmup();
     };
   }, [agent, agent.id, huggingFaceModels]);
 

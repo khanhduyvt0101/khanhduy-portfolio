@@ -12,12 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
-import { agentBlueprints } from "./agent-catalog";
-import {
-  getHuggingFaceAiSdkAvailability,
-  type HuggingFaceModelWarmupProgress,
-  preloadHuggingFaceAgentModels,
-} from "./huggingface-ai-sdk-runtime";
+import { getHuggingFaceAiSdkAvailability } from "./huggingface-ai-sdk-runtime";
 
 type BrowserCapability = {
   id: string;
@@ -31,6 +26,15 @@ type RuntimeStatusState = "checking" | BrowserCapability["state"];
 
 type RuntimeStatusItem = Omit<BrowserCapability, "state"> & {
   state: RuntimeStatusState;
+};
+
+type RuntimeWarmupSummary = {
+  completed: number;
+  detail: string;
+  status: "checking" | "deferred" | "downloading" | "ready" | "unsupported";
+  total: number;
+  currentModel?: string;
+  progress?: number;
 };
 
 export function AgentRuntimeStatus(): ReactNode {
@@ -57,13 +61,12 @@ export function AgentRuntimeStatus(): ReactNode {
       state: "ready",
     },
   ]);
-  const [modelWarmup, setModelWarmup] =
-    useState<HuggingFaceModelWarmupProgress>({
-      completed: 0,
-      detail: "Waiting to prepare browser models.",
-      status: "checking",
-      total: 0,
-    });
+  const [modelWarmup, setModelWarmup] = useState<RuntimeWarmupSummary>({
+    completed: 0,
+    detail: "Waiting to prepare browser models.",
+    status: "checking",
+    total: 0,
+  });
 
   useEffect(() => {
     const globalScope = globalThis as {
@@ -126,34 +129,13 @@ export function AgentRuntimeStatus(): ReactNode {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-
-    void preloadHuggingFaceAgentModels({
-      agentIds: agentBlueprints,
-      onProgress: (progress) => {
-        if (!cancelled) {
-          setModelWarmup(progress);
-        }
-      },
-    }).then((result) => {
-      if (cancelled) {
-        return;
-      }
-
-      setModelWarmup({
-        completed: result.loaded,
-        detail:
-          result.loaded > 0
-            ? `${result.loaded} browser model${result.loaded === 1 ? "" : "s"} cached for repeat runs.`
-            : "Browser model warmup is unavailable; local fallback is ready.",
-        status: result.loaded > 0 ? "ready" : "unsupported",
-        total: result.total,
-      });
+    setModelWarmup({
+      completed: 0,
+      detail:
+        "Browser models are prepared on each agent page, keeping this catalog fast.",
+      status: "deferred",
+      total: 0,
     });
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   return (
@@ -166,7 +148,7 @@ function RuntimeStatusDropdown({
   progress,
 }: {
   capabilities: BrowserCapability[];
-  progress: HuggingFaceModelWarmupProgress;
+  progress: RuntimeWarmupSummary;
 }): ReactNode {
   const modelCache = getModelWarmupStatus(progress);
   const rows: RuntimeStatusItem[] = [...capabilities, modelCache];
@@ -224,7 +206,7 @@ function RuntimeStatusDropdown({
 function RuntimeWarmupPanel({
   progress,
 }: {
-  progress: HuggingFaceModelWarmupProgress;
+  progress: RuntimeWarmupSummary;
 }): ReactNode {
   if (!isModelWarmupBusy(progress)) {
     return null;
@@ -271,8 +253,18 @@ function RuntimeWarmupPanel({
 }
 
 function getModelWarmupStatus(
-  progress: HuggingFaceModelWarmupProgress,
+  progress: RuntimeWarmupSummary,
 ): RuntimeStatusItem {
+  if (progress.status === "deferred") {
+    return {
+      available: true,
+      detail: progress.detail,
+      id: "model-cache",
+      label: "Model cache",
+      state: "standard",
+    };
+  }
+
   const isBusy =
     progress.status === "checking" || progress.status === "downloading";
   const percent =
@@ -372,11 +364,11 @@ function RuntimeDot({ state }: { state: RuntimeStatusState }): ReactNode {
   );
 }
 
-function isModelWarmupBusy(progress: HuggingFaceModelWarmupProgress) {
+function isModelWarmupBusy(progress: RuntimeWarmupSummary) {
   return progress.status === "checking" || progress.status === "downloading";
 }
 
-function getModelWarmupPercent(progress: HuggingFaceModelWarmupProgress) {
+function getModelWarmupPercent(progress: RuntimeWarmupSummary) {
   if (
     progress.status === "downloading" &&
     typeof progress.progress === "number"

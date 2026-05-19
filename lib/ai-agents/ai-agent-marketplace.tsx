@@ -31,7 +31,7 @@ import {
   getRuntimeLayer,
 } from "./agent-catalog";
 import { getAgentIcon } from "./agent-presentation";
-import { AgentRuntimeStatus } from "./ai-agent-runtime-status";
+import { AgentRuntimeStatusLoader } from "./agent-runtime-status-loader";
 
 const runtimeIcons: Record<AgentRuntime, LucideIcon> = {
   "browser-ai": MonitorCheck,
@@ -94,7 +94,7 @@ export function AiAgentMarketplace({
               </p>
             </div>
             <div className="flex flex-col items-start gap-2 md:items-end">
-              <AgentRuntimeStatus />
+              <AgentRuntimeStatusLoader />
             </div>
           </div>
         )}

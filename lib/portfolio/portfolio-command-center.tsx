@@ -27,7 +27,7 @@ import {
 import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
 import { AiAgentMarketplace } from "~/lib/ai-agents/ai-agent-marketplace";
 import { freeTools } from "~/lib/free-tools/tool-meta";
-import { HeroPetPlayground } from "~/lib/portfolio/hero-pet-playground";
+import { HeroPetPlaygroundLoader } from "~/lib/portfolio/hero-pet-playground-loader";
 import { PortfolioSocialLinks } from "~/lib/portfolio/portfolio-social-links";
 import {
   WorkflowBankFileIndex,
@@ -467,7 +467,7 @@ function HeroPetRunway(): ReactNode {
   return (
     <div className="pointer-events-none absolute inset-0 z-30">
       <div className="container relative mx-auto h-full max-w-7xl px-4">
-        <HeroPetPlayground />
+        <HeroPetPlaygroundLoader />
       </div>
     </div>
   );
