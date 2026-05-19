@@ -60,6 +60,51 @@ type SubscriptionCharge = {
   reason: string;
 };
 
+type PantryCategory =
+  | "dairy"
+  | "grain"
+  | "legume"
+  | "pantry"
+  | "produce"
+  | "protein"
+  | "sauce"
+  | "spice"
+  | "unknown";
+
+type PantryItem = {
+  category: PantryCategory;
+  name: string;
+  raw: string;
+  useFirst: boolean;
+};
+
+type MealTemplate = {
+  category: string;
+  ingredients: string[];
+  instructions: string[];
+  name: string;
+  tags: string[];
+  timeMinutes: number;
+};
+
+type MealSuggestion = {
+  category: string;
+  have: string[];
+  instructions: string[];
+  matchScore: number;
+  missing: string[];
+  name: string;
+  timeMinutes: number;
+  useFirst: string[];
+};
+
+type MealPlanningConstraints = {
+  budget: number | null;
+  meals: number;
+  maxMinutes: number | null;
+  notes: string[];
+};
+
 const actionWords = [
   "need",
   "please",
@@ -119,6 +164,8 @@ export function runLocalAgent({
       return runFileToData(input, userPrompt);
     case "json-schema":
       return runJsonSchema(input, userPrompt);
+    case "pantry-meal-planner":
+      return runPantryMealPlanner(input, userPrompt);
     case "prompt-builder":
       return runPromptBuilder(input, userPrompt);
     case "private-summarizer":
@@ -752,6 +799,116 @@ function runSubscriptionAudit(
   };
 }
 
+function runPantryMealPlanner(
+  input: string,
+  userPrompt: string,
+): AgentRunResult {
+  const pantryItems = parsePantryItems(input);
+  const pantryNames = pantryItems.map((item) => item.name);
+  const constraints = inferMealPlanningConstraints(`${userPrompt}\n${input}`);
+  const suggestions = scoreMealTemplates(pantryItems, constraints);
+  const selectedMeals = suggestions.slice(0, constraints.meals);
+  const groceryRows = groceryRowsFromMeals(selectedMeals, pantryItems);
+  const useFirstItems = pantryItems.filter((item) => item.useFirst);
+  const categories = countPantryCategories(pantryItems);
+
+  return {
+    title: "Pantry-first meal plan",
+    summary:
+      selectedMeals.length > 0
+        ? `Built ${selectedMeals.length} meal idea${selectedMeals.length === 1 ? "" : "s"} from ${pantryItems.length} pantry item${pantryItems.length === 1 ? "" : "s"} with ${groceryRows.length} focused grocery add-on${groceryRows.length === 1 ? "" : "s"}.`
+        : "No meal plan could be built. Paste pantry, fridge, freezer, and dietary notes first.",
+    sections: [
+      {
+        title: "Planning constraints",
+        items: [
+          userPrompt ||
+            "Use existing ingredients first, keep meals practical, and buy only missing items.",
+          `Target meals: ${constraints.meals}.`,
+          constraints.maxMinutes
+            ? `Preferred cook time: ${constraints.maxMinutes} minutes or less.`
+            : "No hard cook-time limit detected.",
+          constraints.budget
+            ? `Budget signal detected: about ${formatMoney(constraints.budget)}.`
+            : "No budget amount detected.",
+          ...(constraints.notes.length
+            ? constraints.notes
+            : ["No allergy or diet note detected."]),
+        ],
+      },
+      {
+        title: "Use first",
+        items: useFirstItems.length
+          ? useFirstItems
+              .slice(0, 8)
+              .map((item) => `${titleCase(item.name)} (${item.category})`)
+          : [
+              "No explicit expiry, leftover, low-stock, or use-first item detected.",
+            ],
+      },
+      {
+        title: "Meal plan",
+        items: selectedMeals.length
+          ? selectedMeals.map(formatMealSuggestionLine)
+          : ["No meal suggestions matched the current input."],
+      },
+      {
+        title: "Grocery delta",
+        items: groceryRows.length
+          ? groceryRows
+              .slice(0, 10)
+              .map(
+                (row) =>
+                  `${row.item} (${row.category}) - needed for ${row.meals}.`,
+              )
+          : [
+              "No missing grocery items detected for the selected meals. Recheck staples like oil, salt, and spices manually.",
+            ],
+      },
+      {
+        title: "Pantry snapshot",
+        items: [
+          `${categories.protein} protein, ${categories.produce} produce, ${categories.grain} grain, ${categories.legume} legume, ${categories.dairy} dairy, ${categories.sauce} sauce/spice/pantry item(s).`,
+          pantryNames.length
+            ? `Detected: ${pantryNames.slice(0, 16).map(titleCase).join(", ")}${pantryNames.length > 16 ? "..." : ""}.`
+            : "No ingredient names detected.",
+        ],
+      },
+    ],
+    artifacts: [
+      {
+        label: "Meal plan",
+        language: "markdown",
+        content: mealPlanMarkdown(selectedMeals),
+      },
+      {
+        label: "Grocery list CSV",
+        language: "csv",
+        content: rowsToCsv(groceryRows),
+      },
+      {
+        label: "Pantry plan JSON",
+        language: "json",
+        content: JSON.stringify(
+          {
+            constraints,
+            pantry_items: pantryItems,
+            selected_meals: selectedMeals,
+            grocery_delta: groceryRows,
+          },
+          null,
+          2,
+        ),
+      },
+      {
+        label: "Prep checklist",
+        language: "markdown",
+        content: prepChecklistMarkdown(selectedMeals, useFirstItems),
+      },
+    ],
+  };
+}
+
 function runPromptBuilder(input: string, userPrompt: string): AgentRunResult {
   const objective = summarizeSentences(input, 1)[0] ?? input.slice(0, 180);
   const prompt = [
@@ -894,6 +1051,506 @@ function runJsonSchema(input: string, userPrompt: string): AgentRunResult {
       },
     ],
   };
+}
+
+const pantryMealTemplates: MealTemplate[] = [
+  {
+    category: "rice bowl",
+    ingredients: ["rice", "egg", "chicken", "broccoli", "soy sauce"],
+    instructions: [
+      "Warm rice and protein together.",
+      "Add a quick vegetable side.",
+      "Finish with sauce and an egg if available.",
+    ],
+    name: "Leftover protein rice bowl",
+    tags: ["quick", "high protein", "leftovers"],
+    timeMinutes: 20,
+  },
+  {
+    category: "pasta",
+    ingredients: ["pasta", "tomato", "cheese", "spinach", "chicken"],
+    instructions: [
+      "Boil pasta while simmering tomato sauce.",
+      "Fold in greens near the end.",
+      "Top with cheese or leftover protein.",
+    ],
+    name: "Tomato pasta with greens",
+    tags: ["weeknight", "vegetarian optional"],
+    timeMinutes: 30,
+  },
+  {
+    category: "wrap",
+    ingredients: ["tortilla", "bean", "chicken", "cheese", "carrot"],
+    instructions: [
+      "Warm tortillas and fillings.",
+      "Add crunchy produce or a yogurt sauce.",
+      "Roll as wraps or serve as quesadillas.",
+    ],
+    name: "Pantry bean wraps",
+    tags: ["quick", "lunch"],
+    timeMinutes: 18,
+  },
+  {
+    category: "frittata",
+    ingredients: ["egg", "spinach", "cheese", "carrot", "broccoli"],
+    instructions: [
+      "Saute vegetables until tender.",
+      "Add beaten eggs and cheese.",
+      "Cook gently until set.",
+    ],
+    name: "Use-first vegetable frittata",
+    tags: ["use first", "high protein", "vegetarian"],
+    timeMinutes: 25,
+  },
+  {
+    category: "noodle bowl",
+    ingredients: ["rice noodle", "soy sauce", "egg", "pea", "carrot"],
+    instructions: [
+      "Soak or boil noodles.",
+      "Stir-fry vegetables and egg.",
+      "Toss with sauce and adjust seasoning.",
+    ],
+    name: "Fast soy noodle bowl",
+    tags: ["quick", "pantry"],
+    timeMinutes: 22,
+  },
+  {
+    category: "stew",
+    ingredients: ["chickpea", "tomato", "spinach", "rice", "yogurt"],
+    instructions: [
+      "Simmer chickpeas with tomatoes.",
+      "Add greens until wilted.",
+      "Serve with rice and yogurt if available.",
+    ],
+    name: "Chickpea tomato stew",
+    tags: ["vegetarian", "batch"],
+    timeMinutes: 30,
+  },
+  {
+    category: "soup",
+    ingredients: ["chicken", "carrot", "pea", "rice", "broccoli"],
+    instructions: [
+      "Simmer protein, vegetables, and grain in broth.",
+      "Season simply and keep portions for lunch.",
+      "Add quick greens at the end.",
+    ],
+    name: "Clean-out-the-fridge soup",
+    tags: ["leftovers", "batch"],
+    timeMinutes: 35,
+  },
+  {
+    category: "breakfast",
+    ingredients: ["oat", "peanut butter", "yogurt", "egg"],
+    instructions: [
+      "Use oats as overnight oats or a warm bowl.",
+      "Add yogurt or peanut butter for protein.",
+      "Pair with eggs if a larger meal is needed.",
+    ],
+    name: "Protein oats breakfast",
+    tags: ["breakfast", "budget"],
+    timeMinutes: 10,
+  },
+  {
+    category: "salad bowl",
+    ingredients: ["spinach", "chickpea", "chicken", "carrot", "yogurt"],
+    instructions: [
+      "Use greens as the base.",
+      "Add chickpeas or protein.",
+      "Make a quick yogurt dressing.",
+    ],
+    name: "Use-first salad bowl",
+    tags: ["quick", "use first"],
+    timeMinutes: 15,
+  },
+  {
+    category: "fried rice",
+    ingredients: ["rice", "egg", "pea", "carrot", "soy sauce"],
+    instructions: [
+      "Use cold rice if available.",
+      "Cook egg and vegetables first.",
+      "Stir in rice and sauce until hot.",
+    ],
+    name: "Vegetable fried rice",
+    tags: ["quick", "budget"],
+    timeMinutes: 20,
+  },
+];
+
+function parsePantryItems(input: string): PantryItem[] {
+  const seen = new Set<string>();
+  const items: PantryItem[] = [];
+
+  for (const line of cleanLines(input)) {
+    for (const token of splitPantryLine(line)) {
+      const normalized = normalizeIngredientName(token);
+
+      if (!normalized || seen.has(normalized)) {
+        continue;
+      }
+
+      seen.add(normalized);
+      items.push({
+        category: inferPantryCategory(normalized),
+        name: normalized,
+        raw: token,
+        useFirst: inferUseFirst(token),
+      });
+    }
+  }
+
+  return items;
+}
+
+function splitPantryLine(line: string) {
+  const withoutSection = line.replace(/^[a-z][a-z\s/+-]{1,24}:\s*/i, "");
+  return withoutSection
+    .split(/[,;|]+|\s+-\s+/)
+    .map((item) =>
+      item
+        .replace(/^\s*[-*+]\s*/, "")
+        .replace(/\([^)]*\)/g, "")
+        .trim(),
+    )
+    .filter((item) => item.length > 1);
+}
+
+function normalizeIngredientName(value: string) {
+  if (
+    /^\s*(?:no|avoid|under|less than|need|needs?|budget|buy|high protein|low carb)\b/i.test(
+      value,
+    )
+  ) {
+    return "";
+  }
+
+  const cleaned = value
+    .toLowerCase()
+    .replace(
+      /\b(expires?|expiry|tomorrow|today|soon|leftover|leftovers|fresh|frozen|canned|cooked|raw|need|under|minutes?|mins?|dinners?|lunches?|breakfasts?|meals?|budget|buy|avoid|no|less|more|high protein|low carb)\b/gi,
+      "",
+    )
+    .replace(
+      /\b\d+(?:\.\d+)?\s*(?:cups?|lbs?|pounds?|oz|ounces?|g|kg|grams?|pack|packs|cans?|jars?|bottles?)\b/gi,
+      "",
+    )
+    .replace(/\b\d+\b/g, "")
+    .replace(/[^a-z\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (
+    !cleaned ||
+    /^(fridge|freezer|pantry|diet|constraints|need|notes|and|or|with|for|as|possible|little possible|seafood|pork|gluten|dairy)$/i.test(
+      cleaned,
+    )
+  ) {
+    return "";
+  }
+
+  return singularIngredient(cleaned);
+}
+
+function singularIngredient(value: string) {
+  return value
+    .replace(/\brice noodles\b/g, "rice noodle")
+    .replace(/\bcanned tomatoes\b/g, "tomato")
+    .replace(/\btomatoes\b/g, "tomato")
+    .replace(/\bblack beans\b/g, "black bean")
+    .replace(/\bchickpeas\b/g, "chickpea")
+    .replace(/\btortillas\b/g, "tortilla")
+    .replace(/\beggs\b/g, "egg")
+    .replace(/\bcarrots\b/g, "carrot")
+    .replace(/\bpeas\b/g, "pea")
+    .replace(/\boats\b/g, "oat");
+}
+
+function inferUseFirst(text: string) {
+  return /\b(expir|use first|leftover|left over|today|tomorrow|soon|opened|ripe|wilting|last)\b/i.test(
+    text,
+  );
+}
+
+function inferPantryCategory(name: string): PantryCategory {
+  if (
+    /\b(chicken|beef|pork|turkey|tofu|fish|shrimp|salmon|tuna|egg|eggs)\b/i.test(
+      name,
+    )
+  ) {
+    return "protein";
+  }
+
+  if (
+    /\b(spinach|carrot|broccoli|pea|tomato|onion|garlic|pepper|lettuce|potato|mushroom|vegetable|fruit|banana|apple)\b/i.test(
+      name,
+    )
+  ) {
+    return "produce";
+  }
+
+  if (/\b(rice|pasta|noodle|tortilla|bread|oat|quinoa|flour)\b/i.test(name)) {
+    return "grain";
+  }
+
+  if (/\b(bean|chickpea|lentil)\b/i.test(name)) {
+    return "legume";
+  }
+
+  if (/\b(yogurt|cheese|cheddar|milk|cream|butter)\b/i.test(name)) {
+    return "dairy";
+  }
+
+  if (/\b(soy sauce|sauce|salsa|vinegar|oil|dressing)\b/i.test(name)) {
+    return "sauce";
+  }
+
+  if (/\b(salt|pepper|cumin|paprika|curry|turmeric|spice)\b/i.test(name)) {
+    return "spice";
+  }
+
+  if (/\b(peanut butter|nut|seed|cereal|can|jar)\b/i.test(name)) {
+    return "pantry";
+  }
+
+  return "unknown";
+}
+
+function inferMealPlanningConstraints(text: string): MealPlanningConstraints {
+  const mealMatch = text.match(
+    /\b(\d{1,2})\s*(?:dinners?|lunches?|breakfasts?|meals?)\b/i,
+  );
+  const maxMinutesMatch = text.match(
+    /\b(?:under|less than|within|max|quick|in)\s*(\d{1,3})\s*(?:minutes?|mins?)\b/i,
+  );
+  const budgetMatch =
+    text.match(/\$\s*(\d{1,4})(?:\.\d{1,2})?\b/i) ??
+    text.match(
+      /\b(?:budget|groceries|grocery|shopping|spend|cost|buy)\D{0,24}(\d{1,4})(?:\.\d{1,2})?\b/i,
+    );
+  const notes = [
+    /\b(no seafood|avoid seafood|allergy seafood)\b/i.test(text)
+      ? "Avoid seafood."
+      : "",
+    /\b(no pork|avoid pork|pork allergy)\b/i.test(text) ? "Avoid pork." : "",
+    /\b(vegetarian|no meat)\b/i.test(text) ? "Prefer vegetarian meals." : "",
+    /\b(vegan|no dairy|no eggs)\b/i.test(text)
+      ? "Check dairy and egg ingredients manually."
+      : "",
+    /\b(gluten free|no gluten)\b/i.test(text)
+      ? "Avoid wheat-based meals unless gluten-free swaps are available."
+      : "",
+    /\b(high protein|more protein)\b/i.test(text)
+      ? "Prioritize protein-forward meals."
+      : "",
+  ].filter(Boolean);
+
+  return {
+    budget: budgetMatch?.[1] ? Number(budgetMatch[1]) : null,
+    meals: mealMatch?.[1] ? Math.min(10, Math.max(1, Number(mealMatch[1]))) : 5,
+    maxMinutes: maxMinutesMatch?.[1] ? Number(maxMinutesMatch[1]) : null,
+    notes,
+  };
+}
+
+function scoreMealTemplates(
+  pantryItems: PantryItem[],
+  constraints: MealPlanningConstraints,
+): MealSuggestion[] {
+  const pantryNames = pantryItems.map((item) => item.name);
+
+  return pantryMealTemplates
+    .filter((template) => mealPassesConstraints(template, constraints))
+    .map((template) => {
+      const have = template.ingredients.filter((ingredient) =>
+        pantryNames.some((item) => ingredientMatches(item, ingredient)),
+      );
+      const missing = template.ingredients.filter(
+        (ingredient) =>
+          !pantryNames.some((item) => ingredientMatches(item, ingredient)),
+      );
+      const useFirst = pantryItems
+        .filter(
+          (item) =>
+            item.useFirst &&
+            template.ingredients.some((ingredient) =>
+              ingredientMatches(item.name, ingredient),
+            ),
+        )
+        .map((item) => item.name);
+      const matchScore =
+        have.length * 3 +
+        useFirst.length * 2 -
+        missing.length -
+        Math.max(0, template.timeMinutes - (constraints.maxMinutes ?? 60)) / 10;
+
+      return {
+        category: template.category,
+        have,
+        instructions: template.instructions,
+        matchScore,
+        missing,
+        name: template.name,
+        timeMinutes: template.timeMinutes,
+        useFirst,
+      };
+    })
+    .sort(
+      (left, right) =>
+        right.matchScore - left.matchScore ||
+        left.missing.length - right.missing.length ||
+        left.timeMinutes - right.timeMinutes ||
+        left.name.localeCompare(right.name),
+    );
+}
+
+function mealPassesConstraints(
+  template: MealTemplate,
+  constraints: MealPlanningConstraints,
+) {
+  const text = `${template.name} ${template.ingredients.join(" ")} ${template.tags.join(" ")}`;
+  const notes = constraints.notes.join(" ").toLowerCase();
+
+  if (constraints.maxMinutes && template.timeMinutes > constraints.maxMinutes) {
+    return false;
+  }
+
+  if (
+    notes.includes("avoid seafood") &&
+    /\b(fish|shrimp|salmon|tuna)\b/i.test(text)
+  ) {
+    return false;
+  }
+
+  if (notes.includes("avoid pork") && /\b(pork|bacon|ham)\b/i.test(text)) {
+    return false;
+  }
+
+  if (
+    notes.includes("prefer vegetarian") &&
+    /\b(chicken|beef|pork|turkey|fish|shrimp|salmon|tuna)\b/i.test(text)
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function ingredientMatches(item: string, ingredient: string) {
+  return (
+    item === ingredient ||
+    item.includes(ingredient) ||
+    ingredient.includes(item) ||
+    (ingredient === "bean" && /\b(bean|black bean|kidney bean)\b/.test(item)) ||
+    (ingredient === "tomato" && /\b(tomato|canned tomato)\b/.test(item)) ||
+    (ingredient === "rice" && /\b(rice|cooked rice)\b/.test(item))
+  );
+}
+
+function groceryRowsFromMeals(
+  meals: MealSuggestion[],
+  pantryItems: PantryItem[],
+): DataRow[] {
+  const pantryNames = pantryItems.map((item) => item.name);
+  const byIngredient = new Map<
+    string,
+    { category: PantryCategory; item: string; meals: string[] }
+  >();
+
+  for (const meal of meals) {
+    for (const missing of meal.missing) {
+      if (pantryNames.some((item) => ingredientMatches(item, missing))) {
+        continue;
+      }
+
+      const row = byIngredient.get(missing) ?? {
+        category: inferPantryCategory(missing),
+        item: titleCase(missing),
+        meals: [],
+      };
+      row.meals.push(meal.name);
+      byIngredient.set(missing, row);
+    }
+  }
+
+  return Array.from(byIngredient.values()).map((row) => ({
+    category: row.category,
+    item: row.item,
+    meals: row.meals.join("; "),
+    priority: row.meals.length > 1 ? "high" : "normal",
+  }));
+}
+
+function countPantryCategories(items: PantryItem[]) {
+  return {
+    dairy: items.filter((item) => item.category === "dairy").length,
+    grain: items.filter((item) => item.category === "grain").length,
+    legume: items.filter((item) => item.category === "legume").length,
+    produce: items.filter((item) => item.category === "produce").length,
+    protein: items.filter((item) => item.category === "protein").length,
+    sauce: items.filter((item) =>
+      ["pantry", "sauce", "spice", "unknown"].includes(item.category),
+    ).length,
+  };
+}
+
+function formatMealSuggestionLine(meal: MealSuggestion) {
+  const missing =
+    meal.missing.length > 0
+      ? `Missing: ${meal.missing.map(titleCase).join(", ")}.`
+      : "No missing core ingredients.";
+  const useFirst =
+    meal.useFirst.length > 0
+      ? ` Uses first: ${meal.useFirst.map(titleCase).join(", ")}.`
+      : "";
+
+  return `${meal.name} - ${meal.timeMinutes} min, ${meal.have.length}/${meal.have.length + meal.missing.length} core ingredients covered. ${missing}${useFirst}`;
+}
+
+function mealPlanMarkdown(meals: MealSuggestion[]) {
+  if (meals.length === 0) {
+    return "No meal plan generated.";
+  }
+
+  return meals
+    .map((meal, index) =>
+      [
+        `## Meal ${index + 1}: ${meal.name}`,
+        `- Time: ${meal.timeMinutes} minutes`,
+        `- Have: ${meal.have.map(titleCase).join(", ") || "None detected"}`,
+        `- Missing: ${meal.missing.map(titleCase).join(", ") || "None"}`,
+        `- Use first: ${meal.useFirst.map(titleCase).join(", ") || "No explicit use-first item"}`,
+        "",
+        "### Steps",
+        ...meal.instructions.map((step) => `- ${step}`),
+      ].join("\n"),
+    )
+    .join("\n\n");
+}
+
+function prepChecklistMarkdown(
+  meals: MealSuggestion[],
+  useFirstItems: PantryItem[],
+) {
+  return [
+    "## Before shopping",
+    ...(useFirstItems.length
+      ? useFirstItems.map(
+          (item) => `- [ ] Check and use ${titleCase(item.name)} first.`,
+        )
+      : ["- [ ] Check fridge, freezer, and pantry before buying duplicates."]),
+    "- [ ] Confirm staples: oil, salt, pepper, and preferred spices.",
+    "",
+    "## Prep once",
+    "- [ ] Cook or portion the main grain for bowls, wraps, or fried rice.",
+    "- [ ] Wash and chop sturdy vegetables.",
+    "- [ ] Move leftovers to eye-level containers.",
+    "",
+    "## Meals",
+    ...meals.map((meal) => `- [ ] ${meal.name} (${meal.timeMinutes} min)`),
+  ].join("\n");
+}
+
+function titleCase(value: string) {
+  return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
 }
 
 function parseSubscriptionCharges(input: string): SubscriptionCharge[] {

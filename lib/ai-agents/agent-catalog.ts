@@ -29,6 +29,7 @@ export type AgentIconKey =
   | "gauge"
   | "prompt"
   | "schema"
+  | "shopping"
   | "summary";
 
 export type AgentWorkflow = {
@@ -459,6 +460,67 @@ const agentDefinitions = [
     executionMode: "deterministic-first",
     systemPrompt:
       "You are a subscription and recurring bill audit agent. Use only the provided charges. Estimate monthly and annual impact, identify keep/review/cancel candidates, and create practical reminders. Do not provide investment or legal advice.",
+  },
+  {
+    id: "pantry-meal-planner",
+    name: "Pantry Meal Planner Agent",
+    tagline:
+      "Turn what is already in the kitchen into meals and a focused grocery list.",
+    description:
+      "Paste pantry, fridge, freezer, dietary, budget, and schedule notes. The agent scores meals against what you already have, prioritizes food to use first, and returns a practical meal plan, prep list, and grocery delta.",
+    icon: "shopping",
+    inputs: ["text", "file"],
+    outputs: ["checklist", "csv", "json", "report", "table"],
+    workflows: [
+      {
+        label: "Cook from pantry",
+        description: "Use existing ingredients before buying more.",
+        prompt:
+          "Create meals mostly from what I already have. Prioritize expiring items, avoid duplicate groceries, and list only the missing ingredients.",
+      },
+      {
+        label: "Weeknight meal plan",
+        description: "Build quick dinners around time and diet limits.",
+        prompt:
+          "Plan quick weeknight meals with simple prep, repeat ingredients, and a short grocery list. Respect any diet notes in the input.",
+      },
+      {
+        label: "Budget grocery run",
+        description: "Minimize new purchases and batch prep.",
+        prompt:
+          "Make a budget-friendly grocery plan. Reuse base ingredients, buy the fewest missing items, and include prep steps.",
+      },
+    ],
+    runtime: "hybrid",
+    modelProfile: "fast",
+    privacy: "Local first",
+    status: "Browser AI boosted",
+    useCases: [
+      "Pantry-first meals",
+      "Grocery list planning",
+      "Food waste reduction",
+    ],
+    stack: [
+      "Chrome Prompt API",
+      "Pantry parser",
+      "Recipe matching",
+      "Grocery diff",
+      ...modelStack("fast"),
+    ],
+    promptLabel: "Meal planning constraints",
+    promptPlaceholder:
+      "Example: 5 dinners, 30 minutes or less, high protein, no seafood, keep groceries under $45.",
+    inputLabel: "Pantry, fridge, freezer, and diet notes",
+    inputPlaceholder:
+      "Paste ingredients, leftovers, expiry notes, dietary limits, meals needed, budget, and schedule constraints...",
+    samplePrompt:
+      "Plan 5 quick dinners, use expiring spinach first, keep the grocery list short, and avoid seafood.",
+    sampleInput:
+      "Fridge: eggs, spinach expires tomorrow, Greek yogurt, cheddar, carrots, cooked rice, leftover roast chicken\nPantry: pasta, canned tomatoes, black beans, chickpeas, tortillas, oats, peanut butter, soy sauce, rice noodles\nFreezer: frozen broccoli, peas\nNeed: 5 dinners, 2 lunches, under 35 minutes, high protein, no seafood, buy as little as possible",
+    acceptedFiles: ".txt,.csv,.tsv,.md,.log",
+    executionMode: "deterministic-first",
+    systemPrompt:
+      "You are a pantry-first meal planning agent. Use only the provided ingredients, constraints, and practical grocery assumptions. Prioritize food to use first, avoid duplicate purchases, respect dietary limits, and return meal options, prep steps, and a concise grocery list. Do not provide medical nutrition advice.",
   },
   {
     id: "prompt-builder",

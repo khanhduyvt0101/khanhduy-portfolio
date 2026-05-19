@@ -6,6 +6,7 @@ import {
   type LucideIcon,
   Mail,
   ServerCog,
+  ShoppingBasket,
   Sparkles,
   WalletCards,
 } from "lucide-react";
@@ -21,6 +22,7 @@ const agentIcons: Record<AgentIconKey, LucideIcon> = {
   gauge: Gauge,
   prompt: Sparkles,
   schema: ServerCog,
+  shopping: ShoppingBasket,
   summary: Bot,
 };
 

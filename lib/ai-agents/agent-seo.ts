@@ -16,6 +16,15 @@ const sharedAgentKeywords = [
 ];
 
 const agentKeywordOverrides: Record<string, string[]> = {
+  "pantry-meal-planner": [
+    "pantry meal planner",
+    "grocery list generator",
+    "cook from pantry",
+    "meal planning AI tool",
+    "food waste reduction tool",
+    "pantry inventory meal plan",
+    "budget grocery planner",
+  ],
   "subscription-audit": [
     "subscription tracker",
     "recurring bill tracker",
