@@ -21,7 +21,7 @@ const dragFrameRate = 8.5;
 const desktopSpeed = 132;
 const mobileSpeed = 98;
 const heroCatAtlasColumns = 16;
-const heroCatSource = "/pets/hero-cat-smooth.png";
+const heroCatSource = "/pets/hero-cat-smooth.webp";
 
 type OnekoSprite =
   | "idle"

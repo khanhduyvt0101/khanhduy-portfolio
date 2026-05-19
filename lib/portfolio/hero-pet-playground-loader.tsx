@@ -22,15 +22,44 @@ function scheduleAfterFirstPaint(callback: () => void) {
       ) => number;
     };
 
-  if (browserWindow.requestIdleCallback) {
-    const idleId = browserWindow.requestIdleCallback(callback, {
-      timeout: 1800,
+  let cancelIdleWork: (() => void) | undefined;
+  let delayId: number | undefined;
+  const scheduleIdleWork = () => {
+    if (browserWindow.requestIdleCallback) {
+      const idleId = browserWindow.requestIdleCallback(callback, {
+        timeout: 2800,
+      });
+      cancelIdleWork = () => browserWindow.cancelIdleCallback?.(idleId);
+      return;
+    }
+
+    const timeoutId = browserWindow.setTimeout(callback, 1600);
+    cancelIdleWork = () => browserWindow.clearTimeout(timeoutId);
+  };
+  const scheduleDelayedIdleWork = () => {
+    delayId = browserWindow.setTimeout(scheduleIdleWork, 1800);
+  };
+
+  if (document.readyState !== "complete") {
+    browserWindow.addEventListener("load", scheduleDelayedIdleWork, {
+      once: true,
     });
-    return () => browserWindow.cancelIdleCallback?.(idleId);
+    return () => {
+      browserWindow.removeEventListener("load", scheduleDelayedIdleWork);
+      if (delayId !== undefined) {
+        browserWindow.clearTimeout(delayId);
+      }
+      cancelIdleWork?.();
+    };
   }
 
-  const timeoutId = browserWindow.setTimeout(callback, 1200);
-  return () => browserWindow.clearTimeout(timeoutId);
+  scheduleDelayedIdleWork();
+  return () => {
+    if (delayId !== undefined) {
+      browserWindow.clearTimeout(delayId);
+    }
+    cancelIdleWork?.();
+  };
 }
 
 export function HeroPetPlaygroundLoader(): ReactNode {
