@@ -34,6 +34,15 @@ const agentKeywordOverrides: Record<string, string[]> = {
     "personal finance AI tool",
     "local subscription manager",
   ],
+  "travel-packing": [
+    "travel packing list generator",
+    "AI packing list",
+    "carry-on packing checklist",
+    "trip packing planner",
+    "family travel packing list",
+    "pre-trip checklist",
+    "offline packing list tool",
+  ],
 };
 
 export function getAgentShortName(agent: AgentBlueprint) {

@@ -612,6 +612,7 @@ export function AgentWorkbench({
                   id={`${agent.id}-prompt`}
                   onChange={(event) => setUserPrompt(event.target.value)}
                   placeholder={agent.promptPlaceholder}
+                  suppressHydrationWarning
                   value={userPrompt}
                 />
               </div>
@@ -632,6 +633,7 @@ export function AgentWorkbench({
                         accept={agent.acceptedFiles}
                         className="sr-only"
                         onChange={onFileChange}
+                        suppressHydrationWarning
                         type="file"
                       />
                     </label>
@@ -642,6 +644,7 @@ export function AgentWorkbench({
                   id={`${agent.id}-input`}
                   onChange={(event) => setContent(event.target.value)}
                   placeholder={agent.inputPlaceholder}
+                  suppressHydrationWarning
                   value={content}
                 />
                 <p className="text-muted-foreground text-xs">

@@ -4,6 +4,7 @@ import {
   FileInput,
   Gauge,
   type LucideIcon,
+  Luggage,
   Mail,
   ServerCog,
   ShoppingBasket,
@@ -24,6 +25,7 @@ const agentIcons: Record<AgentIconKey, LucideIcon> = {
   schema: ServerCog,
   shopping: ShoppingBasket,
   summary: Bot,
+  travel: Luggage,
 };
 
 export function getAgentIcon(agent: Pick<AgentBlueprint, "icon">): LucideIcon {

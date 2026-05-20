@@ -30,7 +30,8 @@ export type AgentIconKey =
   | "prompt"
   | "schema"
   | "shopping"
-  | "summary";
+  | "summary"
+  | "travel";
 
 export type AgentWorkflow = {
   label: string;
@@ -521,6 +522,68 @@ const agentDefinitions = [
     executionMode: "deterministic-first",
     systemPrompt:
       "You are a pantry-first meal planning agent. Use only the provided ingredients, constraints, and practical grocery assumptions. Prioritize food to use first, avoid duplicate purchases, respect dietary limits, and return meal options, prep steps, and a concise grocery list. Do not provide medical nutrition advice.",
+  },
+  {
+    id: "travel-packing",
+    name: "Travel Packing Agent",
+    tagline:
+      "Turn trip notes into a packing list, bag plan, and pre-travel checklist.",
+    description:
+      "Paste a destination, dates, weather, activities, luggage limits, family needs, and must-bring notes. The agent builds a categorized packing list, flags travel prep tasks, and exports checklist, CSV, and JSON artifacts.",
+    icon: "travel",
+    inputs: ["text", "file"],
+    outputs: ["checklist", "csv", "json", "report", "table"],
+    workflows: [
+      {
+        label: "Carry-on packing",
+        description: "Pack light with bag and liquid constraints.",
+        prompt:
+          "Create a carry-on friendly packing list. Keep quantities realistic, separate personal item vs main bag, and call out liquids, chargers, documents, and laundry assumptions.",
+      },
+      {
+        label: "Family trip prep",
+        description: "Split adult, kid, shared, and travel-day items.",
+        prompt:
+          "Build a family packing plan. Separate each traveler's essentials, shared items, travel-day bag, and tasks to finish before leaving.",
+      },
+      {
+        label: "Activity-specific list",
+        description:
+          "Tailor packing for weather, work, hiking, beach, or events.",
+        prompt:
+          "Make the list activity-specific. Prioritize weather, shoes, outfits, tech, health items, and anything that would be hard to replace during the trip.",
+      },
+    ],
+    runtime: "hybrid",
+    modelProfile: "fast",
+    privacy: "Local first",
+    status: "Browser AI boosted",
+    useCases: [
+      "Travel packing lists",
+      "Carry-on planning",
+      "Pre-trip checklists",
+    ],
+    stack: [
+      "Chrome Prompt API",
+      "Trip parser",
+      "Packing heuristics",
+      "Checklist export",
+      ...modelStack("fast"),
+    ],
+    promptLabel: "Packing constraints",
+    promptPlaceholder:
+      "Example: carry-on only, 7 days, laundry once, beach plus work dinners, include travel-day bag.",
+    inputLabel: "Trip notes",
+    inputPlaceholder:
+      "Paste destination, trip length, weather, activities, luggage rules, travelers, medicines, documents, and must-bring items...",
+    samplePrompt:
+      "Make this carry-on only with one personal item, include a travel-day pouch, and plan laundry halfway through.",
+    sampleInput:
+      "Destination: Tokyo and Kyoto in late March\nLength: 8 days, 7 nights\nTravelers: 2 adults\nWeather: cool mornings, possible rain, lots of walking\nActivities: city sightseeing, train travel, casual dinners, one nicer dinner, photography, coworking for 2 mornings\nLuggage: carry-on backpack plus personal item only\nNeed: passport, rail pass, camera, laptop, medication, compact umbrella, comfortable shoes, laundry once mid-trip",
+    acceptedFiles: ".txt,.csv,.tsv,.md,.log",
+    executionMode: "deterministic-first",
+    systemPrompt:
+      "You are a practical travel packing agent. Use only the provided trip notes and conservative travel assumptions. Return categorized packing quantities, bag placement, pre-trip tasks, and copy-ready checklist artifacts. Do not provide medical, visa, or legal advice; mark those as verify-before-travel tasks.",
   },
   {
     id: "prompt-builder",

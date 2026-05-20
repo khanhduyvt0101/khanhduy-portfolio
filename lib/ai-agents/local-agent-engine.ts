@@ -105,6 +105,28 @@ type MealPlanningConstraints = {
   notes: string[];
 };
 
+type PackingPriority = "essential" | "optional" | "recommended";
+
+type PackingItem = {
+  bag: "main bag" | "personal item" | "travel-day pouch" | "wear";
+  category: string;
+  name: string;
+  priority: PackingPriority;
+  quantity: number;
+  reason: string;
+};
+
+type TripProfile = {
+  activities: string[];
+  bagStyle: "carry-on" | "checked" | "flexible" | "personal item";
+  climate: "cold" | "hot" | "mixed" | "rainy" | "temperate";
+  destination: string;
+  durationDays: number;
+  laundry: boolean;
+  notes: string[];
+  travelers: number;
+};
+
 const actionWords = [
   "need",
   "please",
@@ -172,6 +194,8 @@ export function runLocalAgent({
       return runPrivateSummarizer(input, userPrompt);
     case "subscription-audit":
       return runSubscriptionAudit(input, userPrompt);
+    case "travel-packing":
+      return runTravelPacking(input, userPrompt);
     default:
       return runPrivateSummarizer(input, userPrompt);
   }
@@ -909,6 +933,86 @@ function runPantryMealPlanner(
   };
 }
 
+function runTravelPacking(input: string, userPrompt: string): AgentRunResult {
+  const profile = parseTripProfile(input, userPrompt);
+  const items = sortPackingItems(buildPackingItems(profile, input));
+  const essentials = items.filter((item) => item.priority === "essential");
+  const optionalItems = items.filter((item) => item.priority === "optional");
+  const preTripTasks = buildPreTripTasks(profile, input);
+  const categories = Array.from(new Set(items.map((item) => item.category)));
+  const packingRows = items.map((item) => ({
+    Bag: item.bag,
+    Category: item.category,
+    Item: item.name,
+    Priority: item.priority,
+    Quantity: item.quantity,
+    Reason: item.reason,
+  }));
+
+  return {
+    title: "Travel packing plan",
+    summary: `Built a ${profile.bagStyle} packing plan for ${profile.travelers} traveler${profile.travelers === 1 ? "" : "s"} over ${profile.durationDays} day${profile.durationDays === 1 ? "" : "s"} with ${items.length} categorized item${items.length === 1 ? "" : "s"}.`,
+    sections: [
+      {
+        title: "Trip assumptions",
+        items: [
+          `Destination: ${profile.destination}.`,
+          `Climate signal: ${profile.climate}; activities: ${profile.activities.join(", ") || "general travel"}.`,
+          profile.laundry
+            ? "Laundry is planned, so clothing quantities are intentionally reduced."
+            : "No laundry signal found, so clothing quantities cover the full trip conservatively.",
+          ...profile.notes,
+        ],
+      },
+      {
+        title: "Pack first",
+        items: essentials.length
+          ? essentials.slice(0, 12).map(formatPackingItem)
+          : ["No essential items detected."],
+      },
+      {
+        title: "Bag plan",
+        items: formatBagPlan(items),
+      },
+      {
+        title: "Pre-trip checklist",
+        items: preTripTasks,
+      },
+      {
+        title: "Optional or trip-dependent",
+        items: optionalItems.length
+          ? optionalItems.slice(0, 8).map(formatPackingItem)
+          : ["No optional extras added. Keep the bag simple."],
+      },
+    ],
+    artifacts: [
+      {
+        label: "Packing checklist",
+        language: "markdown",
+        content: packingChecklistMarkdown(categories, items, preTripTasks),
+      },
+      {
+        label: "Packing CSV",
+        language: "csv",
+        content: rowsToCsv(packingRows),
+      },
+      {
+        label: "Trip packing JSON",
+        language: "json",
+        content: JSON.stringify(
+          {
+            profile,
+            items,
+            pre_trip_tasks: preTripTasks,
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+  };
+}
+
 function runPromptBuilder(input: string, userPrompt: string): AgentRunResult {
   const objective = summarizeSentences(input, 1)[0] ?? input.slice(0, 180);
   const prompt = [
@@ -1051,6 +1155,814 @@ function runJsonSchema(input: string, userPrompt: string): AgentRunResult {
       },
     ],
   };
+}
+
+function parseTripProfile(input: string, userPrompt: string): TripProfile {
+  const combined = `${userPrompt}\n${input}`;
+  const lower = combined.toLowerCase();
+
+  return {
+    activities: inferTripActivities(lower),
+    bagStyle: inferTripBagStyle(lower),
+    climate: inferTripClimate(lower),
+    destination: inferTripDestination(input),
+    durationDays: inferTripDurationDays(lower),
+    laundry: /\b(laundry|wash clothes|washer|laundromat|sink wash)\b/i.test(
+      combined,
+    ),
+    notes: inferTripNotes(combined),
+    travelers: inferTravelerCount(lower),
+  };
+}
+
+function inferTripDestination(input: string) {
+  const lines = cleanLines(input);
+  const explicitDestination =
+    findHeader(lines, "Destination") ?? findHeader(lines, "Trip");
+
+  if (explicitDestination) {
+    return explicitDestination;
+  }
+
+  const toMatch = input.match(
+    /\b(?:to|in|for)\s+([A-Z][A-Za-z\s.&'-]{2,48})(?:[,.\n]|$)/,
+  );
+
+  return toMatch?.[1]?.trim() ?? "the trip";
+}
+
+function inferTripDurationDays(text: string) {
+  const weekMatch = text.match(/\b(\d+)\s*(?:week|weeks)\b/);
+  if (weekMatch) {
+    return Math.max(1, Number(weekMatch[1]) * 7);
+  }
+
+  const nightMatch = text.match(/\b(\d+)\s*(?:night|nights)\b/);
+  if (nightMatch) {
+    return Math.max(1, Number(nightMatch[1]) + 1);
+  }
+
+  const dayMatch = text.match(/\b(\d+)\s*(?:day|days)\b/);
+  if (dayMatch) {
+    return Math.max(1, Number(dayMatch[1]));
+  }
+
+  return 3;
+}
+
+function inferTravelerCount(text: string) {
+  const matches = Array.from(
+    text.matchAll(
+      /\b(\d+)\s*(?:adult|adults|kid|kids|child|children|people|persons|travelers|travellers)\b/g,
+    ),
+  );
+  const total = matches.reduce((sum, match) => sum + Number(match[1] ?? 0), 0);
+
+  if (total > 0) {
+    return Math.min(total, 12);
+  }
+
+  return /\b(family|kids|children|toddler|baby)\b/.test(text) ? 4 : 1;
+}
+
+function inferTripClimate(text: string): TripProfile["climate"] {
+  if (/\b(rain|rainy|wet|monsoon|umbrella|storm)\b/.test(text)) {
+    return "rainy";
+  }
+
+  if (/\b(cold|winter|snow|ski|freezing|chilly|cool)\b/.test(text)) {
+    return "cold";
+  }
+
+  if (/\b(hot|summer|humid|tropical|beach|pool|desert)\b/.test(text)) {
+    return "hot";
+  }
+
+  if (/\b(mixed|variable|layers|spring|fall|autumn)\b/.test(text)) {
+    return "mixed";
+  }
+
+  return "temperate";
+}
+
+function inferTripBagStyle(text: string): TripProfile["bagStyle"] {
+  if (/\b(carry on|carry-on|backpack only|one bag|onebag)\b/.test(text)) {
+    return "carry-on";
+  }
+
+  if (/\b(personal item only|underseat)\b/.test(text)) {
+    return "personal item";
+  }
+
+  if (/\b(checked bag|checked luggage|suitcase)\b/.test(text)) {
+    return "checked";
+  }
+
+  return "flexible";
+}
+
+function inferTripActivities(text: string) {
+  const activityRules: Array<[string, RegExp]> = [
+    ["beach", /\b(beach|pool|swim|snorkel|island)\b/],
+    ["business", /\b(work|cowork|conference|meeting|client|business)\b/],
+    ["city walking", /\b(city|walking|sightseeing|museum|train|metro)\b/],
+    ["event", /\b(wedding|nice dinner|formal|event|ceremony)\b/],
+    ["family", /\b(family|kid|kids|child|children|toddler|baby)\b/],
+    ["fitness", /\b(gym|workout|run|yoga|fitness)\b/],
+    ["hiking", /\b(hike|hiking|trail|camp|outdoor|trek)\b/],
+    ["photography", /\b(camera|photo|photography|lens|tripod)\b/],
+    ["road trip", /\b(road trip|drive|car rental|rental car)\b/],
+    ["international", /\b(passport|visa|customs|international|rail pass)\b/],
+  ];
+
+  return activityRules
+    .filter(([, pattern]) => pattern.test(text))
+    .map(([activity]) => activity);
+}
+
+function inferTripNotes(text: string) {
+  const notes: string[] = [];
+
+  if (/\b(passport|visa|customs|international)\b/i.test(text)) {
+    notes.push(
+      "International-document signal found; verify passport, visa, entry rules, and copies before travel.",
+    );
+  }
+
+  if (/\b(medication|medicine|prescription|epi|inhaler)\b/i.test(text)) {
+    notes.push(
+      "Medication signal found; pack original-labeled essentials and verify health requirements yourself.",
+    );
+  }
+
+  if (/\b(carry on|carry-on|personal item|liquid|tsa|airport)\b/i.test(text)) {
+    notes.push(
+      "Airport/carry-on signal found; keep liquids small and easy to remove for screening.",
+    );
+  }
+
+  return notes;
+}
+
+function buildPackingItems(profile: TripProfile, input: string): PackingItem[] {
+  const items: PackingItem[] = [];
+  const clothingDays = profile.laundry
+    ? Math.min(profile.durationDays, 5)
+    : profile.durationDays;
+  const travelerCount = Math.max(1, profile.travelers);
+  const add = (item: PackingItem) => {
+    const existing = items.find(
+      (candidate) =>
+        normalizePackingName(candidate.name) ===
+          normalizePackingName(item.name) &&
+        candidate.category === item.category,
+    );
+
+    if (!existing) {
+      items.push(item);
+      return;
+    }
+
+    existing.quantity = Math.max(existing.quantity, item.quantity);
+    existing.priority = higherPackingPriority(existing.priority, item.priority);
+    existing.reason = uniqueTextValues([existing.reason, item.reason]).join(
+      "; ",
+    );
+    existing.bag = preferredPackingBag(existing.bag, item.bag);
+  };
+
+  addPackingItem(
+    add,
+    "Passport or government ID",
+    "Documents",
+    travelerCount,
+    "essential",
+    "travel-day pouch",
+    "Required identity document.",
+  );
+  addPackingItem(
+    add,
+    "Wallet and payment cards",
+    "Documents",
+    1,
+    "essential",
+    "travel-day pouch",
+    "Keep money and cards accessible.",
+  );
+  addPackingItem(
+    add,
+    "Phone",
+    "Tech",
+    travelerCount,
+    "essential",
+    "personal item",
+    "Primary communication and navigation device.",
+  );
+  addPackingItem(
+    add,
+    "Phone charger and cable",
+    "Tech",
+    travelerCount,
+    "essential",
+    "personal item",
+    "Prevents travel-day battery problems.",
+  );
+  addPackingItem(
+    add,
+    "Underwear",
+    "Clothing",
+    clothingDays * travelerCount,
+    "essential",
+    "main bag",
+    "One per planned clothing day.",
+  );
+  addPackingItem(
+    add,
+    "Socks",
+    "Clothing",
+    clothingDays * travelerCount,
+    "essential",
+    "main bag",
+    "One per planned clothing day.",
+  );
+  addPackingItem(
+    add,
+    "Tops",
+    "Clothing",
+    Math.ceil(clothingDays * 0.85) * travelerCount,
+    "essential",
+    "main bag",
+    "Core outfits for the trip.",
+  );
+  addPackingItem(
+    add,
+    "Bottoms",
+    "Clothing",
+    Math.max(1, Math.ceil(clothingDays / 3)) * travelerCount,
+    "recommended",
+    "main bag",
+    "Reusable outfit base.",
+  );
+  addPackingItem(
+    add,
+    "Sleepwear",
+    "Clothing",
+    travelerCount,
+    "recommended",
+    "main bag",
+    "One compact sleep outfit per traveler.",
+  );
+  addPackingItem(
+    add,
+    "Toothbrush",
+    "Toiletries",
+    travelerCount,
+    "essential",
+    "main bag",
+    "Daily hygiene.",
+  );
+  addPackingItem(
+    add,
+    "Toothpaste",
+    "Toiletries",
+    1,
+    "essential",
+    "main bag",
+    "Shared toiletry.",
+  );
+  addPackingItem(
+    add,
+    "Deodorant",
+    "Toiletries",
+    travelerCount,
+    "essential",
+    "main bag",
+    "Daily hygiene.",
+  );
+  addPackingItem(
+    add,
+    "Medication and prescriptions",
+    "Health",
+    travelerCount,
+    "essential",
+    "travel-day pouch",
+    "Keep critical health items with you.",
+  );
+  addPackingItem(
+    add,
+    "Reusable water bottle",
+    "Transit",
+    travelerCount,
+    "recommended",
+    "personal item",
+    "Useful during flights, train rides, and walking days.",
+  );
+
+  if (profile.climate === "rainy" || profile.climate === "mixed") {
+    addPackingItem(
+      add,
+      "Compact umbrella",
+      "Weather",
+      1,
+      "recommended",
+      "personal item",
+      "Rain signal found.",
+    );
+    addPackingItem(
+      add,
+      "Light rain shell",
+      "Weather",
+      travelerCount,
+      "recommended",
+      "wear",
+      "Keeps the main bag lighter in wet weather.",
+    );
+  }
+
+  if (profile.climate === "cold" || profile.climate === "mixed") {
+    addPackingItem(
+      add,
+      "Warm layer",
+      "Clothing",
+      travelerCount,
+      "essential",
+      "wear",
+      "Cool or variable weather signal found.",
+    );
+    addPackingItem(
+      add,
+      "Beanie or light gloves",
+      "Weather",
+      travelerCount,
+      "optional",
+      "main bag",
+      "Useful if mornings or evenings are cold.",
+    );
+  }
+
+  if (profile.climate === "hot") {
+    addPackingItem(
+      add,
+      "Breathable sun hat",
+      "Weather",
+      travelerCount,
+      "recommended",
+      "wear",
+      "Hot weather signal found.",
+    );
+    addPackingItem(
+      add,
+      "Sunscreen",
+      "Toiletries",
+      1,
+      "recommended",
+      "main bag",
+      "Useful for sun exposure.",
+    );
+  }
+
+  if (profile.activities.includes("city walking")) {
+    addPackingItem(
+      add,
+      "Comfortable walking shoes",
+      "Shoes",
+      travelerCount,
+      "essential",
+      "wear",
+      "Lots of walking or city transit signal found.",
+    );
+    addPackingItem(
+      add,
+      "Small day bag",
+      "Transit",
+      1,
+      "recommended",
+      "personal item",
+      "Keeps daily essentials organized.",
+    );
+  }
+
+  if (profile.activities.includes("business")) {
+    addPackingItem(
+      add,
+      "Laptop and charger",
+      "Tech",
+      1,
+      "essential",
+      "personal item",
+      "Work or coworking signal found.",
+    );
+    addPackingItem(
+      add,
+      "Work-ready outfit",
+      "Clothing",
+      Math.min(2, clothingDays) * travelerCount,
+      "recommended",
+      "main bag",
+      "Keeps work mornings or meetings covered.",
+    );
+  }
+
+  if (profile.activities.includes("event")) {
+    addPackingItem(
+      add,
+      "Nicer outfit",
+      "Clothing",
+      travelerCount,
+      "recommended",
+      "main bag",
+      "Event or nicer dinner signal found.",
+    );
+    addPackingItem(
+      add,
+      "Nicer shoes",
+      "Shoes",
+      travelerCount,
+      "optional",
+      "main bag",
+      "Only pack if they are required for the event.",
+    );
+  }
+
+  if (profile.activities.includes("beach")) {
+    addPackingItem(
+      add,
+      "Swimwear",
+      "Activity",
+      travelerCount,
+      "essential",
+      "main bag",
+      "Beach or pool signal found.",
+    );
+    addPackingItem(
+      add,
+      "Sandals",
+      "Shoes",
+      travelerCount,
+      "recommended",
+      "main bag",
+      "Useful for beach or pool days.",
+    );
+  }
+
+  if (profile.activities.includes("hiking")) {
+    addPackingItem(
+      add,
+      "Trail shoes",
+      "Shoes",
+      travelerCount,
+      "essential",
+      "wear",
+      "Hiking or trail signal found.",
+    );
+    addPackingItem(
+      add,
+      "Basic first-aid kit",
+      "Health",
+      1,
+      "recommended",
+      "personal item",
+      "Useful for outdoor activity.",
+    );
+  }
+
+  if (profile.activities.includes("photography")) {
+    addPackingItem(
+      add,
+      "Camera kit",
+      "Tech",
+      1,
+      "essential",
+      "personal item",
+      "Photography signal found.",
+    );
+    addPackingItem(
+      add,
+      "Memory cards and camera charger",
+      "Tech",
+      1,
+      "recommended",
+      "personal item",
+      "Avoids hard-to-replace photography failures.",
+    );
+  }
+
+  if (profile.activities.includes("family")) {
+    addPackingItem(
+      add,
+      "Kid entertainment pack",
+      "Family",
+      1,
+      "recommended",
+      "personal item",
+      "Helps on travel days and waits.",
+    );
+    addPackingItem(
+      add,
+      "Snacks",
+      "Family",
+      1,
+      "recommended",
+      "personal item",
+      "Useful for family transit buffers.",
+    );
+    addPackingItem(
+      add,
+      "Spare kid outfit",
+      "Family",
+      1,
+      "essential",
+      "personal item",
+      "Keep one change accessible during travel.",
+    );
+  }
+
+  if (profile.bagStyle === "carry-on" || profile.bagStyle === "personal item") {
+    addPackingItem(
+      add,
+      "Liquids pouch",
+      "Toiletries",
+      1,
+      "essential",
+      "personal item",
+      "Carry-on packing needs visible small liquids.",
+    );
+    addPackingItem(
+      add,
+      "Laundry bag",
+      "Organization",
+      1,
+      "recommended",
+      "main bag",
+      "Separates worn clothing in a small bag.",
+    );
+  }
+
+  if (profile.laundry) {
+    addPackingItem(
+      add,
+      "Laundry detergent sheets",
+      "Organization",
+      1,
+      "recommended",
+      "main bag",
+      "Laundry signal found.",
+    );
+  }
+
+  for (const customItem of extractMustBringItems(input)) {
+    addPackingItem(
+      add,
+      customItem,
+      inferPackingCategory(customItem),
+      1,
+      "essential",
+      inferPackingBag(customItem),
+      "User marked this as needed or must-bring.",
+    );
+  }
+
+  return items;
+}
+
+function addPackingItem(
+  add: (item: PackingItem) => void,
+  name: string,
+  category: string,
+  quantity: number,
+  priority: PackingPriority,
+  bag: PackingItem["bag"],
+  reason: string,
+) {
+  add({ bag, category, name, priority, quantity, reason });
+}
+
+function normalizePackingName(name: string) {
+  const normalized = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+  if (/\b(passport|government id|photo id|identity)\b/.test(normalized)) {
+    return "passport or id";
+  }
+
+  if (/\b(medication|medicine|prescription)\b/.test(normalized)) {
+    return "medication";
+  }
+
+  if (/\b(camera kit|camera)\b/.test(normalized)) {
+    return "camera";
+  }
+
+  if (/\b(laptop)\b/.test(normalized)) {
+    return "laptop";
+  }
+
+  if (
+    /\b(comfortable walking shoes|comfortable shoes|walking shoes)\b/.test(
+      normalized,
+    )
+  ) {
+    return "comfortable walking shoes";
+  }
+
+  if (/\b(compact umbrella|umbrella)\b/.test(normalized)) {
+    return "compact umbrella";
+  }
+
+  return normalized;
+}
+
+function uniqueTextValues(values: string[]) {
+  return values.filter((value, index) => values.indexOf(value) === index);
+}
+
+function extractMustBringItems(input: string) {
+  return cleanLines(input)
+    .filter((line) => /^(need|must bring|bring|pack|required)\s*:/i.test(line))
+    .flatMap((line) => line.slice(line.indexOf(":") + 1).split(/[,;]+/))
+    .map((item) =>
+      item
+        .replace(/\b(and|plus)\b/gi, "")
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
+    .filter(
+      (item) =>
+        item.length > 2 && !/\blaundry|wash clothes|washer\b/i.test(item),
+    )
+    .slice(0, 16);
+}
+
+function inferPackingCategory(item: string) {
+  if (/\b(passport|visa|ticket|booking|pass|id|license)\b/i.test(item)) {
+    return "Documents";
+  }
+
+  if (/\b(camera|laptop|charger|cable|phone|adapter|battery)\b/i.test(item)) {
+    return "Tech";
+  }
+
+  if (/\b(medication|medicine|prescription|first aid|inhaler)\b/i.test(item)) {
+    return "Health";
+  }
+
+  if (
+    /\b(shoe|shoes|sneaker|sneakers|boot|boots|sandal|sandals)\b/i.test(item)
+  ) {
+    return "Shoes";
+  }
+
+  if (/\b(shirt|jacket|pants|dress|outfit|sock|underwear)\b/i.test(item)) {
+    return "Clothing";
+  }
+
+  if (/\b(umbrella|rain|sunscreen|hat)\b/i.test(item)) {
+    return "Weather";
+  }
+
+  return "Must bring";
+}
+
+function inferPackingBag(item: string): PackingItem["bag"] {
+  if (
+    /\b(passport|visa|ticket|medication|medicine|phone|wallet)\b/i.test(item)
+  ) {
+    return "travel-day pouch";
+  }
+
+  if (/\b(laptop|camera|charger|battery|headphone)\b/i.test(item)) {
+    return "personal item";
+  }
+
+  return "main bag";
+}
+
+function higherPackingPriority(
+  left: PackingPriority,
+  right: PackingPriority,
+): PackingPriority {
+  const rank: Record<PackingPriority, number> = {
+    essential: 3,
+    recommended: 2,
+    optional: 1,
+  };
+
+  return rank[right] > rank[left] ? right : left;
+}
+
+function preferredPackingBag(
+  left: PackingItem["bag"],
+  right: PackingItem["bag"],
+): PackingItem["bag"] {
+  const rank: Record<PackingItem["bag"], number> = {
+    "travel-day pouch": 4,
+    "personal item": 3,
+    wear: 2,
+    "main bag": 1,
+  };
+
+  return rank[right] > rank[left] ? right : left;
+}
+
+function sortPackingItems(items: PackingItem[]) {
+  const priorityRank: Record<PackingPriority, number> = {
+    essential: 0,
+    recommended: 1,
+    optional: 2,
+  };
+
+  return [...items].sort(
+    (left, right) =>
+      priorityRank[left.priority] - priorityRank[right.priority] ||
+      left.category.localeCompare(right.category) ||
+      left.name.localeCompare(right.name),
+  );
+}
+
+function buildPreTripTasks(profile: TripProfile, input: string) {
+  const tasks = [
+    "Confirm dates, address, check-in rules, and local transport plan.",
+    "Charge phone, power bank, headphones, and any camera or laptop batteries.",
+    "Pack documents, payment cards, medicines, and one change of clothes before filling the main bag.",
+  ];
+
+  if (profile.activities.includes("international")) {
+    tasks.push(
+      "Verify passport validity, visa or entry rules, rail or transit passes, and offline copies.",
+    );
+  }
+
+  if (profile.climate === "rainy" || profile.climate === "mixed") {
+    tasks.push(
+      "Check destination weather within 48 hours and move rain gear to the top of the bag.",
+    );
+  }
+
+  if (profile.bagStyle === "carry-on" || profile.bagStyle === "personal item") {
+    tasks.push(
+      "Measure bag size and separate liquids before airport screening.",
+    );
+  }
+
+  if (profile.laundry) {
+    tasks.push(
+      "Choose the laundry day and pack detergent sheets or confirm hotel laundry access.",
+    );
+  }
+
+  if (/\b(medication|medicine|prescription|inhaler|epi)\b/i.test(input)) {
+    tasks.push(
+      "Verify medication quantity, labels, and destination rules before travel.",
+    );
+  }
+
+  return tasks;
+}
+
+function formatPackingItem(item: PackingItem) {
+  return `${item.name} x${item.quantity} - ${item.category}, ${item.bag}; ${item.reason}`;
+}
+
+function formatBagPlan(items: PackingItem[]) {
+  const bags: PackingItem["bag"][] = [
+    "travel-day pouch",
+    "personal item",
+    "wear",
+    "main bag",
+  ];
+
+  return bags.map((bag) => {
+    const bagItems = items
+      .filter((item) => item.bag === bag)
+      .slice(0, 8)
+      .map((item) => `${item.name} x${item.quantity}`)
+      .join(", ");
+
+    return `${bag}: ${bagItems || "Nothing required."}`;
+  });
+}
+
+function packingChecklistMarkdown(
+  categories: string[],
+  items: PackingItem[],
+  preTripTasks: string[],
+) {
+  const packingSections = categories.map((category) => {
+    const categoryItems = items
+      .filter((item) => item.category === category)
+      .map((item) => `- [ ] ${item.name} x${item.quantity} (${item.bag})`);
+
+    return [`## ${category}`, ...categoryItems].join("\n");
+  });
+
+  return [
+    "# Packing checklist",
+    ...packingSections,
+    "## Before leaving",
+    ...preTripTasks.map((task) => `- [ ] ${task}`),
+  ].join("\n\n");
 }
 
 const pantryMealTemplates: MealTemplate[] = [
