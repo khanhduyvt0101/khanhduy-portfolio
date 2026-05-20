@@ -9,7 +9,6 @@ import {
   Mail,
   ShieldCheck,
   Sparkles,
-  Utensils,
 } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -43,27 +42,33 @@ const appStoreLinks = [
 const appFeatures = [
   {
     icon: Dumbbell,
-    title: "Workout planning",
+    title: "Busy equipment swaps",
     description:
-      "Build practical training sessions with set, rep, and intensity guidance for common strength movements.",
+      "Pick the muscle you want to train and the equipment that is taken to find same-muscle alternatives.",
   },
   {
     icon: BookOpen,
-    title: "Exercise library",
+    title: "Exercise coverage",
     description:
-      "Browse movement notes, muscle focus, and coaching cues without creating an account.",
+      "Review the exercise, muscle, and equipment coverage used for same-muscle swap suggestions.",
   },
   {
-    icon: Utensils,
-    title: "Fuel planning",
+    icon: Activity,
+    title: "General fitness guidance",
     description:
-      "Plan simple meals, protein targets, hydration, and pre-workout nutrition around your training day.",
+      "Use simple educational suggestions that are not medical advice and do not replace professional coaching.",
   },
   {
     icon: BarChart3,
-    title: "Progress insights",
+    title: "Private by design",
     description:
-      "Review training consistency, recovery reminders, and general fitness education in one quiet dashboard.",
+      "No login, no ads, no HealthKit access, and no workout content sent to a SpotterFuel account server.",
+  },
+  {
+    icon: Sparkles,
+    title: "Optional SpotterFuel Pro",
+    description:
+      "A one-time Apple in-app purchase can unlock all swap options and the Also busy filter.",
   },
 ];
 
@@ -71,8 +76,10 @@ const privacyFacts = [
   "No account or sign-in required",
   "No HealthKit access",
   "No ads or third-party tracking",
-  "No subscriptions or in-app purchases",
-  "No app data leaves the device",
+  "Optional one-time SpotterFuel Pro in-app purchase",
+  "Workout choices stay on device",
+  "Pro purchase status is handled through Apple",
+  "Basic launch diagnostics may be used for reliability",
 ];
 
 function PageShell({
@@ -138,7 +145,8 @@ function FactPanel() {
         <div>
           <h2 className="font-bold text-lg">Privacy-first basics</h2>
           <p className="text-muted-foreground text-sm">
-            A simple app experience without account setup or tracking.
+            A simple app experience without account setup, ads, or third-party
+            tracking.
           </p>
         </div>
       </div>
@@ -190,7 +198,7 @@ export function SpotterFuelMarketingPage(): ReactNode {
     applicationCategory: "HealthApplication",
     operatingSystem: "iOS",
     description:
-      "SpotterFuel is a no-login workout tracking, exercise library, nutrition planning, and fitness education app for iPhone and iPad.",
+      "SpotterFuel is a no-login fitness education app that suggests same-muscle exercise swaps when gym equipment is taken.",
     url: spotterFuelUrls.marketing,
     author: {
       "@type": "Person",
@@ -206,9 +214,9 @@ export function SpotterFuelMarketingPage(): ReactNode {
 
   return (
     <PageShell
-      description="A simple iPhone and iPad fitness companion for planning workouts, learning movements, organizing meals, and reviewing training progress without an account."
+      description="A simple iPhone and iPad fitness companion for finding same-muscle exercise swaps when the equipment you planned to use is busy."
       eyebrow="iOS app"
-      title="SpotterFuel keeps training, fuel, and progress in one calm place."
+      title="SpotterFuel helps you keep training when equipment is taken."
     >
       <script
         type="application/ld+json"
@@ -233,9 +241,11 @@ export function SpotterFuelMarketingPage(): ReactNode {
             </div>
             <p className="max-w-3xl text-muted-foreground leading-7">
               SpotterFuel is designed for people who want a lightweight way to
-              organize their training day. It avoids social feeds, medical
-              claims, payments, and external data sync so users can open the app
-              and start planning right away.
+              adapt in a busy gym. It avoids social feeds, medical claims,
+              subscriptions, ads, and account-based workout storage so users can
+              open the app and find a practical swap right away. An optional
+              one-time SpotterFuel Pro purchase unlocks all swap options and the
+              Also busy filter.
             </p>
           </section>
 
@@ -328,7 +338,7 @@ export function SpotterFuelSupportPage(): ReactNode {
 
           <InfoCard icon={Activity} title="Health and fitness scope">
             <p>
-              SpotterFuel provides general workout and nutrition planning
+              SpotterFuel provides general fitness planning and education
               information. It is not a medical device, does not diagnose or
               treat health conditions, and does not replace a doctor, dietitian,
               or certified fitness professional.
@@ -344,16 +354,28 @@ export function SpotterFuelSupportPage(): ReactNode {
 export function SpotterFuelPrivacyPage(): ReactNode {
   return (
     <PageShell
-      description="SpotterFuel is built for simple private use: no account, no ads, no HealthKit, and no data collected from the app."
+      description="SpotterFuel is built for simple private use: no account, no ads, no HealthKit, on-device workout choices, Apple-managed Pro purchases, and basic diagnostics for reliability."
       eyebrow="Privacy Policy"
       title="SpotterFuel privacy policy"
     >
       <div className="grid gap-6">
         <InfoCard icon={ShieldCheck} title="Summary">
           <p>
-            SpotterFuel does not collect personal data from the iOS app. The app
-            works without creating an account, does not use HealthKit, does not
-            include ads, and does not share app data with third parties.
+            SpotterFuel works without creating an account. The app does not use
+            ads, third-party tracking, HealthKit, location, camera, contacts, or
+            a SpotterFuel account server. Exercise choices and workout
+            information stay on your device.
+          </p>
+          <p>
+            Basic app launch and diagnostic information may be processed through
+            Expo and Apple platform services to monitor reliability and app
+            health. This diagnostic information is not used for advertising or
+            third-party tracking.
+          </p>
+          <p>
+            SpotterFuel Pro is an optional one-time in-app purchase handled by
+            Apple. SpotterFuel stores whether Pro is active so it can unlock all
+            swap options and the Also busy filter.
           </p>
           <p>Last updated: {spotterFuel.updatedAt}.</p>
         </InfoCard>
@@ -361,9 +383,33 @@ export function SpotterFuelPrivacyPage(): ReactNode {
         <div className="grid gap-6 md:grid-cols-2">
           <InfoCard icon={Dumbbell} title="Data in the app">
             <p>
-              Workout, nutrition, and progress information entered or viewed in
-              SpotterFuel stays on your device. SpotterFuel does not operate a
-              server account system.
+              Muscle selections, busy equipment choices, exercises, and swap
+              suggestions entered or viewed in SpotterFuel stay on your device.
+              SpotterFuel does not operate a login or account system for this
+              information.
+            </p>
+          </InfoCard>
+          <InfoCard icon={Sparkles} title="SpotterFuel Pro purchases">
+            <p>
+              SpotterFuel Pro is purchased through Apple&apos;s in-app purchase
+              system as a one-time, non-subscription unlock. Apple processes the
+              payment, Apple ID purchase history, refunds, taxes, and store
+              account details under Apple&apos;s own policies.
+            </p>
+            <p>
+              The app may receive purchase and entitlement status from Apple,
+              such as whether the SpotterFuel Pro product is active, so the app
+              can unlock paid features and let you check purchase status from
+              Purchase Help. SpotterFuel does not receive your credit card
+              number or full Apple ID payment details.
+            </p>
+          </InfoCard>
+          <InfoCard icon={BarChart3} title="Diagnostics">
+            <p>
+              SpotterFuel may use Expo Insights and Apple-provided diagnostics
+              to understand app launches, crashes, and reliability. These tools
+              help maintain the app and are not used to build advertising
+              profiles, sell data, or track you across apps and websites.
             </p>
           </InfoCard>
           <InfoCard icon={Mail} title="Support email">
@@ -378,7 +424,16 @@ export function SpotterFuelPrivacyPage(): ReactNode {
             <p>
               Apple may process App Store, purchase, download, crash, or device
               information according to Apple&apos;s own policies. SpotterFuel
-              does not receive personal App Store account details from Apple.
+              does not receive personal App Store account payment details from
+              Apple.
+            </p>
+          </InfoCard>
+          <InfoCard icon={Activity} title="Health and fitness data">
+            <p>
+              SpotterFuel does not read from or write to Apple Health or
+              HealthKit. It does not collect medical records, clinical data, or
+              health research data, and it does not use fitness information for
+              advertising, marketing, or data mining.
             </p>
           </InfoCard>
           <InfoCard icon={HelpCircle} title="Questions">
@@ -402,7 +457,7 @@ export function SpotterFuelPrivacyPage(): ReactNode {
 export function SpotterFuelTermsPage(): ReactNode {
   return (
     <PageShell
-      description="Simple use terms for the SpotterFuel iOS app."
+      description="Terms for using SpotterFuel as a general fitness education app with an optional one-time Pro unlock, not medical advice or a medical device."
       eyebrow="Terms"
       title="SpotterFuel terms of use"
     >
@@ -416,12 +471,38 @@ export function SpotterFuelTermsPage(): ReactNode {
         </InfoCard>
 
         <div className="grid gap-6 md:grid-cols-2">
+          <InfoCard icon={Sparkles} title="SpotterFuel Pro">
+            <p>
+              SpotterFuel may offer an optional one-time in-app purchase called
+              SpotterFuel Pro. Pro unlocks all same-muscle swap options and the
+              Also busy filter. Free users can still use the app with the single
+              best swap suggestion.
+            </p>
+            <p>
+              SpotterFuel Pro is not a subscription. The purchase is handled by
+              Apple through the App Store. Purchase availability, taxes,
+              refunds, family sharing, payment method issues, and App Store
+              account controls are managed by Apple and may be subject to
+              Apple&apos;s terms and policies.
+            </p>
+            <p>
+              If you already purchased Pro, use Purchase Help in the app to
+              check purchase status and recover access for the Apple ID that
+              made the purchase.
+            </p>
+          </InfoCard>
           <InfoCard icon={Activity} title="General fitness information">
             <p>
-              SpotterFuel is not medical advice. Talk with a qualified
-              professional before beginning a new training or nutrition program,
-              especially if you have an injury, medical condition, or dietary
-              restriction.
+              SpotterFuel provides general fitness planning and education only.
+              It is not medical advice, not a medical device, and does not
+              diagnose, treat, cure, or prevent any disease, injury, or medical
+              condition.
+            </p>
+            <p>
+              Talk with a qualified healthcare professional or certified fitness
+              professional before beginning a new exercise program, especially
+              if you have an injury, medical condition, pain, dizziness,
+              shortness of breath, or other concerning symptoms.
             </p>
           </InfoCard>
           <InfoCard icon={ShieldCheck} title="No guarantee">
@@ -434,7 +515,24 @@ export function SpotterFuelTermsPage(): ReactNode {
           <InfoCard icon={Dumbbell} title="Safe use">
             <p>
               Stop exercising if you feel pain, dizziness, shortness of breath,
-              or other concerning symptoms. Seek emergency help when needed.
+              chest discomfort, faintness, or other concerning symptoms. Seek
+              emergency help when needed. You are responsible for choosing
+              appropriate exercises, loads, setup, and technique for your own
+              situation.
+            </p>
+          </InfoCard>
+          <InfoCard icon={Apple} title="App Store and platform rules">
+            <p>
+              SpotterFuel does not provide regulated healthcare services, does
+              not conduct health research, does not use HealthKit, and does not
+              offer insurance, medical, or performance outcome guarantees. The
+              app should be used only for lawful personal fitness planning and
+              education.
+            </p>
+            <p>
+              Digital feature unlocks in the iOS app use Apple in-app purchase.
+              Do not attempt to bypass App Store purchase controls, misuse
+              purchase recovery, or interfere with entitlement checks.
             </p>
           </InfoCard>
           <InfoCard icon={Mail} title="Contact">

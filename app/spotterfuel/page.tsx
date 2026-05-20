@@ -6,14 +6,14 @@ import { SpotterFuelMarketingPage } from "~/lib/spotterfuel/spotterfuel-pages";
 export const metadata: Metadata = {
   title: "SpotterFuel",
   description:
-    "SpotterFuel is a no-login iPhone and iPad fitness app for workout planning, exercise discovery, nutrition planning, and progress insights.",
+    "SpotterFuel is a no-login iPhone and iPad fitness app for same-muscle exercise swaps when gym equipment is taken.",
   alternates: {
     canonical: "/spotterfuel",
   },
   openGraph: {
     title: "SpotterFuel",
     description:
-      "A calm fitness companion for workout planning, nutrition planning, and progress insights.",
+      "A calm fitness companion for same-muscle exercise swaps in a busy gym.",
     url: spotterFuelUrls.marketing,
     type: "website",
   },
