@@ -7,8 +7,9 @@ import {
   getCatalogPageHref,
 } from "~/lib/site/catalog-pagination";
 import { siteUrl } from "~/lib/site/seo";
+import { spotterFuel } from "~/lib/spotterfuel/spotterfuel-content";
 
-const lastModified = new Date("2026-05-18T00:00:00.000Z");
+const lastModified = new Date("2026-05-20T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -29,6 +30,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "weekly",
       priority: 0.9,
+    },
+    {
+      url: `${siteUrl}${spotterFuel.paths.marketing}`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${siteUrl}${spotterFuel.paths.support}`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${siteUrl}${spotterFuel.paths.privacy}`,
+      lastModified,
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+    {
+      url: `${siteUrl}${spotterFuel.paths.terms}`,
+      lastModified,
+      changeFrequency: "yearly",
+      priority: 0.5,
     },
   ];
 

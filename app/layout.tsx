@@ -121,12 +121,45 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
           >
             <main className="flex-1">{children}</main>
           </ViewTransition>
-          <footer className="mt-auto flex h-14 items-center justify-center border-t">
-            <div className="container mx-auto max-w-7xl px-4 text-center">
+          <footer className="mt-auto border-t">
+            <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-center md:flex-row md:text-left">
               <span className="text-sm text-muted-foreground">
                 Made by Khanh Duy. Software engineer in Ho Chi Minh City,
                 Vietnam.
               </span>
+              <nav
+                aria-label="SpotterFuel legal links"
+                className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-muted-foreground text-sm"
+              >
+                <Link
+                  className="transition-colors hover:text-foreground"
+                  href="/spotterfuel"
+                  transitionTypes={["nav-forward"]}
+                >
+                  SpotterFuel
+                </Link>
+                <Link
+                  className="transition-colors hover:text-foreground"
+                  href="/spotterfuel/support"
+                  transitionTypes={["nav-forward"]}
+                >
+                  Support
+                </Link>
+                <Link
+                  className="transition-colors hover:text-foreground"
+                  href="/spotterfuel/privacy"
+                  transitionTypes={["nav-forward"]}
+                >
+                  Privacy
+                </Link>
+                <Link
+                  className="transition-colors hover:text-foreground"
+                  href="/spotterfuel/terms"
+                  transitionTypes={["nav-forward"]}
+                >
+                  Terms
+                </Link>
+              </nav>
             </div>
           </footer>
         </ThemeProvider>
