@@ -25,6 +25,15 @@ const agentKeywordOverrides: Record<string, string[]> = {
     "pantry inventory meal plan",
     "budget grocery planner",
   ],
+  "return-warranty": [
+    "return window tracker",
+    "warranty tracker",
+    "receipt organizer",
+    "return deadline reminder",
+    "warranty claim checklist",
+    "purchase receipt AI tool",
+    "refund tracker",
+  ],
   "subscription-audit": [
     "subscription tracker",
     "recurring bill tracker",

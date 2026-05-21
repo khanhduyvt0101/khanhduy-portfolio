@@ -127,6 +127,29 @@ type TripProfile = {
   travelers: number;
 };
 
+type ReturnWarrantyStatus =
+  | "expired"
+  | "missing-date"
+  | "return-open"
+  | "return-soon"
+  | "warranty-watch";
+
+type ReturnWarrantyItem = {
+  action: string;
+  amount: number | null;
+  confidence: "high" | "low" | "medium";
+  item: string;
+  merchant: string;
+  proofGaps: string[];
+  purchaseDate: string;
+  raw: string;
+  returnDays: number;
+  returnDeadline: string;
+  status: ReturnWarrantyStatus;
+  warrantyDeadline: string;
+  warrantyMonths: number;
+};
+
 const actionWords = [
   "need",
   "please",
@@ -192,6 +215,8 @@ export function runLocalAgent({
       return runPromptBuilder(input, userPrompt);
     case "private-summarizer":
       return runPrivateSummarizer(input, userPrompt);
+    case "return-warranty":
+      return runReturnWarranty(input, userPrompt);
     case "subscription-audit":
       return runSubscriptionAudit(input, userPrompt);
     case "travel-packing":
@@ -818,6 +843,122 @@ function runSubscriptionAudit(
         label: "Renewal reminder CSV",
         language: "csv",
         content: rowsToCsv(renewalReminderRows(sortedCharges)),
+      },
+    ],
+  };
+}
+
+function runReturnWarranty(input: string, userPrompt: string): AgentRunResult {
+  const items = parseReturnWarrantyItems(input);
+  const sortedItems = [...items].sort(compareReturnWarrantyItems);
+  const urgentReturns = sortedItems.filter(
+    (item) => item.status === "return-soon",
+  );
+  const openReturns = sortedItems.filter(
+    (item) => item.status === "return-open",
+  );
+  const warrantyWatch = sortedItems.filter(
+    (item) => item.status === "warranty-watch",
+  );
+  const missingDate = sortedItems.filter(
+    (item) => item.status === "missing-date",
+  );
+  const expired = sortedItems.filter((item) => item.status === "expired");
+  const today = new Date();
+
+  return {
+    title: "Return and warranty tracker",
+    summary:
+      sortedItems.length > 0
+        ? `Organized ${sortedItems.length} purchase${sortedItems.length === 1 ? "" : "s"} with ${urgentReturns.length} return window${urgentReturns.length === 1 ? "" : "s"} needing attention this week and ${warrantyWatch.length} warranty watch item${warrantyWatch.length === 1 ? "" : "s"}.`
+        : "No purchases were detected. Paste receipt lines with merchant, item, purchase date, amount, return policy, or warranty notes.",
+    sections: [
+      {
+        title: "Tracking request",
+        items: [
+          userPrompt ||
+            "Find return deadlines, warranty reminders, proof gaps, and next actions.",
+          `Run date: ${formatReturnDate(today)}. Verify merchant policies before acting.`,
+          "Local fallback uses only pasted notes plus conservative default return and warranty assumptions.",
+        ],
+      },
+      {
+        title: "Decide now",
+        items: urgentReturns.length
+          ? urgentReturns.map(formatReturnWarrantyLine)
+          : ["No open return window appears to close within the next 7 days."],
+      },
+      {
+        title: "Still returnable",
+        items: openReturns.length
+          ? openReturns.slice(0, 8).map(formatReturnWarrantyLine)
+          : ["No longer returnable item detected beyond the urgent list."],
+      },
+      {
+        title: "Warranty watch",
+        items: warrantyWatch.length
+          ? warrantyWatch.slice(0, 8).map(formatReturnWarrantyLine)
+          : [
+              "No warranty-only watch item detected. Add serial numbers and warranty periods for durable goods.",
+            ],
+      },
+      {
+        title: "Missing proof or dates",
+        items: [
+          ...missingDate.slice(0, 6).map(formatReturnWarrantyLine),
+          ...sortedItems
+            .flatMap((item) =>
+              item.proofGaps.map((gap) => `${item.item}: ${gap}`),
+            )
+            .slice(0, 8),
+        ].length
+          ? [
+              ...missingDate.slice(0, 6).map(formatReturnWarrantyLine),
+              ...sortedItems
+                .flatMap((item) =>
+                  item.proofGaps.map((gap) => `${item.item}: ${gap}`),
+                )
+                .slice(0, 8),
+            ]
+          : [
+              "No obvious proof gap detected. Still keep receipts, order emails, serial numbers, and packaging photos for expensive items.",
+            ],
+      },
+      {
+        title: "Expired or archive",
+        items: expired.length
+          ? expired.slice(0, 6).map(formatReturnWarrantyLine)
+          : ["No expired return and warranty record detected."],
+      },
+    ],
+    artifacts: [
+      {
+        label: "Return checklist",
+        language: "markdown",
+        content: returnWarrantyChecklistMarkdown(sortedItems),
+      },
+      {
+        label: "Purchase deadline CSV",
+        language: "csv",
+        content: rowsToCsv(returnWarrantyRows(sortedItems)),
+      },
+      {
+        label: "Warranty tracker JSON",
+        language: "json",
+        content: JSON.stringify(
+          {
+            run_date: formatReturnDate(today),
+            request: userPrompt || null,
+            items: sortedItems,
+          },
+          null,
+          2,
+        ),
+      },
+      {
+        label: "Reminder import CSV",
+        language: "csv",
+        content: rowsToCsv(returnWarrantyReminderRows(sortedItems)),
       },
     ],
   };
@@ -2822,6 +2963,581 @@ function formatMoney(value: number) {
 
 function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
+}
+
+function parseReturnWarrantyItems(input: string): ReturnWarrantyItem[] {
+  const lines = cleanLines(input);
+  const lineItems = lines
+    .map(parseReturnWarrantyLine)
+    .filter((item): item is ReturnWarrantyItem => Boolean(item));
+
+  if (lineItems.length > 0) {
+    return lineItems;
+  }
+
+  return parseRows(input)
+    .map(returnWarrantyFromRow)
+    .filter((item): item is ReturnWarrantyItem => Boolean(item));
+}
+
+function parseReturnWarrantyLine(line: string): ReturnWarrantyItem | null {
+  const purchaseDate = inferPurchaseDate(line);
+  const amount = extractMoneyAmount(line);
+  const merchant = inferPurchaseMerchant(line);
+  const item = inferPurchaseItem(line, merchant);
+  const returnDays = inferReturnDays(line, merchant, item);
+  const warrantyMonths = inferWarrantyMonths(line, item);
+  const returnDeadline = purchaseDate
+    ? formatReturnDate(addDateDays(purchaseDate, returnDays))
+    : "unknown";
+  const warrantyDeadline =
+    purchaseDate && warrantyMonths > 0
+      ? formatReturnDate(addDateMonths(purchaseDate, warrantyMonths))
+      : "unknown";
+  const proofGaps = inferReturnWarrantyProofGaps(line);
+  const status = inferReturnWarrantyStatus({
+    purchaseDate,
+    returnDeadline,
+    warrantyDeadline,
+  });
+
+  if (
+    !purchaseDate &&
+    !amount &&
+    !/\b(receipt|return|warranty|bought|purchased|order)\b/i.test(line)
+  ) {
+    return null;
+  }
+
+  return {
+    action: returnWarrantyAction(status, returnDeadline, warrantyDeadline),
+    amount,
+    confidence: purchaseDate ? "high" : "low",
+    item,
+    merchant,
+    proofGaps,
+    purchaseDate: purchaseDate ? formatReturnDate(purchaseDate) : "unknown",
+    raw: line,
+    returnDays,
+    returnDeadline,
+    status,
+    warrantyDeadline,
+    warrantyMonths,
+  };
+}
+
+function returnWarrantyFromRow(row: DataRow): ReturnWarrantyItem | null {
+  const entries = Object.entries(row);
+  const text = entries.map(([, value]) => String(value ?? "")).join(" ");
+  const dateEntry = entries.find(([key]) =>
+    /date|purchased|bought|order/i.test(key),
+  );
+  const merchantEntry = entries.find(([key]) =>
+    /merchant|store|seller|vendor/i.test(key),
+  );
+  const itemEntry = entries.find(([key]) =>
+    /item|product|description|name/i.test(key),
+  );
+  const amountEntry = entries.find(
+    ([key, value]) =>
+      /amount|price|total|cost/i.test(key) && typeof value === "number",
+  );
+  const purchaseDate =
+    dateEntry && String(dateEntry[1]).trim()
+      ? parseLooseDate(String(dateEntry[1]))
+      : inferPurchaseDate(text);
+
+  if (!purchaseDate && !amountEntry) {
+    return null;
+  }
+
+  const merchant =
+    merchantEntry && String(merchantEntry[1]).trim()
+      ? String(merchantEntry[1]).trim()
+      : inferPurchaseMerchant(text);
+  const item =
+    itemEntry && String(itemEntry[1]).trim()
+      ? String(itemEntry[1]).trim()
+      : inferPurchaseItem(text, merchant);
+  const returnDays = inferReturnDays(text, merchant, item);
+  const warrantyMonths = inferWarrantyMonths(text, item);
+  const returnDeadline = purchaseDate
+    ? formatReturnDate(addDateDays(purchaseDate, returnDays))
+    : "unknown";
+  const warrantyDeadline =
+    purchaseDate && warrantyMonths > 0
+      ? formatReturnDate(addDateMonths(purchaseDate, warrantyMonths))
+      : "unknown";
+  const status = inferReturnWarrantyStatus({
+    purchaseDate,
+    returnDeadline,
+    warrantyDeadline,
+  });
+
+  return {
+    action: returnWarrantyAction(status, returnDeadline, warrantyDeadline),
+    amount:
+      typeof amountEntry?.[1] === "number"
+        ? Number(amountEntry[1])
+        : extractMoneyAmount(text),
+    confidence: purchaseDate ? "medium" : "low",
+    item,
+    merchant,
+    proofGaps: inferReturnWarrantyProofGaps(text),
+    purchaseDate: purchaseDate ? formatReturnDate(purchaseDate) : "unknown",
+    raw: JSON.stringify(row),
+    returnDays,
+    returnDeadline,
+    status,
+    warrantyDeadline,
+    warrantyMonths,
+  };
+}
+
+function inferPurchaseDate(text: string) {
+  const explicit =
+    text.match(
+      /\b(?:purchased|bought|ordered|order date|purchase date)\s*(?:on|:)?\s*([a-z]{3,9}\s+\d{1,2},?\s*\d{0,4}|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b/i,
+    )?.[1] ??
+    text.match(
+      /\b([a-z]{3,9}\s+\d{1,2},?\s*\d{0,4}|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b/i,
+    )?.[1];
+
+  return explicit ? parseLooseDate(explicit) : null;
+}
+
+function parseLooseDate(value: string) {
+  const cleaned = value.trim().replace(/,$/, "");
+  const currentYear = new Date().getFullYear();
+  const shortNumeric = cleaned.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2})$/);
+
+  if (shortNumeric) {
+    const [, month = "1", day = "1", shortYear = "0"] = shortNumeric;
+    return new Date(2000 + Number(shortYear), Number(month) - 1, Number(day));
+  }
+
+  const withYear = /\b\d{4}\b/.test(cleaned)
+    ? cleaned
+    : `${cleaned} ${currentYear}`;
+  const parsed = new Date(withYear);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed;
+}
+
+function inferPurchaseMerchant(text: string) {
+  const knownMerchant = findKnownMerchant(text);
+  if (knownMerchant) {
+    return knownMerchant;
+  }
+
+  const beforeDash = text.split(/\s+-\s+|,/)[0]?.trim();
+  const explicit =
+    text.match(/\b(?:merchant|store|seller|vendor)\s*:\s*([^,\n-]+)/i)?.[1] ??
+    beforeDash;
+
+  const merchant = cleanupPurchaseLabel(
+    (explicit || "Unknown merchant")
+      .replace(/(?:[$]|usd|eur|gbp|vnd)\s*[0-9].*$/i, "")
+      .replace(/\b(?:purchased|bought|ordered|return|warranty)\b.*$/i, ""),
+  );
+
+  return merchant || "Unknown merchant";
+}
+
+function inferPurchaseItem(text: string, merchant: string) {
+  const parts = text
+    .split(/\s+-\s+|,/)
+    .map((part) => cleanupPurchaseLabel(part))
+    .filter(Boolean);
+  const afterMerchant = text
+    .replace(
+      new RegExp(`^\\s*${escapeRegExp(merchant)}\\b\\s*[-:]?\\s*`, "i"),
+      "",
+    )
+    .replace(/^\s*[-*+]\s*/, "");
+  const beforePolicy = afterMerchant.split(
+    /\s+(?:purchased|bought|ordered|return|warranty|receipt|serial|box|email|saved|need|no receipt|maybe)\b/i,
+  )[0];
+  const beforeAmount = beforePolicy.split(
+    /(?:[$]|usd|eur|gbp|vnd)\s*[0-9][0-9,]*(?:\.[0-9]{1,2})?/i,
+  )[0];
+  const directItem = cleanupPurchaseLabel(beforeAmount);
+
+  if (directItem) {
+    return directItem;
+  }
+
+  const candidate = parts.find(
+    (part) =>
+      part.toLowerCase() !== merchant.toLowerCase() &&
+      !/\b(purchased|bought|ordered|return|warranty|receipt|serial|box|email|saved|maybe|too small|too large)\b/i.test(
+        part,
+      ) &&
+      !/[$]\s*\d/.test(part),
+  );
+
+  if (candidate) {
+    return candidate;
+  }
+
+  return (
+    cleanupPurchaseLabel(
+      text
+        .replace(merchant, "")
+        .replace(
+          /(?:[$]|usd|eur|gbp|vnd)\s*[0-9][0-9,]*(?:\.[0-9]{1,2})?/gi,
+          "",
+        )
+        .replace(
+          /\b(purchased|bought|ordered|return|warranty|receipt|serial|saved|email|box|closet|need|no|yet)\b/gi,
+          "",
+        )
+        .replace(
+          /\b\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/g,
+          "",
+        )
+        .slice(0, 90),
+    ) || "Unnamed purchase"
+  );
+}
+
+function findKnownMerchant(text: string) {
+  const knownMerchants = [
+    "Amazon",
+    "Apple Store",
+    "Apple",
+    "Best Buy",
+    "Costco",
+    "Home Depot",
+    "IKEA",
+    "Nike",
+    "Target",
+    "Walmart",
+    "Williams Sonoma",
+    "Zappos",
+  ];
+  const normalizedText = text.toLowerCase();
+
+  return (
+    knownMerchants.find((merchant) =>
+      new RegExp(`\\b${escapeRegExp(merchant.toLowerCase())}\\b`).test(
+        normalizedText,
+      ),
+    ) ?? null
+  );
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function cleanupPurchaseLabel(value: string) {
+  return value
+    .replace(/^\s*[-*+]\s*/, "")
+    .replace(/\s+[-:]\s*$/, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 90);
+}
+
+function inferReturnDays(text: string, merchant: string, item: string) {
+  const explicit = text.match(
+    /\b(\d{1,3})\s*(?:day|days)[-\s]*(?:return|refund|exchange|window)\b/i,
+  );
+
+  if (explicit?.[1]) {
+    return Number(explicit[1]);
+  }
+
+  const combined = `${merchant} ${item}`.toLowerCase();
+
+  if (/\bapple\b/.test(combined)) {
+    return 14;
+  }
+
+  if (/\bbest buy\b/.test(combined)) {
+    return 30;
+  }
+
+  if (/\btarget|walmart|home depot|ikea\b/.test(combined)) {
+    return 90;
+  }
+
+  if (/\bcostco\b/.test(combined)) {
+    return 90;
+  }
+
+  if (/\bnike|zappos\b/.test(combined)) {
+    return 60;
+  }
+
+  return 30;
+}
+
+function inferWarrantyMonths(text: string, item: string) {
+  const years = text.match(
+    /\b(\d{1,2})\s*(?:year|years|yr|yrs)[-\s]*(?:warranty|coverage|guarantee)\b/i,
+  );
+
+  if (years?.[1]) {
+    return Number(years[1]) * 12;
+  }
+
+  const months = text.match(
+    /\b(\d{1,3})\s*(?:month|months|mo)[-\s]*(?:warranty|coverage|guarantee)\b/i,
+  );
+
+  if (months?.[1]) {
+    return Number(months[1]);
+  }
+
+  if (/\b(no warranty|as is|final sale)\b/i.test(text)) {
+    return 0;
+  }
+
+  if (
+    /\b(laptop|monitor|phone|headphone|airpods|camera|appliance|blender|desk|chair|tool|lamp|printer|router|watch)\b/i.test(
+      item,
+    )
+  ) {
+    return 12;
+  }
+
+  return 0;
+}
+
+function inferReturnWarrantyProofGaps(text: string) {
+  const gaps: string[] = [];
+
+  if (!/\b(receipt|invoice|order email|email receipt|proof)\b/i.test(text)) {
+    gaps.push("Save receipt, invoice, order email, or card statement proof.");
+  }
+
+  if (
+    /\b(warranty|serial|electronics?|monitor|airpods|appliance|tool|lamp)\b/i.test(
+      text,
+    ) &&
+    !/\bserial\b/i.test(text)
+  ) {
+    gaps.push("Add serial number or product label photo for warranty claims.");
+  }
+
+  if (!/\b(box|packaging|tag|label|accessor|manual)\b/i.test(text)) {
+    gaps.push(
+      "Confirm packaging, tags, accessories, and manuals are still available.",
+    );
+  }
+
+  return gaps.slice(0, 3);
+}
+
+function inferReturnWarrantyStatus({
+  purchaseDate,
+  returnDeadline,
+  warrantyDeadline,
+}: {
+  purchaseDate: Date | null;
+  returnDeadline: string;
+  warrantyDeadline: string;
+}): ReturnWarrantyStatus {
+  if (!purchaseDate) {
+    return "missing-date";
+  }
+
+  const returnDaysRemaining = daysUntilDate(returnDeadline);
+  const warrantyDaysRemaining = daysUntilDate(warrantyDeadline);
+
+  if (returnDaysRemaining !== null && returnDaysRemaining >= 0) {
+    return returnDaysRemaining <= 7 ? "return-soon" : "return-open";
+  }
+
+  if (warrantyDaysRemaining !== null && warrantyDaysRemaining >= 0) {
+    return "warranty-watch";
+  }
+
+  return "expired";
+}
+
+function returnWarrantyAction(
+  status: ReturnWarrantyStatus,
+  returnDeadline: string,
+  warrantyDeadline: string,
+) {
+  if (status === "return-soon") {
+    return `Decide keep vs return now; deadline ${returnDeadline}.`;
+  }
+
+  if (status === "return-open") {
+    return `Set a reminder 3-7 days before the return deadline (${returnDeadline}).`;
+  }
+
+  if (status === "warranty-watch") {
+    return `Test the item, save proof, and set warranty reminder before ${warrantyDeadline}.`;
+  }
+
+  if (status === "missing-date") {
+    return "Add purchase date and merchant policy before relying on the tracker.";
+  }
+
+  return "Archive the receipt and keep warranty proof only if coverage still applies elsewhere.";
+}
+
+function compareReturnWarrantyItems(
+  left: ReturnWarrantyItem,
+  right: ReturnWarrantyItem,
+) {
+  return (
+    returnWarrantyStatusRank(left.status) -
+      returnWarrantyStatusRank(right.status) ||
+    nullableDaysUntil(left.returnDeadline) -
+      nullableDaysUntil(right.returnDeadline) ||
+    left.item.localeCompare(right.item)
+  );
+}
+
+function returnWarrantyStatusRank(status: ReturnWarrantyStatus) {
+  const ranks: Record<ReturnWarrantyStatus, number> = {
+    "return-soon": 0,
+    "return-open": 1,
+    "warranty-watch": 2,
+    "missing-date": 3,
+    expired: 4,
+  };
+
+  return ranks[status];
+}
+
+function nullableDaysUntil(dateText: string) {
+  return daysUntilDate(dateText) ?? Number.POSITIVE_INFINITY;
+}
+
+function formatReturnWarrantyLine(item: ReturnWarrantyItem) {
+  const amount = item.amount === null ? "" : `, ${formatMoney(item.amount)}`;
+  const proof = item.proofGaps.length > 0 ? ` Proof: ${item.proofGaps[0]}` : "";
+
+  return `${item.item} at ${item.merchant}${amount} - ${item.status}; return by ${item.returnDeadline}; warranty until ${item.warrantyDeadline}. ${item.action}${proof}`;
+}
+
+function returnWarrantyRows(items: ReturnWarrantyItem[]): DataRow[] {
+  return items.map((item) => ({
+    merchant: item.merchant,
+    item: item.item,
+    purchase_date: item.purchaseDate,
+    amount: item.amount,
+    return_days: item.returnDays,
+    return_deadline: item.returnDeadline,
+    warranty_months: item.warrantyMonths,
+    warranty_deadline: item.warrantyDeadline,
+    status: item.status,
+    action: item.action,
+    proof_gaps: item.proofGaps.join("; "),
+  }));
+}
+
+function returnWarrantyReminderRows(items: ReturnWarrantyItem[]): DataRow[] {
+  return items.flatMap((item) => {
+    const rows: DataRow[] = [];
+
+    if (item.returnDeadline !== "unknown" && item.status !== "expired") {
+      rows.push({
+        Description: `${item.action} Proof gaps: ${item.proofGaps.join("; ") || "none detected"}`,
+        "Start Date": item.returnDeadline,
+        Subject: `Return decision: ${item.item}`,
+      });
+    }
+
+    if (item.warrantyDeadline !== "unknown") {
+      rows.push({
+        Description: `Test item and gather receipt/serial before warranty expires. Merchant: ${item.merchant}.`,
+        "Start Date": item.warrantyDeadline,
+        Subject: `Warranty check: ${item.item}`,
+      });
+    }
+
+    return rows;
+  });
+}
+
+function returnWarrantyChecklistMarkdown(items: ReturnWarrantyItem[]) {
+  const urgent = items.filter((item) => item.status === "return-soon");
+  const watch = items.filter((item) => item.status === "warranty-watch");
+
+  return [
+    "## Decide this week",
+    ...(urgent.length
+      ? urgent.map((item) => `- [ ] ${formatReturnWarrantyLine(item)}`)
+      : ["- [ ] No return deadline appears to close this week."]),
+    "",
+    "## Proof to gather",
+    ...items
+      .flatMap((item) =>
+        item.proofGaps.map((gap) => `- [ ] ${item.item}: ${gap}`),
+      )
+      .slice(0, 12),
+    "",
+    "## Warranty checks",
+    ...(watch.length
+      ? watch.map((item) => `- [ ] ${item.item}: ${item.action}`)
+      : [
+          "- [ ] Add serial numbers and warranty terms for expensive durable goods.",
+        ]),
+    "",
+    "## Before acting",
+    "- Verify the merchant return policy and refund method.",
+    "- Keep copies of receipts, order emails, serial numbers, and support messages.",
+    "- For legal or consumer-rights disputes, use official consumer-protection guidance instead of this tool.",
+  ].join("\n");
+}
+
+function addDateDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function addDateMonths(date: Date, months: number) {
+  const next = new Date(date);
+  next.setMonth(next.getMonth() + months);
+  return next;
+}
+
+function daysUntilDate(dateText: string) {
+  if (dateText === "unknown") {
+    return null;
+  }
+
+  const date = new Date(dateText);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const today = new Date();
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+  const startOfDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
+
+  return Math.ceil(
+    (startOfDate.getTime() - startOfToday.getTime()) / 86_400_000,
+  );
+}
+
+function formatReturnDate(date: Date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
 }
 
 function parseDayTask(line: string): DayTask {

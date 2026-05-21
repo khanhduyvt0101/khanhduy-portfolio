@@ -486,9 +486,9 @@ export function AgentWorkbench({
 
   return (
     <section className="border-b bg-background">
-      <div className="container mx-auto grid max-w-7xl gap-6 px-4 py-10 lg:grid-cols-[0.78fr_1.22fr]">
-        <aside className="flex flex-col gap-4">
-          <Card className="rounded-lg">
+      <div className="container mx-auto grid max-w-7xl gap-6 px-4 py-10 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)]">
+        <aside className="flex min-w-0 flex-col gap-4">
+          <Card className="min-w-0 rounded-lg">
             <CardHeader>
               <div className="mb-2 flex flex-wrap gap-2">
                 <Badge variant="outline" className="rounded-lg">
@@ -562,8 +562,8 @@ export function AgentWorkbench({
           </Card>
         </aside>
 
-        <div className="grid gap-4">
-          <Card className="rounded-lg">
+        <div className="grid min-w-0 gap-4">
+          <Card className="min-w-0 rounded-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
                 <WandSparkles className="size-5" />
@@ -683,7 +683,7 @@ export function AgentWorkbench({
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg">
+          <Card className="min-w-0 rounded-lg">
             <CardHeader>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
@@ -720,38 +720,38 @@ export function AgentWorkbench({
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="min-w-0 overflow-hidden">
               {modelText ? (
                 <pre className="max-h-[560px] overflow-auto rounded-lg border bg-muted/25 p-4 text-sm leading-7 whitespace-pre-wrap">
                   {responseMarkdown}
                 </pre>
               ) : result ? (
-                <div className="grid gap-4">
+                <div className="grid min-w-0 gap-4">
                   {actualModelUsed ? (
-                    <div className="rounded-lg border bg-muted/25 px-4 py-3 text-sm">
+                    <div className="min-w-0 rounded-lg border bg-muted/25 px-4 py-3 text-sm">
                       <span className="text-muted-foreground">
                         Model used:{" "}
                       </span>
                       <span className="font-semibold">{actualModelUsed}</span>
                     </div>
                   ) : null}
-                  <div className="rounded-lg border bg-muted/25 p-4">
+                  <div className="min-w-0 rounded-lg border bg-muted/25 p-4">
                     <p className="font-black text-xl">{result.title}</p>
                     <p className="mt-3 text-muted-foreground leading-7">
                       {result.summary}
                     </p>
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-2">
+                  <div className="grid min-w-0 gap-3 md:grid-cols-2">
                     {result.sections.map((section) => (
                       <div
-                        className="rounded-lg border p-4"
+                        className="min-w-0 rounded-lg border p-4"
                         key={section.title}
                       >
                         <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
                           {section.title}
                         </p>
-                        <ul className="mt-3 space-y-2 text-sm leading-6">
+                        <ul className="mt-3 space-y-2 break-words text-sm leading-6">
                           {toKeyedItems(section.items).map((item) => (
                             <li key={`${section.title}-${item.key}`}>
                               {item.value}
@@ -763,11 +763,14 @@ export function AgentWorkbench({
                   </div>
 
                   {result.artifacts.map((artifact) => (
-                    <div className="rounded-lg border" key={artifact.label}>
+                    <div
+                      className="min-w-0 rounded-lg border"
+                      key={artifact.label}
+                    >
                       <div className="border-b px-4 py-3">
                         <p className="font-semibold">{artifact.label}</p>
                       </div>
-                      <pre className="max-h-72 overflow-auto p-4 text-sm leading-6 whitespace-pre-wrap">
+                      <pre className="max-h-72 overflow-auto break-words p-4 text-sm leading-6 whitespace-pre-wrap">
                         {artifact.content}
                       </pre>
                     </div>

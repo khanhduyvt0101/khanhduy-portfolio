@@ -28,6 +28,7 @@ export type AgentIconKey =
   | "finance"
   | "gauge"
   | "prompt"
+  | "receipt"
   | "schema"
   | "shopping"
   | "summary"
@@ -461,6 +462,67 @@ const agentDefinitions = [
     executionMode: "deterministic-first",
     systemPrompt:
       "You are a subscription and recurring bill audit agent. Use only the provided charges. Estimate monthly and annual impact, identify keep/review/cancel candidates, and create practical reminders. Do not provide investment or legal advice.",
+  },
+  {
+    id: "return-warranty",
+    name: "Return & Warranty Agent",
+    tagline:
+      "Turn receipts and purchase notes into return deadlines, warranty watchlists, and claim prep.",
+    description:
+      "Paste receipts, order emails, purchase lists, or product notes. The agent extracts purchase dates, merchants, item names, return windows, warranty periods, missing proof, and next actions before deadlines quietly pass.",
+    icon: "receipt",
+    inputs: ["text", "file"],
+    outputs: ["checklist", "csv", "json", "report", "table"],
+    workflows: [
+      {
+        label: "Return window triage",
+        description: "Find what must be returned, tested, or decided soon.",
+        prompt:
+          "Find return windows that are closing soon. Separate decide-now items, safe-to-wait items, and expired items. Include proof to gather before returning.",
+      },
+      {
+        label: "Warranty watchlist",
+        description: "Track coverage end dates and claim prep.",
+        prompt:
+          "Build a warranty watchlist. Estimate warranty deadlines from the notes, flag missing serial numbers or receipts, and create claim-prep tasks.",
+      },
+      {
+        label: "Receipt cleanup",
+        description: "Normalize purchases for a searchable archive.",
+        prompt:
+          "Normalize these purchase notes into merchant, item, date, amount, return deadline, warranty deadline, and next action rows.",
+      },
+    ],
+    runtime: "hybrid",
+    modelProfile: "fast",
+    privacy: "Local first",
+    status: "Browser AI boosted",
+    useCases: [
+      "Return deadline tracking",
+      "Warranty claim prep",
+      "Receipt organization",
+    ],
+    stack: [
+      "Chrome Prompt API",
+      "Receipt parser",
+      "Deadline heuristics",
+      "Reminder CSV export",
+      ...modelStack("fast"),
+    ],
+    promptLabel: "Return or warranty goal",
+    promptPlaceholder:
+      "Example: find items to return this week, track 1-year warranties, and list missing receipts or serial numbers.",
+    inputLabel: "Receipts, orders, and purchase notes",
+    inputPlaceholder:
+      "Paste receipt lines, order emails, purchase dates, amounts, store names, warranty notes, return policies, serial numbers, and condition notes...",
+    samplePrompt:
+      "Find return windows closing soon, warranty items to test, and reminders I should add.",
+    sampleInput:
+      "Apple Store - AirPods Pro - purchased May 8, 2026 - $249 - 14 day return - 1 year warranty - serial saved\nTarget blender $89.99 bought 05/03/2026, 90-day return, box in closet, receipt email saved\nAmazon standing desk mat $42 purchased 2026-04-28, 30 day return, maybe too small\nBest Buy monitor $399 bought Apr 12 2026, 30-day return expired, 1-year warranty, need serial number\nIKEA lamp $34.99 bought 5/18/26, no receipt photo yet, test bulb before keeping",
+    acceptedFiles: ".txt,.csv,.tsv,.md,.log",
+    executionMode: "deterministic-first",
+    systemPrompt:
+      "You are a return and warranty organization agent. Use only the provided purchase notes and conservative policy assumptions. Extract deadlines, proof gaps, reminder rows, and claim-prep tasks. Do not provide legal advice; tell users to verify merchant policies and consumer rights before acting.",
   },
   {
     id: "pantry-meal-planner",
