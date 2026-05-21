@@ -27,6 +27,7 @@ export type AgentIconKey =
   | "file"
   | "finance"
   | "gauge"
+  | "home"
   | "prompt"
   | "receipt"
   | "schema"
@@ -523,6 +524,67 @@ const agentDefinitions = [
     executionMode: "deterministic-first",
     systemPrompt:
       "You are a return and warranty organization agent. Use only the provided purchase notes and conservative policy assumptions. Extract deadlines, proof gaps, reminder rows, and claim-prep tasks. Do not provide legal advice; tell users to verify merchant policies and consumer rights before acting.",
+  },
+  {
+    id: "home-maintenance",
+    name: "Home Maintenance Agent",
+    tagline:
+      "Turn scattered upkeep notes into a due-date plan for filters, appliances, chores, and repairs.",
+    description:
+      "Paste household notes, appliance lists, filter sizes, last-done dates, seasonal tasks, repair history, or shared chores. The agent infers recurring upkeep intervals, calculates next due dates, prioritizes overdue work, and exports a checklist, calendar rows, supply list, and JSON tracker.",
+    icon: "home",
+    inputs: ["text", "file"],
+    outputs: ["checklist", "csv", "json", "report", "table"],
+    workflows: [
+      {
+        label: "Home upkeep reset",
+        description: "Create one sorted list of overdue and upcoming tasks.",
+        prompt:
+          "Build a home maintenance plan. Use last-done dates when present, infer reasonable intervals for filters and seasonal tasks, and prioritize overdue or due-soon work.",
+      },
+      {
+        label: "Filter and supply tracker",
+        description: "Extract sizes, supplies, and replacement cadence.",
+        prompt:
+          "Find every filter, battery, bulb, cleaner, part, and supply. Return sizes or specs, next due dates, and what to buy before the next maintenance session.",
+      },
+      {
+        label: "Shared weekend plan",
+        description: "Batch small upkeep tasks into practical work sessions.",
+        prompt:
+          "Turn these household maintenance notes into a practical weekend plan. Group tasks by room or asset, keep urgent items first, and make calendar-ready reminders.",
+      },
+    ],
+    runtime: "hybrid",
+    modelProfile: "fast",
+    privacy: "Local first",
+    status: "Browser AI boosted",
+    useCases: [
+      "Home maintenance reminders",
+      "Filter replacement tracking",
+      "Household upkeep planning",
+    ],
+    stack: [
+      "Chrome Prompt API",
+      "Asset parser",
+      "Recurring interval heuristics",
+      "Calendar CSV export",
+      ...modelStack("fast"),
+    ],
+    promptLabel: "Maintenance goal",
+    promptPlaceholder:
+      "Example: prioritize overdue tasks, track filter sizes, and create reminders from actual last-done dates.",
+    inputLabel: "Home, appliance, filter, and upkeep notes",
+    inputPlaceholder:
+      "Paste HVAC filters, appliance tasks, chores, last-done dates, due dates, filter sizes, repair notes, supply names, rooms, and seasonal upkeep...",
+    samplePrompt:
+      "Make a low-noise maintenance plan, calculate next due dates from when tasks were actually completed, and list supplies to buy.",
+    sampleInput:
+      "HVAC filter 20x25x1 last changed Apr 10, 2026, replace every 90 days\nClean dryer vent last done January 15, every 6 months\nTest smoke detectors and replace AA batteries annually, last done 2025-09-01\nFlush water heater yearly, last done 2025-05-20\nClean gutters spring and fall, last done Nov 2025\nRefrigerator coils last cleaned 2026-02-10\nWasher self-clean cycle monthly, done May 1\nBathroom fan is noisy, check screws this weekend\nBuy furnace filters and AA batteries before next maintenance day",
+    acceptedFiles: ".txt,.csv,.tsv,.md,.log",
+    executionMode: "deterministic-first",
+    systemPrompt:
+      "You are a home maintenance organization agent. Use only the provided home notes plus conservative maintenance heuristics. Extract assets, recurring tasks, last-done dates, due dates, supplies, and practical next actions. Do not provide electrical, plumbing, structural, legal, or safety-critical repair instructions; mark those as verify with a qualified professional.",
   },
   {
     id: "pantry-meal-planner",

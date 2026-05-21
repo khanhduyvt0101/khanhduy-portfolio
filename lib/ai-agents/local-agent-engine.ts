@@ -150,6 +150,31 @@ type ReturnWarrantyItem = {
   warrantyMonths: number;
 };
 
+type MaintenanceCadence =
+  | "annual"
+  | "monthly"
+  | "quarterly"
+  | "seasonal"
+  | "semiannual"
+  | "unknown"
+  | "weekly";
+
+type MaintenanceStatus = "due-soon" | "needs-info" | "overdue" | "scheduled";
+
+type MaintenanceTask = {
+  asset: string;
+  cadence: MaintenanceCadence;
+  category: string;
+  confidence: "high" | "low" | "medium";
+  lastDone: string;
+  nextDue: string;
+  notes: string[];
+  raw: string;
+  status: MaintenanceStatus;
+  supplies: string[];
+  task: string;
+};
+
 const actionWords = [
   "need",
   "please",
@@ -207,6 +232,8 @@ export function runLocalAgent({
       return runEmailDigest(input, userPrompt);
     case "file-to-data":
       return runFileToData(input, userPrompt);
+    case "home-maintenance":
+      return runHomeMaintenance(input, userPrompt);
     case "json-schema":
       return runJsonSchema(input, userPrompt);
     case "pantry-meal-planner":
@@ -959,6 +986,115 @@ function runReturnWarranty(input: string, userPrompt: string): AgentRunResult {
         label: "Reminder import CSV",
         language: "csv",
         content: rowsToCsv(returnWarrantyReminderRows(sortedItems)),
+      },
+    ],
+  };
+}
+
+function runHomeMaintenance(input: string, userPrompt: string): AgentRunResult {
+  const tasks = parseMaintenanceTasks(input);
+  const sortedTasks = [...tasks].sort(compareMaintenanceTasks);
+  const overdueTasks = sortedTasks.filter((task) => task.status === "overdue");
+  const dueSoonTasks = sortedTasks.filter((task) => task.status === "due-soon");
+  const scheduledTasks = sortedTasks.filter(
+    (task) => task.status === "scheduled",
+  );
+  const needsInfoTasks = sortedTasks.filter(
+    (task) => task.status === "needs-info",
+  );
+  const supplies = maintenanceSupplyRows(sortedTasks);
+  const categories = countMaintenanceCategories(sortedTasks);
+  const today = new Date();
+
+  return {
+    title: "Home maintenance plan",
+    summary:
+      sortedTasks.length > 0
+        ? `Organized ${sortedTasks.length} upkeep task${sortedTasks.length === 1 ? "" : "s"} with ${overdueTasks.length} overdue and ${dueSoonTasks.length} due within 14 days.`
+        : "No maintenance tasks were detected. Paste lines with assets, upkeep tasks, last-done dates, due dates, or repeat intervals.",
+    sections: [
+      {
+        title: "Planning request",
+        items: [
+          userPrompt ||
+            "Build a low-noise maintenance plan from actual last-done dates and recurring intervals.",
+          `Run date: ${formatReturnDate(today)}.`,
+          "Local fallback uses pasted notes plus conservative upkeep intervals for common filters, appliances, seasonal chores, and safety checks.",
+        ],
+      },
+      {
+        title: "Do first",
+        items: [...overdueTasks, ...dueSoonTasks].length
+          ? [...overdueTasks, ...dueSoonTasks]
+              .slice(0, 10)
+              .map(formatMaintenanceLine)
+          : [
+              "No overdue or due-soon maintenance detected from the current notes.",
+            ],
+      },
+      {
+        title: "Upcoming schedule",
+        items: scheduledTasks.length
+          ? scheduledTasks.slice(0, 10).map(formatMaintenanceLine)
+          : ["No future maintenance schedule could be calculated yet."],
+      },
+      {
+        title: "Missing details",
+        items: needsInfoTasks.length
+          ? needsInfoTasks.slice(0, 8).map(formatMaintenanceLine)
+          : [
+              "Every detected task has enough date or interval detail for a first schedule.",
+            ],
+      },
+      {
+        title: "Supplies to stage",
+        items: supplies.length
+          ? supplies
+              .slice(0, 10)
+              .map(
+                (row) =>
+                  `${row.supply} - used by ${row.assets}; next needed ${row.next_due}.`,
+              )
+          : [
+              "No filter size, battery, bulb, cleaner, or replacement part was detected. Add supply names or sizes to improve the next run.",
+            ],
+      },
+      {
+        title: "Home snapshot",
+        items: [
+          `${categories.filters} filter task(s), ${categories.appliances} appliance task(s), ${categories.safety} safety task(s), ${categories.seasonal} seasonal task(s), ${categories.cleaning} cleaning task(s).`,
+          "For electrical, plumbing, structural, gas, roof, or safety-critical repairs, treat this as an organizer and verify with a qualified professional.",
+        ],
+      },
+    ],
+    artifacts: [
+      {
+        label: "Maintenance checklist",
+        language: "markdown",
+        content: maintenanceChecklistMarkdown(sortedTasks),
+      },
+      {
+        label: "Maintenance calendar CSV",
+        language: "csv",
+        content: rowsToCsv(maintenanceCalendarRows(sortedTasks)),
+      },
+      {
+        label: "Supply list CSV",
+        language: "csv",
+        content: rowsToCsv(supplies),
+      },
+      {
+        label: "Home maintenance tracker JSON",
+        language: "json",
+        content: JSON.stringify(
+          {
+            run_date: formatReturnDate(today),
+            request: userPrompt || null,
+            tasks: sortedTasks,
+          },
+          null,
+          2,
+        ),
       },
     ],
   };
@@ -3490,6 +3626,632 @@ function returnWarrantyChecklistMarkdown(items: ReturnWarrantyItem[]) {
     "- Verify the merchant return policy and refund method.",
     "- Keep copies of receipts, order emails, serial numbers, and support messages.",
     "- For legal or consumer-rights disputes, use official consumer-protection guidance instead of this tool.",
+  ].join("\n");
+}
+
+function parseMaintenanceTasks(input: string): MaintenanceTask[] {
+  const lines = cleanLines(input);
+  const lineTasks = lines
+    .map(parseMaintenanceLine)
+    .filter((task): task is MaintenanceTask => Boolean(task));
+
+  if (lineTasks.length > 0) {
+    return lineTasks;
+  }
+
+  return parseRows(input)
+    .map(maintenanceFromRow)
+    .filter((task): task is MaintenanceTask => Boolean(task));
+}
+
+function parseMaintenanceLine(line: string): MaintenanceTask | null {
+  if (!isLikelyMaintenanceLine(line)) {
+    return null;
+  }
+
+  const task = inferMaintenanceTaskName(line);
+  const asset = inferMaintenanceAsset(line, task);
+  const category = inferMaintenanceCategory(line, asset, task);
+  const cadence = inferMaintenanceCadence(line, category, task);
+  const lastDoneDate = inferMaintenanceLastDone(line);
+  const explicitDueDate = inferMaintenanceDueDate(line);
+  const nextDueDate =
+    explicitDueDate ?? nextMaintenanceDate(lastDoneDate, cadence);
+  const supplies = inferMaintenanceSupplies(line);
+  const notes = inferMaintenanceNotes(line, category);
+
+  return {
+    asset,
+    cadence,
+    category,
+    confidence:
+      explicitDueDate || (lastDoneDate && cadence !== "unknown")
+        ? "high"
+        : cadence === "unknown"
+          ? "low"
+          : "medium",
+    lastDone: lastDoneDate ? formatReturnDate(lastDoneDate) : "unknown",
+    nextDue: nextDueDate ? formatReturnDate(nextDueDate) : "unknown",
+    notes,
+    raw: line,
+    status: inferMaintenanceStatus(nextDueDate, cadence, lastDoneDate),
+    supplies,
+    task,
+  };
+}
+
+function maintenanceFromRow(row: DataRow): MaintenanceTask | null {
+  const entries = Object.entries(row);
+  const text = entries.map(([, value]) => String(value ?? "")).join(" ");
+
+  if (!isLikelyMaintenanceLine(text)) {
+    return null;
+  }
+
+  const taskEntry = entries.find(([key]) =>
+    /task|maintenance|chore|job|action/i.test(key),
+  );
+  const assetEntry = entries.find(([key]) =>
+    /asset|room|appliance|system|item|name/i.test(key),
+  );
+  const dueEntry = entries.find(([key]) => /due|next|deadline/i.test(key));
+  const lastDoneEntry = entries.find(([key]) =>
+    /last|done|completed|changed|cleaned|replaced/i.test(key),
+  );
+  const task =
+    taskEntry && String(taskEntry[1]).trim()
+      ? String(taskEntry[1]).trim()
+      : inferMaintenanceTaskName(text);
+  const asset =
+    assetEntry && String(assetEntry[1]).trim()
+      ? String(assetEntry[1]).trim()
+      : inferMaintenanceAsset(text, task);
+  const category = inferMaintenanceCategory(text, asset, task);
+  const cadence = inferMaintenanceCadence(text, category, task);
+  const lastDoneDate =
+    lastDoneEntry && String(lastDoneEntry[1]).trim()
+      ? parseLooseDate(String(lastDoneEntry[1]))
+      : inferMaintenanceLastDone(text);
+  const explicitDueDate =
+    dueEntry && String(dueEntry[1]).trim()
+      ? parseLooseDate(String(dueEntry[1]))
+      : inferMaintenanceDueDate(text);
+  const nextDueDate =
+    explicitDueDate ?? nextMaintenanceDate(lastDoneDate, cadence);
+
+  return {
+    asset,
+    cadence,
+    category,
+    confidence:
+      explicitDueDate || (lastDoneDate && cadence !== "unknown")
+        ? "medium"
+        : cadence === "unknown"
+          ? "low"
+          : "medium",
+    lastDone: lastDoneDate ? formatReturnDate(lastDoneDate) : "unknown",
+    nextDue: nextDueDate ? formatReturnDate(nextDueDate) : "unknown",
+    notes: inferMaintenanceNotes(text, category),
+    raw: JSON.stringify(row),
+    status: inferMaintenanceStatus(nextDueDate, cadence, lastDoneDate),
+    supplies: inferMaintenanceSupplies(text),
+    task,
+  };
+}
+
+function isLikelyMaintenanceLine(text: string) {
+  return /\b(filter|hvac|furnace|air purifier|water heater|dryer|vent|gutter|roof|smoke|detector|battery|appliance|washer|dishwasher|refrigerator|fridge|coil|clean|replace|changed|flush|inspect|service|repair|maintenance|monthly|quarterly|annual|annually|yearly|season|spring|fall|autumn|winter|summer|last done|last changed|due)\b/i.test(
+    text,
+  );
+}
+
+function inferMaintenanceTaskName(text: string) {
+  const cleaned = cleanupPurchaseLabel(
+    text
+      .replace(
+        /\b(?:last|done|changed|replaced|cleaned|serviced|completed|due|next)\b.*$/i,
+        "",
+      )
+      .replace(/\b(?:every|monthly|quarterly|annually|annual|yearly)\b.*$/i, "")
+      .replace(
+        /\b(?:spring|summer|fall|autumn|winter)(?:\s+and\s+(?:spring|summer|fall|autumn|winter))*\b/gi,
+        "",
+      )
+      .replace(/\b\d{1,2}x\d{1,2}x\d{1,2}\b/gi, "")
+      .replace(/\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/g, "")
+      .replace(/[,\s-]+$/g, "")
+      .replace(/\s+/g, " "),
+  );
+
+  if (cleaned) {
+    return titleCase(cleaned);
+  }
+
+  if (/\bfilter\b/i.test(text)) {
+    return "Replace Filter";
+  }
+
+  if (/\bclean\b/i.test(text)) {
+    return "Clean Asset";
+  }
+
+  if (/\binspect|check|test\b/i.test(text)) {
+    return "Inspect Asset";
+  }
+
+  return "Maintenance Task";
+}
+
+function inferMaintenanceAsset(text: string, task: string) {
+  const combined = `${text} ${task}`;
+
+  const knownAssets = [
+    "HVAC",
+    "furnace",
+    "air purifier",
+    "water heater",
+    "dryer vent",
+    "dryer",
+    "gutter",
+    "smoke detector",
+    "carbon monoxide detector",
+    "refrigerator",
+    "fridge",
+    "washer",
+    "washing machine",
+    "dishwasher",
+    "bathroom fan",
+    "range hood",
+    "roof",
+    "sump pump",
+    "car",
+  ];
+
+  const asset = knownAssets.find((knownAsset) =>
+    new RegExp(`\\b${escapeRegExp(knownAsset)}s?\\b`, "i").test(combined),
+  );
+
+  if (asset) {
+    return titleCase(asset);
+  }
+
+  const beforeDash = text.split(/\s+-\s+|:/)[0]?.trim();
+  return cleanupPurchaseLabel(beforeDash || task).slice(0, 80) || "Home";
+}
+
+function inferMaintenanceCategory(text: string, asset: string, task: string) {
+  const combined = `${text} ${asset} ${task}`.toLowerCase();
+
+  if (/\b(filter|hvac|furnace|air purifier|water filter)\b/.test(combined)) {
+    return "filters";
+  }
+
+  if (/\b(smoke|carbon monoxide|detector|battery|alarm)\b/.test(combined)) {
+    return "safety";
+  }
+
+  if (
+    /\b(gutter|roof|spring|fall|autumn|winter|summer|season)\b/.test(combined)
+  ) {
+    return "seasonal";
+  }
+
+  if (
+    /\b(dryer|washer|dishwasher|refrigerator|fridge|water heater|appliance)\b/.test(
+      combined,
+    )
+  ) {
+    return "appliances";
+  }
+
+  if (/\b(clean|dust|wash|vent|coil|fan)\b/.test(combined)) {
+    return "cleaning";
+  }
+
+  if (
+    /\b(repair|noisy|leak|plumbing|electrical|gas|structural)\b/.test(combined)
+  ) {
+    return "repair review";
+  }
+
+  return "general upkeep";
+}
+
+function inferMaintenanceCadence(
+  text: string,
+  category: string,
+  task: string,
+): MaintenanceCadence {
+  const combined = `${text} ${category} ${task}`;
+  const explicit = combined.match(
+    /\bevery\s+(\d{1,3})\s*(day|days|week|weeks|month|months|year|years)\b/i,
+  );
+
+  if (explicit?.[1] && explicit[2]) {
+    return cadenceFromDays(
+      intervalToDays(Number(explicit[1]), explicit[2].toLowerCase()),
+    );
+  }
+
+  if (/\b(weekly|every week)\b/i.test(combined)) {
+    return "weekly";
+  }
+
+  if (/\b(monthly|every month)\b/i.test(combined)) {
+    return "monthly";
+  }
+
+  if (/\b(quarterly|every quarter|every 3 months|90 days)\b/i.test(combined)) {
+    return "quarterly";
+  }
+
+  if (
+    /\b(semiannual|semi-annual|twice a year|every 6 months|6 months)\b/i.test(
+      combined,
+    )
+  ) {
+    return "semiannual";
+  }
+
+  if (/\b(annual|annually|yearly|once a year|every year)\b/i.test(combined)) {
+    return "annual";
+  }
+
+  if (
+    /\b(spring|fall|autumn|winter|summer|seasonal|season)\b/i.test(combined)
+  ) {
+    return "seasonal";
+  }
+
+  if (category === "filters") {
+    return "quarterly";
+  }
+
+  if (category === "safety" || category === "appliances") {
+    return "annual";
+  }
+
+  if (category === "seasonal") {
+    return "semiannual";
+  }
+
+  if (category === "cleaning") {
+    return "monthly";
+  }
+
+  return "unknown";
+}
+
+function intervalToDays(value: number, unit: string) {
+  if (unit.startsWith("day")) {
+    return value;
+  }
+
+  if (unit.startsWith("week")) {
+    return value * 7;
+  }
+
+  if (unit.startsWith("month")) {
+    return value * 30;
+  }
+
+  return value * 365;
+}
+
+function cadenceFromDays(days: number): MaintenanceCadence {
+  if (days <= 10) {
+    return "weekly";
+  }
+
+  if (days <= 45) {
+    return "monthly";
+  }
+
+  if (days <= 120) {
+    return "quarterly";
+  }
+
+  if (days <= 240) {
+    return "semiannual";
+  }
+
+  return "annual";
+}
+
+function maintenanceCadenceDays(cadence: MaintenanceCadence) {
+  const days: Record<MaintenanceCadence, number | null> = {
+    annual: 365,
+    monthly: 30,
+    quarterly: 90,
+    seasonal: 180,
+    semiannual: 180,
+    unknown: null,
+    weekly: 7,
+  };
+
+  return days[cadence];
+}
+
+function inferMaintenanceLastDone(text: string) {
+  const explicit =
+    text.match(
+      /\b(?:last\s+(?:done|changed|replaced|cleaned|serviced|completed)|done|changed|replaced|cleaned|serviced|completed)\s*(?:on|:)?\s*([a-z]{3,9}\s+\d{1,2},?\s*\d{0,4}|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b/i,
+    )?.[1] ??
+    text.match(
+      /\blast\s+(?:spring|summer|fall|autumn|winter|month|week|year)\b/i,
+    )?.[0];
+
+  if (!explicit) {
+    return null;
+  }
+
+  return parseRelativeMaintenanceDate(explicit);
+}
+
+function inferMaintenanceDueDate(text: string) {
+  const explicit = text.match(
+    /\b(?:due|next|by)\s*(?:on|:)?\s*([a-z]{3,9}\s+\d{1,2},?\s*\d{0,4}|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b/i,
+  )?.[1];
+
+  return explicit ? parseLooseDate(explicit) : null;
+}
+
+function parseRelativeMaintenanceDate(value: string) {
+  const lower = value.toLowerCase();
+  const today = new Date();
+
+  if (lower === "last week") {
+    return addDateDays(today, -7);
+  }
+
+  if (lower === "last month") {
+    return addDateMonths(today, -1);
+  }
+
+  if (lower === "last year") {
+    return addDateMonths(today, -12);
+  }
+
+  if (lower.includes("spring")) {
+    return new Date(today.getFullYear() - 1, 3, 1);
+  }
+
+  if (lower.includes("summer")) {
+    return new Date(today.getFullYear() - 1, 6, 1);
+  }
+
+  if (lower.includes("fall") || lower.includes("autumn")) {
+    return new Date(today.getFullYear() - 1, 9, 1);
+  }
+
+  if (lower.includes("winter")) {
+    return new Date(today.getFullYear() - 1, 0, 1);
+  }
+
+  return parseLooseDate(value);
+}
+
+function nextMaintenanceDate(
+  lastDoneDate: Date | null,
+  cadence: MaintenanceCadence,
+) {
+  if (!lastDoneDate) {
+    return null;
+  }
+
+  const days = maintenanceCadenceDays(cadence);
+  return days ? addDateDays(lastDoneDate, days) : null;
+}
+
+function inferMaintenanceStatus(
+  nextDueDate: Date | null,
+  cadence: MaintenanceCadence,
+  lastDoneDate: Date | null,
+): MaintenanceStatus {
+  if (!nextDueDate) {
+    return cadence === "unknown" && !lastDoneDate ? "needs-info" : "scheduled";
+  }
+
+  const days = daysUntilDate(formatReturnDate(nextDueDate));
+
+  if (days === null) {
+    return "needs-info";
+  }
+
+  if (days < 0) {
+    return "overdue";
+  }
+
+  if (days <= 14) {
+    return "due-soon";
+  }
+
+  return "scheduled";
+}
+
+function inferMaintenanceSupplies(text: string) {
+  const supplies = new Set<string>();
+  const filterSize = text.match(/\b\d{1,2}x\d{1,2}x\d{1,2}\b/i)?.[0];
+
+  if (filterSize) {
+    supplies.add(`${filterSize} filter`);
+  }
+
+  const knownSupplies = [
+    "AA batteries",
+    "AAA batteries",
+    "9V battery",
+    "furnace filters",
+    "HVAC filter",
+    "water filter",
+    "air filter",
+    "bulb",
+    "cleaner",
+    "vinegar",
+    "descaler",
+    "screws",
+  ];
+
+  for (const supply of knownSupplies) {
+    if (new RegExp(`\\b${escapeRegExp(supply)}s?\\b`, "i").test(text)) {
+      supplies.add(titleCase(supply));
+    }
+  }
+
+  return Array.from(supplies);
+}
+
+function inferMaintenanceNotes(text: string, category: string) {
+  const notes: string[] = [];
+
+  if (
+    /\b(noisy|leak|smell|burning|sparking|mold|water damage|gas)\b/i.test(text)
+  ) {
+    notes.push(
+      "Potential repair or safety issue; do not treat this as DIY instructions.",
+    );
+  }
+
+  if (category === "repair review") {
+    notes.push(
+      "Capture photos, model numbers, warranty status, and contractor notes.",
+    );
+  }
+
+  if (/\b(filter|size|battery|supply|buy)\b/i.test(text)) {
+    notes.push("Stage supplies before the maintenance block.");
+  }
+
+  return notes.length
+    ? notes
+    : ["Use completion date as the source of truth for the next reminder."];
+}
+
+function compareMaintenanceTasks(
+  left: MaintenanceTask,
+  right: MaintenanceTask,
+) {
+  return (
+    maintenanceStatusRank(left.status) - maintenanceStatusRank(right.status) ||
+    nullableDaysUntil(left.nextDue) - nullableDaysUntil(right.nextDue) ||
+    left.asset.localeCompare(right.asset) ||
+    left.task.localeCompare(right.task)
+  );
+}
+
+function maintenanceStatusRank(status: MaintenanceStatus) {
+  const ranks: Record<MaintenanceStatus, number> = {
+    overdue: 0,
+    "due-soon": 1,
+    "needs-info": 2,
+    scheduled: 3,
+  };
+
+  return ranks[status];
+}
+
+function formatMaintenanceLine(task: MaintenanceTask) {
+  const due =
+    task.nextDue === "unknown"
+      ? "next due unknown"
+      : `${task.nextDue} (${task.status})`;
+  const supplyText = task.supplies.length
+    ? ` Supplies: ${task.supplies.join(", ")}.`
+    : "";
+
+  return `${task.asset}: ${task.task} - ${task.cadence}, last done ${task.lastDone}, ${due}.${supplyText} ${task.notes[0] ?? ""}`;
+}
+
+function maintenanceCalendarRows(tasks: MaintenanceTask[]): DataRow[] {
+  return tasks
+    .filter((task) => task.nextDue !== "unknown")
+    .map((task) => ({
+      Description: `${task.status}; ${task.category}; cadence ${task.cadence}; supplies ${task.supplies.join("; ") || "none detected"}`,
+      "Start Date": task.nextDue,
+      Subject: `${task.asset}: ${task.task}`,
+    }));
+}
+
+function maintenanceSupplyRows(tasks: MaintenanceTask[]): DataRow[] {
+  const bySupply = new Map<
+    string,
+    { assets: string[]; nextDue: string; supply: string; tasks: string[] }
+  >();
+
+  for (const task of tasks) {
+    for (const supply of task.supplies) {
+      const row = bySupply.get(supply) ?? {
+        assets: [],
+        nextDue: task.nextDue,
+        supply,
+        tasks: [],
+      };
+
+      row.assets.push(task.asset);
+      row.tasks.push(task.task);
+
+      if (
+        nullableDaysUntil(task.nextDue) < nullableDaysUntil(row.nextDue) ||
+        row.nextDue === "unknown"
+      ) {
+        row.nextDue = task.nextDue;
+      }
+
+      bySupply.set(supply, row);
+    }
+  }
+
+  return Array.from(bySupply.values()).map((row) => ({
+    assets: Array.from(new Set(row.assets)).join("; "),
+    next_due: row.nextDue,
+    supply: row.supply,
+    tasks: Array.from(new Set(row.tasks)).join("; "),
+  }));
+}
+
+function countMaintenanceCategories(tasks: MaintenanceTask[]) {
+  return {
+    appliances: tasks.filter((task) => task.category === "appliances").length,
+    cleaning: tasks.filter((task) => task.category === "cleaning").length,
+    filters: tasks.filter((task) => task.category === "filters").length,
+    safety: tasks.filter((task) => task.category === "safety").length,
+    seasonal: tasks.filter((task) => task.category === "seasonal").length,
+  };
+}
+
+function maintenanceChecklistMarkdown(tasks: MaintenanceTask[]) {
+  const actionable = tasks.filter((task) =>
+    ["overdue", "due-soon"].includes(task.status),
+  );
+  const scheduled = tasks.filter((task) => task.status === "scheduled");
+  const needsInfo = tasks.filter((task) => task.status === "needs-info");
+
+  return [
+    "## Do first",
+    ...(actionable.length
+      ? actionable.map((task) => `- [ ] ${formatMaintenanceLine(task)}`)
+      : ["- [ ] No overdue or due-soon task detected."]),
+    "",
+    "## Upcoming",
+    ...(scheduled.length
+      ? scheduled
+          .slice(0, 12)
+          .map((task) => `- [ ] ${formatMaintenanceLine(task)}`)
+      : ["- [ ] Add last-done dates to calculate future reminders."]),
+    "",
+    "## Add details",
+    ...(needsInfo.length
+      ? needsInfo.map(
+          (task) =>
+            `- [ ] ${task.asset}: add last-done date, due date, or interval for ${task.task}.`,
+        )
+      : [
+          "- [ ] Keep model numbers, supply sizes, manuals, and repair notes beside the asset record.",
+        ]),
+    "",
+    "## Verify before acting",
+    "- Use this as an organizer, not professional repair guidance.",
+    "- For electrical, plumbing, structural, gas, roof, or safety-critical work, verify with a qualified professional.",
   ].join("\n");
 }
 

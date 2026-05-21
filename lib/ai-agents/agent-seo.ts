@@ -16,6 +16,15 @@ const sharedAgentKeywords = [
 ];
 
 const agentKeywordOverrides: Record<string, string[]> = {
+  "home-maintenance": [
+    "home maintenance tracker",
+    "home maintenance reminder",
+    "filter replacement tracker",
+    "HVAC filter reminder",
+    "household upkeep checklist",
+    "appliance maintenance planner",
+    "seasonal home maintenance",
+  ],
   "pantry-meal-planner": [
     "pantry meal planner",
     "grocery list generator",

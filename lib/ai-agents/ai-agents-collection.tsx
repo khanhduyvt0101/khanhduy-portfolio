@@ -27,6 +27,8 @@ const aiAgentKeywords = [
   "AI data cleaner",
   "AI prompt builder",
   "AI JSON schema generator",
+  "AI home maintenance planner",
+  "home maintenance reminder",
   "private AI summarizer",
   "file to data AI",
   "private AI tools",
@@ -55,7 +57,7 @@ export function createAiAgentsCollectionMetadata(pageNumber = 1): Metadata {
       ? "Free Browser AI Agents for Email, Files and Data"
       : `Free Browser AI Agents - Page ${pageNumber}`,
     description: isFirstPage
-      ? "Run free browser AI agents for email summaries, file extraction, day planning, data cleaning, prompt building, private summarization, and JSON schema generation."
+      ? "Run free browser AI agents for email summaries, file extraction, day planning, home maintenance, data cleaning, prompt building, private summarization, and JSON schema generation."
       : `Page ${pageNumber} of ${pageCount}: browse free browser AI agents for private summaries, structured extraction, data cleanup, prompt building, and browser-first workflows.`,
     imageAlt: "Free browser AI agents by Khanh Duy",
     keywords: isFirstPage
@@ -129,10 +131,10 @@ export function AiAgentsCollectionPage({
             </h1>
             <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
               Paste text, upload supported files, and get summaries, cleaned
-              tables, JSON, schemas, reply drafts, and reusable prompts. Browser
-              AI runs when available; Hugging Face models run through Vercel AI
-              SDK when supported; a deterministic fallback keeps the agents
-              working.
+              tables, JSON, schemas, reply drafts, home maintenance plans, and
+              reusable prompts. Browser AI runs when available; Hugging Face
+              models run through Vercel AI SDK when supported; a deterministic
+              fallback keeps the agents working.
             </p>
           </div>
         </div>
