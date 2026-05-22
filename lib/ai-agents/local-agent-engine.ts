@@ -150,6 +150,40 @@ type ReturnWarrantyItem = {
   warrantyMonths: number;
 };
 
+type DocumentRenewalCategory =
+  | "education"
+  | "finance"
+  | "health"
+  | "housing"
+  | "identity"
+  | "insurance"
+  | "travel"
+  | "vehicle"
+  | "work"
+  | "other";
+
+type DocumentRenewalStatus =
+  | "expired"
+  | "missing-date"
+  | "renewal-window"
+  | "urgent"
+  | "watch";
+
+type DocumentRenewalItem = {
+  action: string;
+  category: DocumentRenewalCategory;
+  confidence: "high" | "low" | "medium";
+  daysUntilExpiry: number | null;
+  document: string;
+  expirationDate: string;
+  leadTimeDays: number;
+  owner: string;
+  proofNeeded: string[];
+  raw: string;
+  renewBy: string;
+  status: DocumentRenewalStatus;
+};
+
 type MaintenanceCadence =
   | "annual"
   | "monthly"
@@ -228,6 +262,8 @@ export function runLocalAgent({
       return runDataCleaner(input, userPrompt);
     case "day-planner":
       return runDayPlanner(input, userPrompt);
+    case "document-renewal":
+      return runDocumentRenewal(input, userPrompt);
     case "email-digest":
       return runEmailDigest(input, userPrompt);
     case "file-to-data":
@@ -986,6 +1022,140 @@ function runReturnWarranty(input: string, userPrompt: string): AgentRunResult {
         label: "Reminder import CSV",
         language: "csv",
         content: rowsToCsv(returnWarrantyReminderRows(sortedItems)),
+      },
+    ],
+  };
+}
+
+function runDocumentRenewal(input: string, userPrompt: string): AgentRunResult {
+  const documents = parseDocumentRenewalItems(input);
+  const sortedDocuments = [...documents].sort(compareDocumentRenewalItems);
+  const expiredDocuments = sortedDocuments.filter(
+    (document) => document.status === "expired",
+  );
+  const urgentDocuments = sortedDocuments.filter(
+    (document) => document.status === "urgent",
+  );
+  const renewalWindowDocuments = sortedDocuments.filter(
+    (document) => document.status === "renewal-window",
+  );
+  const watchDocuments = sortedDocuments.filter(
+    (document) => document.status === "watch",
+  );
+  const missingDateDocuments = sortedDocuments.filter(
+    (document) => document.status === "missing-date",
+  );
+  const travelSensitiveDocuments = sortedDocuments.filter(
+    (document) =>
+      document.category === "travel" &&
+      document.expirationDate !== "unknown" &&
+      (document.status === "urgent" ||
+        document.status === "renewal-window" ||
+        (document.daysUntilExpiry !== null && document.daysUntilExpiry <= 240)),
+  );
+  const proofRows = sortedDocuments.flatMap((document) =>
+    document.proofNeeded.map((proof) => `${document.document}: ${proof}`),
+  );
+  const today = new Date();
+
+  return {
+    title: "Document renewal plan",
+    summary:
+      sortedDocuments.length > 0
+        ? `Organized ${sortedDocuments.length} document${sortedDocuments.length === 1 ? "" : "s"} with ${expiredDocuments.length + urgentDocuments.length} expired or urgent renewal item${expiredDocuments.length + urgentDocuments.length === 1 ? "" : "s"} and ${renewalWindowDocuments.length} item${renewalWindowDocuments.length === 1 ? "" : "s"} inside the renewal window.`
+        : "No expiring document was detected. Paste document names with owners and expiration dates, such as passport expires 2026-11-15.",
+    sections: [
+      {
+        title: "Renewal request",
+        items: [
+          userPrompt ||
+            "Track important documents, avoid last-minute renewals, and create calendar reminders.",
+          `Run date: ${formatReturnDate(today)}.`,
+          "Local fallback uses only pasted notes plus conservative lead-time buffers. Verify official issuer requirements before acting.",
+        ],
+      },
+      {
+        title: "Handle first",
+        items: [...expiredDocuments, ...urgentDocuments].length
+          ? [...expiredDocuments, ...urgentDocuments]
+              .slice(0, 10)
+              .map(formatDocumentRenewalLine)
+          : ["No expired or urgent document renewal detected."],
+      },
+      {
+        title: "Renewal window",
+        items: renewalWindowDocuments.length
+          ? renewalWindowDocuments.slice(0, 10).map(formatDocumentRenewalLine)
+          : [
+              "No document is inside its conservative renewal window yet. Keep reminders active.",
+            ],
+      },
+      {
+        title: "Travel-sensitive",
+        items: travelSensitiveDocuments.length
+          ? travelSensitiveDocuments.slice(0, 8).map(formatDocumentRenewalLine)
+          : [
+              "No passport, visa, residency, or travel credential appears close to a conservative travel buffer.",
+            ],
+      },
+      {
+        title: "Proof to gather",
+        items: proofRows.length
+          ? proofRows.slice(0, 12)
+          : [
+              "No proof gap inferred. Still keep issuer pages, receipt emails, ID photos, and appointment confirmations together.",
+            ],
+      },
+      {
+        title: "Missing details",
+        items: missingDateDocuments.length
+          ? missingDateDocuments.slice(0, 8).map(formatDocumentRenewalLine)
+          : [
+              "Every detected document has enough date detail for a first renewal schedule.",
+            ],
+      },
+      {
+        title: "Stable records",
+        items: watchDocuments.length
+          ? watchDocuments.slice(0, 8).map(formatDocumentRenewalLine)
+          : [
+              "No long-range watch item detected. Add documents with expiry dates to build the tracker.",
+            ],
+      },
+    ],
+    artifacts: [
+      {
+        label: "Renewal checklist",
+        language: "markdown",
+        content: documentRenewalChecklistMarkdown(sortedDocuments),
+      },
+      {
+        label: "Renewal calendar CSV",
+        language: "csv",
+        content: rowsToCsv(documentRenewalCalendarRows(sortedDocuments)),
+      },
+      {
+        label: "Document tracker CSV",
+        language: "csv",
+        content: rowsToCsv(documentRenewalRows(sortedDocuments)),
+      },
+      {
+        label: "Reminder import CSV",
+        language: "csv",
+        content: rowsToCsv(documentRenewalReminderRows(sortedDocuments)),
+      },
+      {
+        label: "Document tracker JSON",
+        language: "json",
+        content: JSON.stringify(
+          {
+            run_date: formatReturnDate(today),
+            request: userPrompt || null,
+            documents: sortedDocuments,
+          },
+          null,
+          2,
+        ),
       },
     ],
   };
@@ -3626,6 +3796,539 @@ function returnWarrantyChecklistMarkdown(items: ReturnWarrantyItem[]) {
     "- Verify the merchant return policy and refund method.",
     "- Keep copies of receipts, order emails, serial numbers, and support messages.",
     "- For legal or consumer-rights disputes, use official consumer-protection guidance instead of this tool.",
+  ].join("\n");
+}
+
+function parseDocumentRenewalItems(input: string): DocumentRenewalItem[] {
+  const lines = cleanLines(input);
+  const lineItems = lines
+    .map(parseDocumentRenewalLine)
+    .filter((item): item is DocumentRenewalItem => Boolean(item));
+
+  if (lineItems.length > 0) {
+    return lineItems;
+  }
+
+  return parseRows(input)
+    .map(documentRenewalFromRow)
+    .filter((item): item is DocumentRenewalItem => Boolean(item));
+}
+
+function parseDocumentRenewalLine(line: string): DocumentRenewalItem | null {
+  if (!isLikelyDocumentRenewalLine(line)) {
+    return null;
+  }
+
+  const expirationDate = inferDocumentExpirationDate(line);
+  const document = inferDocumentName(line);
+  const category = inferDocumentCategory(line, document);
+  const owner = inferDocumentOwner(line);
+  const leadTimeDays = inferDocumentLeadTimeDays(category, line, document);
+  const renewByDate = expirationDate
+    ? addDateDays(expirationDate, -leadTimeDays)
+    : null;
+  const formattedExpirationDate = expirationDate
+    ? formatReturnDate(expirationDate)
+    : "unknown";
+  const formattedRenewByDate = renewByDate
+    ? formatReturnDate(renewByDate)
+    : "unknown";
+  const daysUntilExpiry = expirationDate
+    ? daysUntilDate(formattedExpirationDate)
+    : null;
+  const status = inferDocumentRenewalStatus({
+    expirationDate: formattedExpirationDate,
+    renewByDate: formattedRenewByDate,
+  });
+
+  return {
+    action: documentRenewalAction(status, formattedRenewByDate, category),
+    category,
+    confidence: expirationDate ? "high" : "low",
+    daysUntilExpiry,
+    document,
+    expirationDate: formattedExpirationDate,
+    leadTimeDays,
+    owner,
+    proofNeeded: inferDocumentProofNeeded(category, line, document),
+    raw: line,
+    renewBy: formattedRenewByDate,
+    status,
+  };
+}
+
+function documentRenewalFromRow(row: DataRow): DocumentRenewalItem | null {
+  const entries = Object.entries(row);
+  const text = entries.map(([, value]) => String(value ?? "")).join(" ");
+
+  if (!isLikelyDocumentRenewalLine(text)) {
+    return null;
+  }
+
+  const dateEntry = entries.find(([key]) =>
+    /expir|valid|renew|due|deadline/i.test(key),
+  );
+  const documentEntry = entries.find(([key]) =>
+    /document|credential|license|licence|name|type|item/i.test(key),
+  );
+  const ownerEntry = entries.find(([key]) =>
+    /owner|person|family|member|holder|traveler|traveller/i.test(key),
+  );
+  const expirationDate =
+    dateEntry && String(dateEntry[1]).trim()
+      ? parseLooseDate(String(dateEntry[1]))
+      : inferDocumentExpirationDate(text);
+  const document =
+    documentEntry && String(documentEntry[1]).trim()
+      ? String(documentEntry[1]).trim()
+      : inferDocumentName(text);
+  const category = inferDocumentCategory(text, document);
+  const owner =
+    ownerEntry && String(ownerEntry[1]).trim()
+      ? String(ownerEntry[1]).trim()
+      : inferDocumentOwner(text);
+  const leadTimeDays = inferDocumentLeadTimeDays(category, text, document);
+  const renewByDate = expirationDate
+    ? addDateDays(expirationDate, -leadTimeDays)
+    : null;
+  const formattedExpirationDate = expirationDate
+    ? formatReturnDate(expirationDate)
+    : "unknown";
+  const formattedRenewByDate = renewByDate
+    ? formatReturnDate(renewByDate)
+    : "unknown";
+  const status = inferDocumentRenewalStatus({
+    expirationDate: formattedExpirationDate,
+    renewByDate: formattedRenewByDate,
+  });
+
+  return {
+    action: documentRenewalAction(status, formattedRenewByDate, category),
+    category,
+    confidence: expirationDate ? "medium" : "low",
+    daysUntilExpiry: expirationDate
+      ? daysUntilDate(formattedExpirationDate)
+      : null,
+    document,
+    expirationDate: formattedExpirationDate,
+    leadTimeDays,
+    owner,
+    proofNeeded: inferDocumentProofNeeded(category, text, document),
+    raw: JSON.stringify(row),
+    renewBy: formattedRenewByDate,
+    status,
+  };
+}
+
+function isLikelyDocumentRenewalLine(text: string) {
+  return /\b(passport|driver'?s?\s+licen[cs]e|licen[cs]e|visa|id card|identity|residency|permit|green card|insurance|policy|vehicle registration|registration|inspection|certificate|certification|credential|lease|contract|membership|expires?|expiry|expiration|valid until|valid thru|renew|renewal|due)\b/i.test(
+    text,
+  );
+}
+
+function inferDocumentExpirationDate(text: string) {
+  const explicit =
+    text.match(
+      /\b(?:expires?|expiry|expiration|valid until|valid thru|valid through|renew(?:al)? due|renew by|due)\s*(?:on|:)?\s*([a-z]{3,9}\s+\d{1,2},?\s*\d{0,4}|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b/i,
+    )?.[1] ??
+    text.match(
+      /\b([a-z]{3,9}\s+\d{1,2},?\s*\d{0,4}|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b/i,
+    )?.[1];
+
+  return explicit ? parseLooseDate(explicit) : null;
+}
+
+function inferDocumentName(text: string) {
+  const explicit =
+    text.match(/\b(?:document|credential|item|type)\s*:\s*([^,\n-]+)/i)?.[1] ??
+    text.match(
+      /\b(passport|driver'?s?\s+licen[cs]e|visa|id card|identity card|residency permit|green card|insurance policy|vehicle registration|inspection|certificate|certification|lease|contract|membership)\b/i,
+    )?.[1];
+
+  if (explicit) {
+    return titleCase(cleanupDocumentLabel(explicit));
+  }
+
+  const beforeDate = text.split(
+    /\b(?:expires?|expiry|expiration|valid until|valid thru|valid through|renew(?:al)? due|renew by|due)\b/i,
+  )[0];
+  const cleaned = cleanupDocumentLabel(
+    beforeDate
+      .replace(/\b(?:for|owner|holder)\s+[A-Z][A-Za-z'-]+\b/g, "")
+      .replace(/\b(?:mom|dad|kid|child|spouse|partner|wife|husband)\b/gi, ""),
+  );
+
+  return cleaned ? titleCase(cleaned) : "Important document";
+}
+
+function cleanupDocumentLabel(value: string) {
+  return value
+    .replace(/^\s*[-*+]\s*/, "")
+    .replace(
+      /\b(?:expires?|expiry|expiration|valid|until|thru|through|renew|renewal|due|owner|holder|for|needs?|need|maybe|saved|not|yet)\b/gi,
+      "",
+    )
+    .replace(
+      /\b[a-z]{3,9}\s+\d{1,2},?\s*\d{0,4}|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/gi,
+      "",
+    )
+    .replace(/\s+/g, " ")
+    .replace(/^[\s:,-]+|[\s:,-]+$/g, "")
+    .trim()
+    .slice(0, 90);
+}
+
+function inferDocumentOwner(text: string) {
+  const explicit =
+    text.match(/\b(?:owner|holder|person|for)\s*:\s*([^,\n-]+)/i)?.[1] ??
+    text.match(/\b(?:for|owner|holder)\s+([A-Z][A-Za-z'-]{1,32})\b/)?.[1] ??
+    text.match(
+      /\b(Mom|Dad|Khanh|Kid|Child|Spouse|Partner|Wife|Husband|Son|Daughter)\b/,
+    )?.[1];
+
+  if (explicit) {
+    return cleanupDocumentLabel(explicit) || explicit.trim();
+  }
+
+  const possessive = text.match(/\b([A-Z][A-Za-z'-]{1,32})'?s\s+/)?.[1];
+  return possessive ?? "Unassigned";
+}
+
+function inferDocumentCategory(
+  text: string,
+  document: string,
+): DocumentRenewalCategory {
+  const combined = `${text} ${document}`.toLowerCase();
+
+  if (
+    /\b(passport|visa|residency|green card|global entry|travel)\b/.test(
+      combined,
+    )
+  ) {
+    return "travel";
+  }
+
+  if (
+    /\b(driver|id card|identity|state id|national id|permit)\b/.test(combined)
+  ) {
+    return "identity";
+  }
+
+  if (/\b(vehicle|registration|inspection|emissions|car)\b/.test(combined)) {
+    return "vehicle";
+  }
+
+  if (/\b(insurance|policy|coverage)\b/.test(combined)) {
+    return "insurance";
+  }
+
+  if (/\b(health|medical|vaccine|vaccination|immunization)\b/.test(combined)) {
+    return "health";
+  }
+
+  if (
+    /\b(certificate|certification|credential|professional|ce credit|license)\b/.test(
+      combined,
+    )
+  ) {
+    return "work";
+  }
+
+  if (/\b(lease|contract|rent|rental|landlord)\b/.test(combined)) {
+    return "housing";
+  }
+
+  if (/\b(student|school|university|education)\b/.test(combined)) {
+    return "education";
+  }
+
+  if (/\b(bank|credit card|debit card|finance|financial)\b/.test(combined)) {
+    return "finance";
+  }
+
+  return "other";
+}
+
+function inferDocumentLeadTimeDays(
+  category: DocumentRenewalCategory,
+  text: string,
+  document: string,
+) {
+  const combined = `${text} ${document}`.toLowerCase();
+  const explicit = combined.match(
+    /\b(?:remind|start|renew|ask|prepare)\D{0,20}(\d{1,3})\s*(?:day|days)\s*(?:before|early|ahead)\b/i,
+  );
+
+  if (explicit?.[1]) {
+    return Math.min(365, Math.max(1, Number(explicit[1])));
+  }
+
+  if (/\b(passport|visa|residency|green card)\b/.test(combined)) {
+    return 180;
+  }
+
+  if (
+    category === "work" ||
+    /\bprofessional|certificate|certification\b/.test(combined)
+  ) {
+    return 90;
+  }
+
+  if (category === "identity" || category === "health") {
+    return 60;
+  }
+
+  if (category === "housing") {
+    return 45;
+  }
+
+  if (category === "insurance" || category === "vehicle") {
+    return 30;
+  }
+
+  return 45;
+}
+
+function inferDocumentRenewalStatus({
+  expirationDate,
+  renewByDate,
+}: {
+  expirationDate: string;
+  renewByDate: string;
+}): DocumentRenewalStatus {
+  const daysUntilExpiry = daysUntilDate(expirationDate);
+  const daysUntilRenewBy = daysUntilDate(renewByDate);
+
+  if (daysUntilExpiry === null) {
+    return "missing-date";
+  }
+
+  if (daysUntilExpiry < 0) {
+    return "expired";
+  }
+
+  if (
+    daysUntilExpiry <= 30 ||
+    (daysUntilRenewBy !== null && daysUntilRenewBy <= 0)
+  ) {
+    return "urgent";
+  }
+
+  if (daysUntilRenewBy !== null && daysUntilRenewBy <= 60) {
+    return "renewal-window";
+  }
+
+  return "watch";
+}
+
+function documentRenewalAction(
+  status: DocumentRenewalStatus,
+  renewBy: string,
+  category: DocumentRenewalCategory,
+) {
+  if (status === "expired") {
+    return "Stop relying on this record until the issuer confirms renewal or replacement options.";
+  }
+
+  if (status === "urgent") {
+    return `Start renewal now; conservative renew-by date is ${renewBy}.`;
+  }
+
+  if (status === "renewal-window") {
+    return `Gather proof and schedule the renewal before ${renewBy}.`;
+  }
+
+  if (status === "missing-date") {
+    return "Add the expiration or renewal due date before trusting this tracker.";
+  }
+
+  return category === "travel"
+    ? `Keep a six-month travel buffer; next renewal prep date is ${renewBy}.`
+    : `Set a quiet reminder for ${renewBy}.`;
+}
+
+function inferDocumentProofNeeded(
+  category: DocumentRenewalCategory,
+  text: string,
+  document: string,
+) {
+  const combined = `${text} ${document}`.toLowerCase();
+  const proof = new Set<string>();
+
+  if (
+    !/\b(photo|scan|copy|receipt|saved|proof|card|letter|credits?)\b/i.test(
+      text,
+    )
+  ) {
+    proof.add(
+      "Add a safe note for where the current document or proof copy lives.",
+    );
+  }
+
+  if (category === "travel") {
+    proof.add(
+      "Verify issuer rules, current passport, photos, fees, and travel date buffer.",
+    );
+    if (/\bvisa|residency|green card\b/.test(combined)) {
+      proof.add(
+        "Collect sponsor, employment, school, residence, or appointment documents if required.",
+      );
+    }
+  }
+
+  if (category === "identity") {
+    proof.add(
+      "Check official renewal path, current ID, proof of address, and payment method.",
+    );
+  }
+
+  if (category === "vehicle") {
+    proof.add(
+      "Stage registration notice, insurance card, inspection or emissions proof, and payment.",
+    );
+  }
+
+  if (category === "insurance") {
+    proof.add(
+      "Review policy number, coverage changes, premium, and comparison quotes before renewal.",
+    );
+  }
+
+  if (category === "work") {
+    proof.add(
+      "Confirm license number, continuing education credits, renewal portal, and fee.",
+    );
+  }
+
+  if (category === "housing") {
+    proof.add(
+      "Confirm renewal terms, landlord contact, payment schedule, and signed-copy location.",
+    );
+  }
+
+  if (category === "health") {
+    proof.add(
+      "Verify official health, vaccine, or medical-card requirements with the issuer.",
+    );
+  }
+
+  return Array.from(proof).slice(0, 4);
+}
+
+function compareDocumentRenewalItems(
+  left: DocumentRenewalItem,
+  right: DocumentRenewalItem,
+) {
+  return (
+    documentRenewalStatusRank(left.status) -
+      documentRenewalStatusRank(right.status) ||
+    nullableDaysUntil(left.renewBy) - nullableDaysUntil(right.renewBy) ||
+    nullableDaysUntil(left.expirationDate) -
+      nullableDaysUntil(right.expirationDate) ||
+    left.document.localeCompare(right.document)
+  );
+}
+
+function documentRenewalStatusRank(status: DocumentRenewalStatus) {
+  const ranks: Record<DocumentRenewalStatus, number> = {
+    expired: 0,
+    urgent: 1,
+    "renewal-window": 2,
+    "missing-date": 3,
+    watch: 4,
+  };
+
+  return ranks[status];
+}
+
+function formatDocumentRenewalLine(document: DocumentRenewalItem) {
+  const days =
+    document.daysUntilExpiry === null
+      ? "unknown days"
+      : `${document.daysUntilExpiry} day${document.daysUntilExpiry === 1 ? "" : "s"}`;
+
+  return `${document.document} (${document.owner}, ${document.category}) - ${document.status}; expires ${document.expirationDate} (${days}); renew by ${document.renewBy}. ${document.action}`;
+}
+
+function documentRenewalRows(items: DocumentRenewalItem[]): DataRow[] {
+  return items.map((item) => ({
+    owner: item.owner,
+    document: item.document,
+    category: item.category,
+    expiration_date: item.expirationDate,
+    renew_by: item.renewBy,
+    lead_time_days: item.leadTimeDays,
+    days_until_expiry: item.daysUntilExpiry,
+    status: item.status,
+    action: item.action,
+    proof_needed: item.proofNeeded.join("; "),
+  }));
+}
+
+function documentRenewalCalendarRows(items: DocumentRenewalItem[]): DataRow[] {
+  return items
+    .filter((item) => item.renewBy !== "unknown")
+    .map((item) => ({
+      Description: `${item.action} Expires ${item.expirationDate}. Proof: ${item.proofNeeded.join("; ") || "none inferred"}`,
+      "Start Date": item.renewBy,
+      Subject: `Start renewal: ${item.document}`,
+    }));
+}
+
+function documentRenewalReminderRows(items: DocumentRenewalItem[]): DataRow[] {
+  return items.flatMap((item) => {
+    if (item.expirationDate === "unknown") {
+      return [];
+    }
+
+    const rows: DataRow[] = [];
+
+    if (item.renewBy !== "unknown") {
+      rows.push({
+        Description: `${item.owner}: ${item.action}`,
+        "Start Date": item.renewBy,
+        Subject: `Renewal prep: ${item.document}`,
+      });
+    }
+
+    rows.push({
+      Description: `${item.owner}: final expiry check. Verify renewal status with the issuer.`,
+      "Start Date": item.expirationDate,
+      Subject: `Expires: ${item.document}`,
+    });
+
+    return rows;
+  });
+}
+
+function documentRenewalChecklistMarkdown(items: DocumentRenewalItem[]) {
+  const urgent = items.filter((item) =>
+    ["expired", "urgent"].includes(item.status),
+  );
+  const prep = items.filter((item) => item.status === "renewal-window");
+
+  return [
+    "## Renew now",
+    ...(urgent.length
+      ? urgent.map((item) => `- [ ] ${formatDocumentRenewalLine(item)}`)
+      : ["- [ ] No expired or urgent document detected."]),
+    "",
+    "## Prepare next",
+    ...(prep.length
+      ? prep.map((item) => `- [ ] ${formatDocumentRenewalLine(item)}`)
+      : ["- [ ] No document is inside its conservative renewal window."]),
+    "",
+    "## Proof to gather",
+    ...items
+      .flatMap((item) =>
+        item.proofNeeded.map((proof) => `- [ ] ${item.document}: ${proof}`),
+      )
+      .slice(0, 16),
+    "",
+    "## Before acting",
+    "- Verify official issuer requirements, fees, lead times, eligibility, and appointment rules.",
+    "- Avoid storing full document numbers in shared notes unless the storage location is secure.",
+    "- For immigration, legal, insurance, or government-policy questions, use the official issuer or a qualified professional.",
   ].join("\n");
 }
 

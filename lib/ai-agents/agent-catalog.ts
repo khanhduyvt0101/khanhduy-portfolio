@@ -526,6 +526,67 @@ const agentDefinitions = [
       "You are a return and warranty organization agent. Use only the provided purchase notes and conservative policy assumptions. Extract deadlines, proof gaps, reminder rows, and claim-prep tasks. Do not provide legal advice; tell users to verify merchant policies and consumer rights before acting.",
   },
   {
+    id: "document-renewal",
+    name: "Document Renewal Agent",
+    tagline:
+      "Turn passports, IDs, licenses, visas, and insurance dates into a renewal plan.",
+    description:
+      "Paste document notes for yourself or your family. The agent extracts expiration dates, owners, document types, renewal lead time, proof to gather, and calendar-ready reminders before quiet deadlines become urgent.",
+    icon: "file",
+    inputs: ["text", "file"],
+    outputs: ["checklist", "csv", "json", "report", "table"],
+    workflows: [
+      {
+        label: "Family document audit",
+        description: "Track passports, IDs, licenses, and cards by person.",
+        prompt:
+          "Audit these family documents. Prioritize expired and soon-expiring items, separate each owner, and create renewal reminders with enough lead time.",
+      },
+      {
+        label: "Travel readiness",
+        description: "Catch passport and visa lead-time problems early.",
+        prompt:
+          "Check passport, visa, residency, and travel document readiness. Use a conservative six-month passport buffer and list what to verify before booking travel.",
+      },
+      {
+        label: "Renewal paperwork prep",
+        description: "List proof, appointment, and online-renewal tasks.",
+        prompt:
+          "Build a renewal prep checklist. For each document, list proof to gather, likely renewal path, reminder dates, and details missing from the notes.",
+      },
+    ],
+    runtime: "hybrid",
+    modelProfile: "fast",
+    privacy: "Local first",
+    status: "Browser AI boosted",
+    useCases: [
+      "Document expiration tracking",
+      "Passport and ID renewal",
+      "Family admin reminders",
+    ],
+    stack: [
+      "Chrome Prompt API",
+      "Expiration parser",
+      "Renewal lead-time heuristics",
+      "Calendar CSV export",
+      ...modelStack("fast"),
+    ],
+    promptLabel: "Renewal planning goal",
+    promptPlaceholder:
+      "Example: track family passports and licenses, use a six-month travel buffer, and make reminder rows.",
+    inputLabel: "Document, credential, and renewal notes",
+    inputPlaceholder:
+      "Paste passports, IDs, driver's licenses, visas, insurance policies, vehicle registrations, certificates, leases, owners, expiry dates, renewal notes, and proof gaps...",
+    samplePrompt:
+      "Build a family renewal tracker, flag anything urgent, and create calendar reminders before official deadlines.",
+    sampleInput:
+      "Khanh passport expires 2026-11-15, travel planned in September, photo not taken yet\nDriver license for Khanh expires July 3, 2026, can renew online maybe\nMom visa valid until 2026-08-20, needs sponsor letter and passport scan\nCar registration expires 06/30/2026, insurance card saved, inspection due first\nApartment lease renewal due 2026-07-10, ask landlord 45 days before\nProfessional certification expires Dec 15 2026, needs 8 CE credits",
+    acceptedFiles: ".txt,.csv,.tsv,.md,.log",
+    executionMode: "deterministic-first",
+    systemPrompt:
+      "You are a document renewal organization agent. Use only the provided document notes plus conservative renewal lead-time heuristics. Extract owners, document types, expiration dates, renewal prep tasks, proof gaps, and reminder rows. Do not provide legal, immigration, insurance, or government-policy advice; tell users to verify official issuer requirements before acting.",
+  },
+  {
     id: "home-maintenance",
     name: "Home Maintenance Agent",
     tagline:

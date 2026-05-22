@@ -16,6 +16,15 @@ const sharedAgentKeywords = [
 ];
 
 const agentKeywordOverrides: Record<string, string[]> = {
+  "document-renewal": [
+    "document renewal tracker",
+    "document expiration reminder",
+    "passport renewal reminder",
+    "driver license renewal tracker",
+    "visa expiration tracker",
+    "family document organizer",
+    "insurance renewal reminder",
+  ],
   "home-maintenance": [
     "home maintenance tracker",
     "home maintenance reminder",
