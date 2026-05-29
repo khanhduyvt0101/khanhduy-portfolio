@@ -4,3 +4,4 @@
 .env*.local
 .DS_Store
 .vercel
+/test-results
