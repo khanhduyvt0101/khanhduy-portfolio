@@ -10,10 +10,10 @@ export const contentType = ogImageContentType;
 
 export default function Image() {
   return createOgImage({
-    title: "Free AI Agents",
-    eyebrow: "Browser AI",
+    title: "Free Browser AI Agents",
+    eyebrow: "Khanh Duy Workbench",
     description:
-      "Run useful agents for email summaries, file extraction, data cleanup, prompt building, and JSON schemas.",
-    kind: "AI Agent Shelf",
+      "Run agents for summaries, extraction, planning, data cleaning, prompt building, and JSON schema generation.",
+    kind: "Workbench",
   });
 }

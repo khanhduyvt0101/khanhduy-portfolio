@@ -31,13 +31,18 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "www.chatacademia.com",
-        pathname: "/og.png",
+        hostname: "lofihood.com",
+        pathname: "/opengraph-image.png",
       },
       {
         protocol: "https",
-        hostname: "www.pdfvector.com",
-        pathname: "/og.png",
+        hostname: "spotterfuel.com",
+        pathname: "/opengraph-image",
+      },
+      {
+        protocol: "https",
+        hostname: "campuscue.app",
+        pathname: "/opengraph-image",
       },
     ],
   },

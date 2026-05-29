@@ -10,10 +10,10 @@ export const contentType = ogImageContentType;
 
 export default function Image() {
   return createOgImage({
-    title: "Free Tools Gallery",
-    eyebrow: "Browser Utilities",
+    title: "Free Browser Tools",
+    eyebrow: "Khanh Duy Workbench",
     description:
-      "QR codes, JSON formatting, images, PDFs, colors, timestamps, passwords, and more.",
-    kind: "Free Tools",
+      "Private browser utilities for developer work, images, PDFs, text cleanup, colors, timestamps, and everyday tasks.",
+    kind: "Workbench",
   });
 }

@@ -1,16 +1,26 @@
 import { IconBrandGithub } from "@tabler/icons-react";
 import {
+  ArrowRight,
   ArrowUpRight,
-  Braces,
+  Bot,
   CheckCircle2,
   Code2,
+  Dumbbell,
   ExternalLink,
   FileJson,
   FileText,
+  Headphones,
+  ImageIcon,
+  Laptop,
   type LucideIcon,
-  MessageSquareText,
-  Terminal,
-  Workflow,
+  Mail,
+  MapPin,
+  Palette,
+  School,
+  ShieldCheck,
+  Sparkles,
+  Type,
+  Wrench,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,129 +35,236 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
-import { AiAgentMarketplace } from "~/lib/ai-agents/ai-agent-marketplace";
-import { freeTools } from "~/lib/free-tools/tool-meta";
+import { getAgentIcon } from "~/lib/ai-agents/agent-presentation";
+import { freeTools, type ToolCategory } from "~/lib/free-tools/tool-meta";
 import { HeroPetPlaygroundLoader } from "~/lib/portfolio/hero-pet-playground-loader";
-import { PortfolioSocialLinks } from "~/lib/portfolio/portfolio-social-links";
-import {
-  WorkflowBankFileIndex,
-  WorkflowBankGithubStats,
-} from "~/lib/portfolio/workflow-bank-count-stat";
-import { CatalogPageNavigation } from "~/lib/site/catalog-page-navigation";
-import { getCatalogPageCount } from "~/lib/site/catalog-pagination";
 import { cn } from "~/lib/utils";
 
 const experienceStartYear = 2021;
 
-type Product = {
+type CurrentApp = {
   name: string;
+  domain: string;
   label: string;
   href: string;
   image: string;
-  metric: string;
+  imageAlt: string;
+  headline: string;
   description: string;
-  accent: string;
+  cta: string;
   icon: LucideIcon;
-  stack: string[];
+  accent: {
+    border: string;
+    text: string;
+    bg: string;
+    soft: string;
+  };
+  chips: string[];
+  checks: string[];
 };
 
-const products: Product[] = [
+const currentApps: CurrentApp[] = [
   {
-    name: "ChatAcademia",
-    label: "AI research platform",
-    href: "https://chatacademia.com",
-    image: "https://www.chatacademia.com/og.png",
-    metric: "2,000+ researchers",
+    name: "LofiHood",
+    domain: "lofihood.com",
+    label: "macOS menu bar app",
+    href: "https://lofihood.com",
+    image: "https://lofihood.com/opengraph-image.png",
+    imageAlt: "LofiHood product preview",
+    headline: "Offline lofi that stays out of your way.",
     description:
-      "A research workspace for searching papers, talking with frontier models, finding gaps, and moving from idea to citation-backed draft.",
-    accent: "from-cyan-300 via-sky-400 to-lime-300",
-    icon: MessageSquareText,
-    stack: ["Next.js", "AI agents", "Academic search", "Subscriptions"],
+      "A local-first lofi player for the Mac menu bar with bundled tracks, mood filters, local albums, imports, shortcuts, and a sleep timer.",
+    cta: "Visit LofiHood",
+    icon: Headphones,
+    accent: {
+      border: "border-sky-400",
+      text: "text-sky-600 dark:text-sky-300",
+      bg: "bg-sky-500",
+      soft: "bg-sky-500/10",
+    },
+    chips: ["macOS", "local-first", "mood presets", "coming soon"],
+    checks: [
+      "Bundled offline tracks",
+      "Mood and album filters",
+      "Menu-bar playback controls",
+    ],
   },
   {
-    name: "PDF Vector",
-    label: "Document intelligence API",
-    href: "https://pdfvector.com",
-    image: "https://www.pdfvector.com/og.png",
-    metric: "structured extraction",
+    name: "SpotterFuel",
+    domain: "spotterfuel.com",
+    label: "iPhone fitness app",
+    href: "https://spotterfuel.com",
+    image: "https://spotterfuel.com/opengraph-image",
+    imageAlt: "SpotterFuel product preview",
+    headline: "Keep training when the equipment is taken.",
     description:
-      "A scalable PDF processing API for extracting structured data from complex documents and powering document automation systems.",
-    accent: "from-orange-300 via-rose-300 to-cyan-300",
-    icon: FileText,
-    stack: ["API design", "PDF parsing", "RAG pipelines", "Schema extraction"],
+      "Mark blocked gym equipment and find same-muscle alternatives so a crowded station does not derail the session.",
+    cta: "View SpotterFuel",
+    icon: Dumbbell,
+    accent: {
+      border: "border-emerald-400",
+      text: "text-emerald-600 dark:text-emerald-300",
+      bg: "bg-emerald-500",
+      soft: "bg-emerald-500/10",
+    },
+    chips: ["iPhone", "same-muscle swaps", "equipment-aware", "App Store"],
+    checks: ["119 exercises", "17 muscle groups", "16 equipment types"],
+  },
+  {
+    name: "CampusCue",
+    domain: "campuscue.app",
+    label: "iOS app for parents",
+    href: "https://campuscue.app",
+    image: "https://campuscue.app/opengraph-image",
+    imageAlt: "CampusCue product preview",
+    headline: "School notices become reviewed action cards.",
+    description:
+      "CampusCue turns flyers, PDFs, screenshots, and shared files into cards parents can review before adding anything to Calendar or Reminders.",
+    cta: "Join TestFlight waitlist",
+    icon: School,
+    accent: {
+      border: "border-orange-400",
+      text: "text-orange-600 dark:text-orange-300",
+      bg: "bg-orange-500",
+      soft: "bg-orange-500/10",
+    },
+    chips: ["local-first", "review first", "iOS", "TestFlight waitlist"],
+    checks: [
+      "Flyers, PDFs, screenshots",
+      "Parent review before handoff",
+      "Calendar and Reminders flow",
+    ],
   },
 ];
 
-const featuredTools = [
-  "palette-from-image",
-  "image-compressor",
-  "images-to-pdf",
+const featuredToolSlugs = [
   "json-formatter",
   "qr-code-generator",
+  "image-compressor",
+  "images-to-pdf",
+  "palette-from-image",
   "timestamp-converter",
-]
+];
+
+const featuredTools = featuredToolSlugs
   .map((slug) => freeTools.find((tool) => tool.slug === slug))
   .filter((tool): tool is (typeof freeTools)[number] => Boolean(tool));
 
-const workflowBank = {
-  href: "https://github.com/khanhduyvt0101/workflows",
-  cloneUrl: "https://github.com/khanhduyvt0101/workflows.git",
-  repository: "khanhduyvt0101/workflows",
-  highlights: [
-    "Invoice, receipt, PO, bank statement, and AP approval automation",
-    "Healthcare, insurance, KYC, compliance, lease, and shipping document flows",
-    "Research, resume, transcript, grant, and knowledge-work extraction recipes",
-  ],
+const toolCategoryIcons: Record<ToolCategory, LucideIcon> = {
+  Design: Palette,
+  Developer: FileJson,
+  Image: ImageIcon,
+  PDF: FileText,
+  Text: Type,
 };
+
+const featuredAgents = agentBlueprints.slice(0, 4);
+
+const stackItems = [
+  "Next.js",
+  "React",
+  "TypeScript",
+  "Tailwind CSS",
+  "Node.js",
+  "Vercel",
+];
+
+const workPrinciples = [
+  {
+    icon: ShieldCheck,
+    title: "Practical first",
+    description:
+      "Start with a real interruption, then ship the smallest useful loop.",
+  },
+  {
+    icon: Code2,
+    title: "Build clearly",
+    description:
+      "Readable interfaces, typed code, and fast iteration over ceremony.",
+  },
+  {
+    icon: Sparkles,
+    title: "Keep it usable",
+    description: "Polish the details that make an app easier to return to.",
+  },
+];
 
 export function PortfolioCommandCenter(): ReactNode {
   const yearsOfExperience = Math.max(
     0,
     new Date().getFullYear() - experienceStartYear,
   );
+
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground">
       <section className="relative isolate overflow-hidden border-b border-border/70">
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-25" />
-        <div className="absolute inset-x-0 top-0 -z-10 h-36 bg-[linear-gradient(180deg,var(--accent),transparent)] opacity-45" />
-
-        <div className="container relative z-20 mx-auto grid max-w-7xl gap-8 px-4 py-8 md:py-12 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-center">
-          <div className="flex min-w-0 flex-col gap-6">
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:64px_64px] opacity-20" />
+        <div className="absolute inset-x-0 top-0 -z-10 h-56 bg-[linear-gradient(180deg,var(--accent),transparent)] opacity-45" />
+        <div className="container relative z-20 mx-auto grid max-w-7xl gap-8 px-4 py-9 md:py-12 lg:min-h-[calc(92svh-64px)] lg:grid-cols-[minmax(0,1fr)_minmax(350px,430px)] lg:items-center">
+          <div className="flex min-w-0 flex-col gap-7">
             <div className="max-w-4xl">
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                Bui Trong Khanh Duy / Full-stack developer / Vietnam
+                Bui Trong Khanh Duy / Product builder / Ho Chi Minh City
               </p>
-              <h1 className="mt-5 text-5xl font-black leading-[0.95] tracking-normal md:text-7xl">
-                Software engineer simplifying ideas with technology.
+              <h1 className="mt-5 max-w-5xl text-5xl font-black leading-[0.96] tracking-normal md:text-7xl">
+                Building practical apps for focus, fitness, and family
+                logistics.
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-                I'm Khanh Duy, a full-stack developer in Ho Chi Minh City. For{" "}
-                {yearsOfExperience}+ years, I've shipped web and mobile products
-                that turn complex ideas into fast, simple, reliable experiences
-                with JavaScript, React, TypeScript, and Next.js.
+                I'm Khanh Duy, a full-stack developer in Ho Chi Minh City. My
+                current work centers on three focused apps: LofiHood for calm
+                Mac playback, SpotterFuel for crowded-gym workouts, and
+                CampusCue for school notice follow-through.
               </p>
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button asChild className="h-12 rounded-lg px-5" size="lg">
+                <Link href="#apps">
+                  Explore the apps
+                  <ArrowRight data-icon="inline-end" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                className="h-12 rounded-lg px-5"
+                size="lg"
+                variant="outline"
+              >
+                <Link href="#workbench">
+                  Open tools and agents
+                  <Wrench data-icon="inline-end" />
+                </Link>
+              </Button>
+            </div>
+
+            <div className="lg:hidden">
+              <AppPreviewRail />
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
               <HeroMetric
                 icon={Code2}
                 label="Experience"
                 value={`${yearsOfExperience}+ years`}
               />
-              <HeroMetric icon={Braces} label="Stack" value="JS / TS / React" />
+              <HeroMetric icon={Laptop} label="Current apps" value="3 apps" />
               <HeroMetric
-                icon={FileText}
+                icon={Wrench}
                 label="Free tools"
                 value={`${freeTools.length} tools`}
               />
               <HeroMetric
-                icon={MessageSquareText}
+                icon={Bot}
                 label="AI agents"
                 value={`${agentBlueprints.length} agents`}
               />
+              <HeroMetric
+                icon={Sparkles}
+                label="Stack"
+                value="JS / TS / React"
+              />
             </div>
-
-            <PortfolioSocialLinks />
           </div>
 
           <div className="relative mx-auto w-full max-w-[430px]">
@@ -155,11 +272,11 @@ export function PortfolioCommandCenter(): ReactNode {
               <div className="relative aspect-[5/6] overflow-hidden rounded-md border bg-muted sm:aspect-[4/5] lg:aspect-[5/6]">
                 <Image
                   alt="Khanh Duy"
-                  src="/avatar.webp"
+                  className="object-cover"
                   fill
                   preload
                   sizes="(max-width: 1024px) 82vw, 430px"
-                  className="object-cover"
+                  src="/avatar.webp"
                 />
               </div>
             </div>
@@ -170,302 +287,378 @@ export function PortfolioCommandCenter(): ReactNode {
                   Currently
                 </p>
                 <Badge variant="secondary" className="rounded-lg">
+                  <MapPin />
                   Vietnam / GMT+7
                 </Badge>
               </div>
               <p className="mt-3 text-xl font-black leading-tight">
-                Building useful AI systems that people can actually operate.
+                Shipping small products that solve a specific job well.
               </p>
             </div>
           </div>
+        </div>
+        <div className="container relative z-20 mx-auto hidden max-w-7xl px-4 pb-8 lg:-mt-10 lg:block">
+          <AppPreviewRail />
         </div>
         <HeroPetRunway />
       </section>
 
       <section
-        id="products"
-        className="border-b border-border/70 bg-muted/25 py-14 md:py-20"
+        id="apps"
+        className="scroll-mt-16 border-b border-border/70 py-14 md:scroll-mt-20 md:py-20"
       >
         <div className="container mx-auto max-w-7xl px-4">
           <div className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div className="max-w-3xl">
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                Products
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                Current apps
               </p>
               <h2 className="mt-3 text-4xl font-black leading-tight md:text-6xl">
-                Two serious products, one compact story.
+                Three focused products, built around specific moments of
+                friction.
               </h2>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
+                Each app starts with a clear everyday interruption and turns it
+                into a simple next action.
+              </p>
             </div>
+            <p className="font-mono text-sm font-semibold text-muted-foreground">
+              03
+            </p>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-2">
-            {products.map((product) => (
-              <Card
-                key={product.name}
-                className="overflow-hidden rounded-lg py-0"
-              >
-                <CardHeader className="gap-4 p-5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="rounded-lg">
-                      <product.icon />
-                      {product.label}
-                    </Badge>
-                    <Badge variant="secondary" className="rounded-lg">
-                      {product.metric}
-                    </Badge>
-                  </div>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <CardTitle className="text-3xl font-black">
-                        {product.name}
-                      </CardTitle>
-                      <CardDescription className="mt-3 text-base leading-7">
-                        {product.description}
-                      </CardDescription>
-                    </div>
-                    <Button asChild variant="ghost" size="icon">
-                      <a
-                        href={product.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`Open ${product.name}`}
-                      >
-                        <ExternalLink />
-                      </a>
-                    </Button>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="p-5 pt-0">
-                  <div className="relative aspect-[16/9] overflow-hidden rounded-lg border bg-white">
-                    <Image
-                      alt={`${product.name} product preview`}
-                      src={product.image}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-contain p-3"
-                    />
-                    <div className="absolute inset-x-3 bottom-3 h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={cn(
-                          "h-full rounded-full bg-gradient-to-r",
-                          product.accent,
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {product.stack.map((item) => (
-                      <Badge
-                        key={item}
-                        variant="outline"
-                        className="rounded-lg"
-                      >
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="grid gap-5 lg:grid-cols-3">
+            {currentApps.map((app) => (
+              <CurrentAppCard app={app} key={app.name} />
             ))}
           </div>
         </div>
       </section>
 
       <section
-        id="workflow-bank"
-        className="relative overflow-hidden border-b border-border/70 bg-muted/20 py-14 md:py-20"
+        id="workbench"
+        className="scroll-mt-16 border-b border-border/70 bg-muted/20 py-14 md:scroll-mt-20 md:py-20"
       >
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:72px_72px] opacity-20" />
         <div className="container mx-auto max-w-7xl px-4">
-          <div className="relative mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <div className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div className="max-w-3xl">
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                Open source automation library
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                Browser workbench
               </p>
               <h2 className="mt-3 text-4xl font-black leading-tight md:text-6xl">
-                Document workflows, packaged like a product.
+                Tools and agents for the work around the apps.
               </h2>
               <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
-                A public GitHub workbench for PDF Vector workflows: clone it,
-                inspect the JSON, and drop real document automation into the
-                tools your team already operates.
+                Use small browser agents for summaries, extraction, planning,
+                data cleanup, and prompt work. Use private browser tools for
+                JSON, QR codes, images, PDFs, text, colors, timestamps, and
+                everyday utility tasks.
               </p>
             </div>
-            <Button asChild variant="outline" className="w-fit rounded-lg">
-              <a href={workflowBank.href} rel="noreferrer" target="_blank">
-                <IconBrandGithub data-icon="inline-start" />
-                View GitHub
-                <ArrowUpRight data-icon="inline-end" />
-              </a>
-            </Button>
           </div>
 
-          <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1.04fr)_minmax(340px,0.6fr)] lg:items-start">
-            <div className="min-w-0 overflow-hidden rounded-lg border bg-foreground text-background shadow-2xl">
-              <div className="border-background/15 border-b p-5 md:p-7">
-                <div className="mb-8 flex flex-wrap items-center gap-2">
-                  <Badge
-                    variant="outline"
-                    className="rounded-lg border-background/20 bg-background/10 text-background"
-                  >
-                    <Workflow />
-                    Workflow bank
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className="rounded-lg border-background/20 bg-background/10 text-background"
-                  >
-                    n8n / Make / Zapier
-                  </Badge>
-                </div>
-
-                <div className="flex w-full min-w-0 flex-col justify-between gap-5 md:flex-row md:items-start">
-                  <div className="w-full min-w-0">
-                    <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-background/55">
-                      GitHub repository
-                    </p>
-                    <h3 className="mt-3 w-full max-w-full break-words text-xl font-black leading-tight [overflow-wrap:anywhere] md:text-3xl">
-                      {workflowBank.repository}
-                    </h3>
-                    <p className="mt-4 max-w-2xl text-background/70 text-base leading-7">
-                      Awesome PDF Automation Workflows, a curated collection of
-                      ready-to-use document extraction and PDF processing
-                      recipes for operational teams.
-                    </p>
-                  </div>
-
-                  <Button
-                    asChild
-                    className="w-fit rounded-lg bg-background text-foreground hover:bg-background/90"
-                    size="lg"
-                  >
-                    <a
-                      href={workflowBank.href}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      <IconBrandGithub data-icon="inline-start" />
-                      Open repository
-                      <ArrowUpRight data-icon="inline-end" />
-                    </a>
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid min-w-0 gap-5 p-5 md:p-7">
-                <div className="min-w-0 rounded-lg border border-background/15 bg-background/8 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <Terminal className="size-4 text-background/60" />
-                      <span className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-background/60">
-                        clone source
-                      </span>
-                    </div>
-                    <Badge
-                      variant="outline"
-                      className="rounded-lg border-background/20 text-background"
-                    >
-                      public
-                    </Badge>
-                  </div>
-                  <div className="mt-4 grid gap-2 font-mono text-sm">
-                    <p className="min-w-0 overflow-x-auto whitespace-nowrap rounded-lg border border-background/15 bg-background px-3 py-2 text-foreground">
-                      git clone {workflowBank.cloneUrl}
-                    </p>
-                    <p className="flex min-w-0 items-center gap-2 rounded-lg border border-background/15 px-3 py-2 text-background/70">
-                      <FileJson className="size-4 shrink-0" />
-                      <span className="truncate">
-                        n8n-workflows/*.json {"->"} import, adapt, run
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid min-w-0 gap-3 md:grid-cols-3">
-                  {workflowBank.highlights.map((highlight) => (
-                    <div
-                      className="min-w-0 rounded-lg border border-background/15 bg-background/8 p-4"
-                      key={highlight}
-                    >
-                      <CheckCircle2 className="mb-4 size-5 text-background/65" />
-                      <p className="break-words text-background/78 text-sm leading-6">
-                        {highlight}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <WorkflowBankGithubStats />
-              </div>
-              <WorkflowBankFileIndex />
-            </div>
+          <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+            <WorkbenchGroup
+              cta="Browse agents"
+              description="Representative browser-first agents from the full catalog."
+              href="/ai-agents"
+              items={featuredAgents.map((agent) => ({
+                href: `/ai-agents/${agent.id}`,
+                icon: getAgentIcon(agent),
+                title: agent.name.replace(" Agent", ""),
+                description: agent.tagline,
+              }))}
+              title="AI agents"
+            />
+            <WorkbenchGroup
+              cta="Browse tools"
+              description="Private, no-signup browser utilities for everyday tasks."
+              href="/free-tools"
+              items={featuredTools.map((tool) => ({
+                href: `/free-tools/${tool.slug}`,
+                icon: toolCategoryIcons[tool.category],
+                title: tool.title,
+                description: tool.summary,
+              }))}
+              title="Free tools"
+            />
           </div>
         </div>
       </section>
 
-      <AiAgentMarketplace compact />
-
-      <section className="container mx-auto max-w-7xl px-4 py-14 md:py-20">
-        <div className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-          <div className="max-w-3xl">
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-              Free tools
+      <section
+        id="about"
+        className="scroll-mt-16 py-14 md:scroll-mt-20 md:py-20"
+      >
+        <div className="container mx-auto grid max-w-7xl gap-8 px-4 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+          <div>
+            <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              About
             </p>
             <h2 className="mt-3 text-4xl font-black leading-tight md:text-6xl">
-              The useful links, without the maze.
+              Built by Khanh Duy in Ho Chi Minh City.
             </h2>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
+              I design and ship web, iOS, and macOS products with a focus on
+              practical workflows, clear interfaces, and fast iteration across
+              React, TypeScript, Next.js, and app-platform tooling.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button asChild className="rounded-lg" variant="outline">
+                <a href="mailto:khanhduyvt0101@gmail.com">
+                  <Mail data-icon="inline-start" />
+                  Email
+                </a>
+              </Button>
+              <Button asChild className="rounded-lg" variant="outline">
+                <a
+                  href="https://github.com/khanhduyvt0101"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <IconBrandGithub data-icon="inline-start" />
+                  GitHub
+                </a>
+              </Button>
+              <Button asChild className="rounded-lg" variant="outline">
+                <a
+                  href="https://www.linkedin.com/in/buitrongkhanhduy/"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  LinkedIn
+                  <ArrowUpRight data-icon="inline-end" />
+                </a>
+              </Button>
+            </div>
           </div>
-          <Button asChild variant="outline" className="w-fit rounded-lg">
-            <Link href="/free-tools">
-              Show all
-              <ArrowUpRight data-icon="inline-end" />
-            </Link>
-          </Button>
-        </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredTools.map((tool) => (
-            <Card key={tool.slug} className="rounded-lg py-5">
-              <CardHeader className="gap-3">
-                <CardTitle className="text-xl">{tool.title}</CardTitle>
-                <CardDescription className="line-clamp-2 text-base leading-7">
-                  {tool.summary}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild variant="secondary" className="rounded-lg">
-                  <Link href={`/free-tools/${tool.slug}`}>Open tool</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div className="mt-7 flex flex-col items-center gap-3">
-          <p className="text-center text-muted-foreground text-sm">
-            Showing 1-{featuredTools.length} of {freeTools.length} free tools
-          </p>
-          <CatalogPageNavigation
-            basePath="/free-tools"
-            currentPage={1}
-            label="Free tools pages"
-            pageCount={getCatalogPageCount(freeTools)}
-          />
+          <div className="grid gap-5">
+            <div className="overflow-hidden rounded-lg border bg-foreground text-background">
+              <div className="border-background/15 border-b px-5 py-4 font-mono text-xs uppercase tracking-[0.2em] text-background/60">
+                stack.ts
+              </div>
+              <div className="grid gap-2 p-5 font-mono text-sm leading-7 sm:p-7">
+                <p>
+                  <span className="text-background/45">const</span>{" "}
+                  <span className="text-sky-300">stack</span> = [
+                </p>
+                <p className="pl-4 text-background/80">
+                  {stackItems.map((item) => `'${item}'`).join(", ")}
+                </p>
+                <p>];</p>
+                <p className="pt-2 text-background/55">
+                  {"// Ship small. Iterate fast. Focus on usefulness."}
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {workPrinciples.map((principle) => (
+                <div className="rounded-lg border p-5" key={principle.title}>
+                  <principle.icon className="mb-5 size-6 text-primary" />
+                  <h3 className="font-bold text-lg">{principle.title}</h3>
+                  <p className="mt-2 text-muted-foreground text-sm leading-6">
+                    {principle.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
     </div>
   );
 }
 
+function AppPreviewRail(): ReactNode {
+  return (
+    <div className="grid gap-3 rounded-lg border bg-background/90 p-3 shadow-xl backdrop-blur md:grid-cols-3">
+      {currentApps.map((app) => (
+        <a
+          className="group flex min-w-0 items-center gap-3 rounded-md p-3 outline-none transition-colors hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring/70"
+          href={app.href}
+          key={app.name}
+          rel="noreferrer"
+          target="_blank"
+        >
+          <span
+            className={cn(
+              "grid size-10 shrink-0 place-items-center rounded-lg border",
+              app.accent.border,
+              app.accent.soft,
+              app.accent.text,
+            )}
+          >
+            <app.icon className="size-5" />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-bold">{app.domain}</span>
+            <span className="line-clamp-1 text-muted-foreground text-sm">
+              {app.label}
+            </span>
+          </span>
+          <ArrowUpRight className="ml-auto size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function CurrentAppCard({ app }: { app: CurrentApp }): ReactNode {
+  return (
+    <Card
+      className={cn(
+        "overflow-hidden rounded-lg py-0 transition-colors hover:border-foreground/20",
+        app.accent.border,
+      )}
+    >
+      <CardHeader className="gap-4 p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <Badge className="rounded-lg" variant="outline">
+                <app.icon />
+                {app.label}
+              </Badge>
+              <Badge className="rounded-lg" variant="secondary">
+                {app.domain}
+              </Badge>
+            </div>
+            <CardTitle className="text-3xl font-black leading-tight">
+              {app.name}
+            </CardTitle>
+            <CardDescription className="mt-3 text-base leading-7">
+              {app.headline}
+            </CardDescription>
+          </div>
+          <Button asChild variant="ghost" size="icon">
+            <a
+              aria-label={`Open ${app.name}`}
+              href={app.href}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <ExternalLink />
+            </a>
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="grid gap-5 p-5 pt-0">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-lg border bg-white">
+          <Image
+            alt={app.imageAlt}
+            className="object-contain p-3"
+            fill
+            sizes="(max-width: 1024px) 100vw, 33vw"
+            src={app.image}
+          />
+          <div className="absolute inset-x-3 bottom-3 h-1.5 overflow-hidden rounded-full bg-muted">
+            <div className={cn("h-full rounded-full", app.accent.bg)} />
+          </div>
+        </div>
+
+        <p className="text-muted-foreground text-sm leading-6">
+          {app.description}
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          {app.chips.map((chip) => (
+            <Badge key={chip} variant="outline" className="rounded-lg">
+              {chip}
+            </Badge>
+          ))}
+        </div>
+
+        <ul className="grid gap-2 text-sm">
+          {app.checks.map((check) => (
+            <li className="flex gap-2" key={check}>
+              <CheckCircle2
+                aria-hidden="true"
+                className={cn("mt-0.5 size-4 shrink-0", app.accent.text)}
+              />
+              <span>{check}</span>
+            </li>
+          ))}
+        </ul>
+
+        <Button asChild className="w-fit rounded-lg" variant="outline">
+          <a href={app.href} rel="noreferrer" target="_blank">
+            {app.cta}
+            <ArrowUpRight data-icon="inline-end" />
+          </a>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function WorkbenchGroup({
+  title,
+  description,
+  items,
+  href,
+  cta,
+}: {
+  title: string;
+  description: string;
+  items: {
+    href: string;
+    icon: LucideIcon;
+    title: string;
+    description: string;
+  }[];
+  href: string;
+  cta: string;
+}): ReactNode {
+  return (
+    <section className="rounded-lg border bg-background p-5">
+      <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+        <div>
+          <h3 className="text-2xl font-black">{title}</h3>
+          <p className="mt-2 max-w-xl text-muted-foreground text-sm leading-6">
+            {description}
+          </p>
+        </div>
+        <Button asChild className="w-fit rounded-lg" variant="outline">
+          <Link href={href}>
+            {cta}
+            <ArrowRight data-icon="inline-end" />
+          </Link>
+        </Button>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {items.map((item) => (
+          <Link
+            className="group grid min-h-32 gap-3 rounded-lg border p-4 outline-none transition-colors hover:border-foreground/20 hover:bg-muted/45 focus-visible:ring-2 focus-visible:ring-ring/70"
+            href={item.href}
+            key={item.href}
+          >
+            <span className="flex items-start justify-between gap-3">
+              <span className="grid size-10 place-items-center rounded-lg border bg-muted/35">
+                <item.icon className="size-5 text-muted-foreground" />
+              </span>
+              <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+            </span>
+            <span>
+              <span className="block font-bold leading-tight">
+                {item.title}
+              </span>
+              <span className="mt-2 line-clamp-2 block text-muted-foreground text-sm leading-6">
+                {item.description}
+              </span>
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function HeroPetRunway(): ReactNode {
   return (
-    <div className="pointer-events-none absolute inset-0 z-30">
+    <div className="pointer-events-none absolute inset-0 z-10">
       <div className="container relative mx-auto h-full max-w-7xl px-4">
         <HeroPetPlaygroundLoader />
       </div>

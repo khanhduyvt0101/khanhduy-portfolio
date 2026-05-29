@@ -38,7 +38,8 @@ const isVercelRuntime = process.env.VERCEL === "1";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Khanh Duy | Full-Stack Developer & AI Product Builder",
+    default:
+      "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
     template: `%s | ${siteName}`,
   },
   description: defaultSeoDescription,
@@ -67,7 +68,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Khanh Duy | Full-Stack Developer & AI Product Builder",
+    title: "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
     description: defaultSeoDescription,
     url: "/",
     siteName,
@@ -76,10 +77,56 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Khanh Duy | Full-Stack Developer & AI Product Builder",
+    title: "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
     description: defaultSeoDescription,
   },
 };
+
+const footerGroups = [
+  {
+    label: "Apps",
+    links: [
+      { label: "LofiHood", href: "https://lofihood.com", external: true },
+      { label: "SpotterFuel", href: "https://spotterfuel.com", external: true },
+      { label: "CampusCue", href: "https://campuscue.app", external: true },
+    ],
+  },
+  {
+    label: "Workbench",
+    links: [
+      { label: "AI Agents", href: "/ai-agents" },
+      { label: "Free Tools", href: "/free-tools" },
+    ],
+  },
+  {
+    label: "SpotterFuel legal",
+    links: [
+      { label: "Support", href: "/spotterfuel/support" },
+      { label: "Privacy", href: "/spotterfuel/privacy" },
+      { label: "Terms", href: "/spotterfuel/terms" },
+    ],
+  },
+  {
+    label: "Connect",
+    links: [
+      {
+        label: "Email",
+        href: "mailto:khanhduyvt0101@gmail.com",
+        external: true,
+      },
+      {
+        label: "GitHub",
+        href: "https://github.com/khanhduyvt0101",
+        external: true,
+      },
+      {
+        label: "LinkedIn",
+        href: "https://www.linkedin.com/in/buitrongkhanhduy/",
+        external: true,
+      },
+    ],
+  },
+];
 
 export default function Layout({ children }: PropsWithChildren): ReactNode {
   return (
@@ -122,44 +169,56 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
             <main className="flex-1">{children}</main>
           </ViewTransition>
           <footer className="mt-auto border-t">
-            <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-center md:flex-row md:text-left">
-              <span className="text-sm text-muted-foreground">
-                Made by Khanh Duy. Software engineer in Ho Chi Minh City,
-                Vietnam.
-              </span>
-              <nav
-                aria-label="SpotterFuel legal links"
-                className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-muted-foreground text-sm"
-              >
-                <Link
-                  className="transition-colors hover:text-foreground"
-                  href="/spotterfuel"
-                  transitionTypes={["nav-forward"]}
-                >
-                  SpotterFuel
-                </Link>
-                <Link
-                  className="transition-colors hover:text-foreground"
-                  href="/spotterfuel/support"
-                  transitionTypes={["nav-forward"]}
-                >
-                  Support
-                </Link>
-                <Link
-                  className="transition-colors hover:text-foreground"
-                  href="/spotterfuel/privacy"
-                  transitionTypes={["nav-forward"]}
-                >
-                  Privacy
-                </Link>
-                <Link
-                  className="transition-colors hover:text-foreground"
-                  href="/spotterfuel/terms"
-                  transitionTypes={["nav-forward"]}
-                >
-                  Terms
-                </Link>
-              </nav>
+            <div className="container mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.2fr_repeat(4,minmax(0,1fr))]">
+              <div>
+                <p className="text-sm font-bold text-foreground">Khanh Duy</p>
+                <p className="mt-3 max-w-sm text-muted-foreground text-sm leading-6">
+                  Product builder in Ho Chi Minh City shipping practical apps
+                  for focus, fitness, and family logistics.
+                </p>
+              </div>
+              {footerGroups.map((group) => (
+                <nav aria-label={group.label} key={group.label}>
+                  <h2 className="text-sm font-bold text-foreground">
+                    {group.label}
+                  </h2>
+                  <ul className="mt-3 grid gap-2 text-muted-foreground text-sm">
+                    {group.links.map((link) => (
+                      <li key={link.href}>
+                        {"external" in link && link.external ? (
+                          <a
+                            className="transition-colors hover:text-foreground"
+                            href={link.href}
+                            rel={
+                              link.href.startsWith("http")
+                                ? "noreferrer"
+                                : undefined
+                            }
+                            target={
+                              link.href.startsWith("http")
+                                ? "_blank"
+                                : undefined
+                            }
+                          >
+                            {link.label}
+                          </a>
+                        ) : (
+                          <Link
+                            className="transition-colors hover:text-foreground"
+                            href={link.href}
+                            transitionTypes={["nav-forward"]}
+                          >
+                            {link.label}
+                          </Link>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              ))}
+            </div>
+            <div className="border-t px-4 py-5 text-center text-muted-foreground text-xs">
+              Made by Khanh Duy. Ho Chi Minh City, Vietnam.
             </div>
           </footer>
         </ThemeProvider>

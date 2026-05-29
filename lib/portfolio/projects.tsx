@@ -14,22 +14,31 @@ import {
 
 const projects = [
   {
-    title: "ChatAcademia",
+    title: "LofiHood",
     description:
-      "Your AI-powered research sidekick. Chat with multiple advanced models (GPT-4, Claude 3, Gemini), discover research gaps, and search millions of papers instantly. Trusted by 2,000+ researchers.",
-    link: "https://chatacademia.com",
-    image: "https://www.chatacademia.com/og.png",
-    tags: ["AI Platform", "SaaS", "Next.js", "Research"],
-    category: "SaaS Product",
+      "A local-first lofi player for the Mac menu bar with bundled tracks, mood filters, local albums, imports, shortcuts, and a sleep timer.",
+    link: "https://lofihood.com",
+    image: "https://lofihood.com/opengraph-image.png",
+    tags: ["macOS", "Menu Bar", "Local-first", "Music"],
+    category: "macOS App",
   },
   {
-    title: "PDF Vector",
+    title: "SpotterFuel",
     description:
-      "The scalable AI-powered PDF processing API. Extract structured data from complex documents with high accuracy using generic schemas. Perfect for building RAG pipelines and document analysis tools.",
-    link: "https://pdfvector.com",
-    image: "https://www.pdfvector.com/og.png",
-    tags: ["API", "Developer Tool", "PDF Processing", "AI"],
-    category: "Developer Tool",
+      "An iPhone fitness app for marking blocked gym equipment and finding same-muscle alternatives when a crowded station gets in the way.",
+    link: "https://spotterfuel.com",
+    image: "https://spotterfuel.com/opengraph-image",
+    tags: ["iPhone", "Fitness", "Exercise Swaps", "App Store"],
+    category: "iOS App",
+  },
+  {
+    title: "CampusCue",
+    description:
+      "A local-first iOS app that turns school notices into reviewed action cards before parents add anything to Calendar or Reminders.",
+    link: "https://campuscue.app",
+    image: "https://campuscue.app/opengraph-image",
+    tags: ["iOS", "Parents", "School Notices", "TestFlight"],
+    category: "iOS App",
   },
 ];
 
@@ -40,7 +49,7 @@ export function Projects(): ReactNode {
         Featured Projects
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {projects.map((project) => (
           <Card
             key={project.title}

@@ -4,16 +4,16 @@ import { spotterFuelUrls } from "~/lib/spotterfuel/spotterfuel-content";
 import { SpotterFuelMarketingPage } from "~/lib/spotterfuel/spotterfuel-pages";
 
 export const metadata: Metadata = {
-  title: "SpotterFuel",
+  title: "SpotterFuel - Exercise Swaps for Crowded Gyms",
   description:
-    "SpotterFuel is a no-login iPhone and iPad fitness app for same-muscle exercise swaps when gym equipment is taken.",
+    "SpotterFuel helps iPhone users keep workouts moving by marking blocked equipment and finding same-muscle exercise alternatives.",
   alternates: {
     canonical: "/spotterfuel",
   },
   openGraph: {
-    title: "SpotterFuel",
+    title: "SpotterFuel - Exercise Swaps for Crowded Gyms",
     description:
-      "A calm fitness companion for same-muscle exercise swaps in a busy gym.",
+      "Mark blocked gym equipment and get same-muscle exercise reroutes without losing your workout.",
     url: spotterFuelUrls.marketing,
     type: "website",
   },

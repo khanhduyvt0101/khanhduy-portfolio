@@ -79,9 +79,8 @@ export function Infor(): ReactNode {
 
             <p className="text-lg text-muted-foreground leading-relaxed mt-4">
               Hello, I&apos;m Khanh Duy, a Software Engineer based in Ho Chi
-              Minh City. I specialize in building AI-powered products and
-              scalable solutions. I am currently leading engineering at
-              ChatAcademia and PDF Vector.
+              Minh City. I build practical web, iOS, and macOS products. My
+              current work centers on LofiHood, SpotterFuel, and CampusCue.
             </p>
 
             <div className="flex flex-wrap gap-4 mt-8">

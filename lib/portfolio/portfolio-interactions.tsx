@@ -5,14 +5,16 @@ import {
   Braces,
   Code2,
   Copy,
+  Dumbbell,
   ExternalLink,
   FileText,
   Home,
   ImageIcon,
   type LucideIcon,
   Mail,
-  MessageSquareText,
+  Music2,
   Palette,
+  School,
   Type,
   Wrench,
 } from "lucide-react";
@@ -56,7 +58,7 @@ import { trackSiteEvent } from "~/lib/site/analytics-events";
 
 const email = "khanhduyvt0101@gmail.com";
 const brief =
-  "Khanh Duy is a full-stack software engineer in Ho Chi Minh City, Vietnam with experience building web and mobile products with JavaScript, React, TypeScript, and Next.js.";
+  "Khanh Duy is a full-stack developer in Ho Chi Minh City building practical apps for focus, fitness, and family logistics with JavaScript, React, TypeScript, and Next.js.";
 
 type CommandAction = {
   title: string;
@@ -154,18 +156,25 @@ const routeCommands: RouteCommand[] = [
 
 const productCommands = [
   {
-    title: "ChatAcademia",
-    description: "Open the AI research product.",
-    href: "https://chatacademia.com",
-    icon: MessageSquareText,
-    keywords: ["research", "papers", "citations", "academic search", "product"],
+    title: "LofiHood",
+    description: "Open the local-first macOS menu bar lofi player.",
+    href: "https://lofihood.com",
+    icon: Music2,
+    keywords: ["lofi", "macos", "menu bar", "music", "focus", "product"],
   },
   {
-    title: "PDF Vector",
-    description: "Open the document intelligence API.",
-    href: "https://pdfvector.com",
-    icon: FileText,
-    keywords: ["pdf", "documents", "extraction", "schema", "api", "product"],
+    title: "SpotterFuel",
+    description: "Open the crowded-gym exercise swap app.",
+    href: "https://spotterfuel.com",
+    icon: Dumbbell,
+    keywords: ["fitness", "gym", "exercise swaps", "iphone", "product"],
+  },
+  {
+    title: "CampusCue",
+    description: "Open the school notice action-card app.",
+    href: "https://campuscue.app",
+    icon: School,
+    keywords: ["school", "parents", "notices", "calendar", "ios", "product"],
   },
   {
     title: "GitHub",

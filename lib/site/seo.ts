@@ -3,17 +3,21 @@ import type { Metadata } from "next";
 export const siteUrl = "https://www.khanhduy.com";
 export const siteName = "Khanh Duy";
 export const defaultSeoDescription =
-  "Khanh Duy is a full-stack developer in Ho Chi Minh City building AI products, developer tools, and free browser utilities with React, TypeScript, and Next.js.";
+  "Khanh Duy is a full-stack developer in Ho Chi Minh City building practical apps for focus, fitness, and family logistics, plus free browser tools and AI agents.";
 
 export const siteKeywords = [
   "Khanh Duy",
   "Bui Trong Khanh Duy",
   "full-stack developer Vietnam",
   "software engineer Ho Chi Minh City",
-  "AI product builder",
+  "LofiHood",
+  "SpotterFuel",
+  "CampusCue",
+  "macOS menu bar app",
+  "iPhone fitness app",
+  "school notice app",
   "Next.js developer",
   "React TypeScript developer",
-  "developer tools",
   "free browser tools",
   "browser AI agents",
 ];

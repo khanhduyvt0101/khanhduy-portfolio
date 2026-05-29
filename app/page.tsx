@@ -1,13 +1,24 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { PortfolioCommandCenter } from "~/lib/portfolio/portfolio-command-center";
 import {
+  createSeoMetadata,
   defaultSeoDescription,
   serializeJsonLd,
   siteKeywords,
   siteName,
   siteUrl,
 } from "~/lib/site/seo";
+
+export const metadata: Metadata = createSeoMetadata({
+  title: "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
+  description:
+    "Khanh Duy is a full-stack developer in Ho Chi Minh City building LofiHood, SpotterFuel, CampusCue, free browser tools, and browser AI agents.",
+  imageAlt: "Khanh Duy portfolio showing LofiHood, SpotterFuel, and CampusCue",
+  keywords: siteKeywords,
+  path: "/",
+});
 
 const homeJsonLd = {
   "@context": "https://schema.org",
@@ -44,6 +55,30 @@ const homeJsonLd = {
         "@type": "Person",
         name: siteName,
       },
+    },
+    {
+      "@type": "ItemList",
+      name: "Current apps by Khanh Duy",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "LofiHood",
+          url: "https://lofihood.com",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "SpotterFuel",
+          url: "https://spotterfuel.com",
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: "CampusCue",
+          url: "https://campuscue.app",
+        },
+      ],
     },
   ],
 };

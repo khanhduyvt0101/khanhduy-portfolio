@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   Announcement,
@@ -50,10 +51,10 @@ export function createFreeToolsCollectionMetadata(pageNumber = 1): Metadata {
 
   return createSeoMetadata({
     title: isFirstPage
-      ? "Free Online Developer Tools"
-      : `Free Online Developer Tools - Page ${pageNumber}`,
+      ? "Free Browser Tools by Khanh Duy"
+      : `Free Browser Tools by Khanh Duy - Page ${pageNumber}`,
     description: isFirstPage
-      ? "Use free browser tools for JSON formatting, JWT decoding, QR codes, image compression, PDFs, colors, timestamps, passwords, and more. No signup."
+      ? "A collection of private browser utilities for developer work, images, PDFs, text cleanup, colors, timestamps, passwords, and quick everyday tasks. No signup required."
       : `Page ${pageNumber} of ${pageCount}: browse free browser tools for developer utilities, image work, PDFs, text cleanup, colors, timestamps, and no-signup workflows.`,
     imageAlt: "Free online browser tools by Khanh Duy",
     keywords: isFirstPage
@@ -76,8 +77,8 @@ export function createFreeToolsCollectionJsonLd(pageNumber = 1) {
     "@type": "CollectionPage",
     name:
       pageNumber === 1
-        ? "Free Online Developer Tools"
-        : `Free Online Developer Tools - Page ${pageNumber}`,
+        ? "Free Browser Tools by Khanh Duy"
+        : `Free Browser Tools by Khanh Duy - Page ${pageNumber}`,
     description: createFreeToolsCollectionMetadata(pageNumber).description,
     url: `${siteUrl}${getFreeToolsPagePath(pageNumber)}`,
     mainEntity: {
@@ -116,20 +117,28 @@ export function FreeToolsCollectionPage({
       <section className="border-b bg-muted/30">
         <div className="container mx-auto flex max-w-5xl flex-col gap-8 px-4 py-14 md:py-20">
           <Announcement themed className="w-fit">
-            <AnnouncementTag>Free Tools</AnnouncementTag>
+            <AnnouncementTag>Workbench</AnnouncementTag>
             <AnnouncementTitle>Private browser utilities</AnnouncementTitle>
           </Announcement>
 
           <div className="flex max-w-3xl flex-col gap-4">
             <h1 className="text-4xl font-black leading-tight text-foreground md:text-6xl">
               {pageNumber === 1
-                ? "Free tools gallery."
-                : `Free tools gallery, page ${pageNumber}.`}
+                ? "Free browser tools by Khanh Duy."
+                : `Free browser tools by Khanh Duy, page ${pageNumber}.`}
             </h1>
             <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Useful browser tools for everyday work. Open a tool, paste your
-              content, and get the result without extra setup.
+              A collection of private browser utilities for developer work,
+              images, PDFs, text cleanup, colors, timestamps, passwords, and
+              quick everyday tasks. No signup required.
             </p>
+            <Link
+              className="w-fit text-sm font-semibold text-primary underline-offset-4 hover:underline"
+              href="/#workbench"
+              transitionTypes={["nav-back"]}
+            >
+              Back to the workbench
+            </Link>
           </div>
         </div>
       </section>

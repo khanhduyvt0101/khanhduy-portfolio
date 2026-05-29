@@ -12,6 +12,8 @@ const LazyHeroPetPlayground = dynamic(
   { ssr: false },
 );
 
+const heroPetMediaQuery = "(min-width: 640px)";
+
 function scheduleAfterFirstPaint(callback: () => void) {
   const browserWindow = window as Window &
     typeof globalThis & {
@@ -65,7 +67,30 @@ function scheduleAfterFirstPaint(callback: () => void) {
 export function HeroPetPlaygroundLoader(): ReactNode {
   const [ready, setReady] = useState(false);
 
-  useEffect(() => scheduleAfterFirstPaint(() => setReady(true)), []);
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(heroPetMediaQuery);
+    let cancelScheduledLoad: (() => void) | undefined;
+
+    const syncPetVisibility = () => {
+      cancelScheduledLoad?.();
+      cancelScheduledLoad = undefined;
+
+      if (!mediaQuery.matches) {
+        setReady(false);
+        return;
+      }
+
+      cancelScheduledLoad = scheduleAfterFirstPaint(() => setReady(true));
+    };
+
+    syncPetVisibility();
+    mediaQuery.addEventListener("change", syncPetVisibility);
+
+    return () => {
+      cancelScheduledLoad?.();
+      mediaQuery.removeEventListener("change", syncPetVisibility);
+    };
+  }, []);
 
   return ready ? <LazyHeroPetPlayground /> : null;
 }

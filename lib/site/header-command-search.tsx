@@ -43,7 +43,7 @@ export function HeaderCommandSearch(): ReactNode {
         <Search className="size-3.5" />
       </span>
       <span className="relative ml-2 min-w-0 flex-1 truncate text-muted-foreground text-sm transition-colors duration-300 group-hover/search:text-foreground">
-        Search agents, tools, links
+        Search apps, tools, agents
       </span>
       <span className="relative ml-3 hidden items-center gap-1 rounded-md border bg-background/80 px-1.5 py-1 font-mono text-[0.68rem] text-muted-foreground shadow-xs lg:inline-flex">
         <Keyboard className="size-3" />

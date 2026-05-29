@@ -9,7 +9,7 @@ import {
 import { siteUrl } from "~/lib/site/seo";
 import { spotterFuel } from "~/lib/spotterfuel/spotterfuel-content";
 
-const lastModified = new Date("2026-05-20T00:00:00.000Z");
+const lastModified = new Date("2026-05-29T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [

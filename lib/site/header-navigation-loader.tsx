@@ -33,18 +33,31 @@ export function HeaderNavigationLoader(): ReactNode {
     >
       <Link
         className="rounded-lg px-2.5 py-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
-        href="/ai-agents"
+        href="/#apps"
         transitionTypes={["nav-forward"]}
       >
-        Agents
+        Apps
       </Link>
       <Link
-        className="rounded-lg px-2.5 py-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 max-[430px]:hidden"
-        href="/free-tools"
+        className="rounded-lg px-2.5 py-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+        href="/#workbench"
         transitionTypes={["nav-forward"]}
       >
-        Tools
+        Workbench
       </Link>
+      <Link
+        className="rounded-lg px-2.5 py-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+        href="/#about"
+        transitionTypes={["nav-forward"]}
+      >
+        About
+      </Link>
+      <a
+        className="rounded-lg px-2.5 py-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+        href="mailto:khanhduyvt0101@gmail.com"
+      >
+        Contact
+      </a>
     </nav>
   );
 }

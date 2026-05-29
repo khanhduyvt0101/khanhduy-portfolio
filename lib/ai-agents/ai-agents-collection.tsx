@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   Announcement,
@@ -56,8 +57,8 @@ export function createAiAgentsCollectionMetadata(pageNumber = 1): Metadata {
 
   return createSeoMetadata({
     title: isFirstPage
-      ? "Free Browser AI Agents for Email, Files and Data"
-      : `Free Browser AI Agents - Page ${pageNumber}`,
+      ? "Free Browser AI Agents by Khanh Duy"
+      : `Free Browser AI Agents by Khanh Duy - Page ${pageNumber}`,
     description: isFirstPage
       ? "Run free browser AI agents for email summaries, file extraction, day planning, document renewals, home maintenance, data cleaning, prompt building, private summarization, and JSON schema generation."
       : `Page ${pageNumber} of ${pageCount}: browse free browser AI agents for private summaries, structured extraction, data cleanup, prompt building, and browser-first workflows.`,
@@ -82,8 +83,8 @@ export function createAiAgentsCollectionJsonLd(pageNumber = 1) {
     "@type": "CollectionPage",
     name:
       pageNumber === 1
-        ? "Free Browser AI Agents"
-        : `Free Browser AI Agents - Page ${pageNumber}`,
+        ? "Free Browser AI Agents by Khanh Duy"
+        : `Free Browser AI Agents by Khanh Duy - Page ${pageNumber}`,
     description: createAiAgentsCollectionMetadata(pageNumber).description,
     url: `${siteUrl}${getAiAgentsPagePath(pageNumber)}`,
     mainEntity: {
@@ -121,23 +122,30 @@ export function AiAgentsCollectionPage({
       <section className="border-b bg-muted/30">
         <div className="container mx-auto flex max-w-7xl flex-col gap-8 px-4 py-14 md:py-20">
           <Announcement themed className="w-fit">
-            <AnnouncementTag>AI Agents</AnnouncementTag>
+            <AnnouncementTag>Workbench</AnnouncementTag>
             <AnnouncementTitle>Runnable browser agents</AnnouncementTitle>
           </Announcement>
 
           <div className="flex max-w-4xl flex-col gap-4">
             <h1 className="text-4xl font-black leading-tight text-foreground md:text-6xl">
               {pageNumber === 1
-                ? "Free AI agents you can use directly in the browser."
-                : `Free AI agents you can use directly in the browser, page ${pageNumber}.`}
+                ? "Free browser AI agents for small workflow tasks."
+                : `Free browser AI agents for small workflow tasks, page ${pageNumber}.`}
             </h1>
             <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
-              Paste text, upload supported files, and get summaries, cleaned
-              tables, JSON, schemas, reply drafts, renewal trackers, home
-              maintenance plans, and reusable prompts. Browser AI runs when
-              available; Hugging Face models run through Vercel AI SDK when
-              supported; a deterministic fallback keeps the agents working.
+              Run agents for summaries, file extraction, day planning, document
+              renewals, home maintenance, data cleaning, prompt building,
+              private summarization, and JSON schema generation. Browser AI runs
+              when available, with supported fallbacks already described in each
+              agent.
             </p>
+            <Link
+              className="w-fit text-sm font-semibold text-primary underline-offset-4 hover:underline"
+              href="/#workbench"
+              transitionTypes={["nav-back"]}
+            >
+              Back to the workbench
+            </Link>
           </div>
         </div>
       </section>

@@ -123,12 +123,12 @@ function AgentCard({ agent }: { agent: AgentBlueprint }): ReactNode {
 
   return (
     <Card
-      className="rounded-lg py-4 transition-colors hover:border-foreground/25"
+      className="min-w-0 rounded-lg py-4 transition-colors hover:border-foreground/25"
       id={`agent-${agent.id}`}
     >
-      <CardHeader className="gap-3 px-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
+      <CardHeader className="min-w-0 gap-3 px-4">
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border bg-muted/35">
               <AgentIcon className="size-5 text-muted-foreground" />
             </div>
