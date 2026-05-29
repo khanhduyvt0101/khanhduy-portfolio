@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { spotterFuelUrls } from "~/lib/spotterfuel/spotterfuel-content";
+import { siteUrl } from "~/lib/site/seo";
+import { spotterFuel } from "~/lib/spotterfuel/spotterfuel-content";
 import { SpotterFuelMarketingPage } from "~/lib/spotterfuel/spotterfuel-pages";
 
 export const metadata: Metadata = {
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
     title: "SpotterFuel - Exercise Swaps for Crowded Gyms",
     description:
       "Mark blocked gym equipment and get same-muscle exercise reroutes without losing your workout.",
-    url: spotterFuelUrls.marketing,
+    url: `${siteUrl}${spotterFuel.paths.marketing}`,
     type: "website",
   },
 };

@@ -7,11 +7,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { type PropsWithChildren, type ReactNode, ViewTransition } from "react";
 import { ThemeProvider } from "~/lib/components/theme-provider";
-import { PortfolioCommandPaletteLoader } from "~/lib/portfolio/portfolio-command-palette-loader";
+import { PortfolioCommandPalette } from "~/lib/portfolio/portfolio-interactions";
 
 import { ColorSchemeControl } from "~/lib/site/color-scheme-control";
 import { HeaderCommandSearch } from "~/lib/site/header-command-search";
-import { HeaderNavigationLoader } from "~/lib/site/header-navigation-loader";
+import { HeaderNavigation } from "~/lib/site/header-navigation";
 import {
   defaultSeoDescription,
   siteKeywords,
@@ -99,14 +99,6 @@ const footerGroups = [
     ],
   },
   {
-    label: "SpotterFuel legal",
-    links: [
-      { label: "Support", href: "/spotterfuel/support" },
-      { label: "Privacy", href: "/spotterfuel/privacy" },
-      { label: "Terms", href: "/spotterfuel/terms" },
-    ],
-  },
-  {
     label: "Connect",
     links: [
       {
@@ -154,13 +146,13 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
                   <HeaderCommandSearch />
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <HeaderNavigationLoader />
+                  <HeaderNavigation />
                   <ColorSchemeControl />
                 </div>
               </header>
             </div>
           </div>
-          <PortfolioCommandPaletteLoader />
+          <PortfolioCommandPalette />
           <ViewTransition
             default="page-soft"
             enter="page-forward"

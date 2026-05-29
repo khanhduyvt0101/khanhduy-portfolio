@@ -37,24 +37,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.7,
     },
-    {
-      url: `${siteUrl}${spotterFuel.paths.support}`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: `${siteUrl}${spotterFuel.paths.privacy}`,
-      lastModified,
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-    {
-      url: `${siteUrl}${spotterFuel.paths.terms}`,
-      lastModified,
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
   ];
 
   const toolRoutes = freeTools.map((tool) => ({

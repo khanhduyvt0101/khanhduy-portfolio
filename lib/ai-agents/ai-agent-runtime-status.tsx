@@ -61,12 +61,13 @@ export function AgentRuntimeStatus(): ReactNode {
       state: "ready",
     },
   ]);
-  const [modelWarmup, setModelWarmup] = useState<RuntimeWarmupSummary>({
+  const modelWarmup: RuntimeWarmupSummary = {
     completed: 0,
-    detail: "Waiting to prepare browser models.",
-    status: "checking",
+    detail:
+      "Browser models are prepared on each agent page, keeping this catalog fast.",
+    status: "deferred",
     total: 0,
-  });
+  };
 
   useEffect(() => {
     const globalScope = globalThis as {
@@ -125,16 +126,6 @@ export function AgentRuntimeStatus(): ReactNode {
           state: globalScope.showOpenFilePicker ? "ready" : "standard",
         },
       ]);
-    });
-  }, []);
-
-  useEffect(() => {
-    setModelWarmup({
-      completed: 0,
-      detail:
-        "Browser models are prepared on each agent page, keeping this catalog fast.",
-      status: "deferred",
-      total: 0,
     });
   }, []);
 

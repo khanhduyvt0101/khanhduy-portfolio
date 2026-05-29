@@ -37,7 +37,6 @@ import {
 import { agentBlueprints } from "~/lib/ai-agents/agent-catalog";
 import { getAgentIcon } from "~/lib/ai-agents/agent-presentation";
 import { freeTools, type ToolCategory } from "~/lib/free-tools/tool-meta";
-import { HeroPetPlaygroundLoader } from "~/lib/portfolio/hero-pet-playground-loader";
 import { cn } from "~/lib/utils";
 
 const experienceStartYear = 2021;
@@ -120,7 +119,7 @@ const currentApps: CurrentApp[] = [
     headline: "School notices become reviewed action cards.",
     description:
       "CampusCue turns flyers, PDFs, screenshots, and shared files into cards parents can review before adding anything to Calendar or Reminders.",
-    cta: "Join TestFlight waitlist",
+    cta: "View CampusCue",
     icon: School,
     accent: {
       border: "border-orange-400",
@@ -238,10 +237,6 @@ export function PortfolioCommandCenter(): ReactNode {
               </Button>
             </div>
 
-            <div className="lg:hidden">
-              <AppPreviewRail />
-            </div>
-
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
               <HeroMetric
                 icon={Code2}
@@ -297,10 +292,6 @@ export function PortfolioCommandCenter(): ReactNode {
             </div>
           </div>
         </div>
-        <div className="container relative z-20 mx-auto hidden max-w-7xl px-4 pb-8 lg:-mt-10 lg:block">
-          <AppPreviewRail />
-        </div>
-        <HeroPetRunway />
       </section>
 
       <section
@@ -470,40 +461,6 @@ export function PortfolioCommandCenter(): ReactNode {
   );
 }
 
-function AppPreviewRail(): ReactNode {
-  return (
-    <div className="grid gap-3 rounded-lg border bg-background/90 p-3 shadow-xl backdrop-blur md:grid-cols-3">
-      {currentApps.map((app) => (
-        <a
-          className="group flex min-w-0 items-center gap-3 rounded-md p-3 outline-none transition-colors hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring/70"
-          href={app.href}
-          key={app.name}
-          rel="noreferrer"
-          target="_blank"
-        >
-          <span
-            className={cn(
-              "grid size-10 shrink-0 place-items-center rounded-lg border",
-              app.accent.border,
-              app.accent.soft,
-              app.accent.text,
-            )}
-          >
-            <app.icon className="size-5" />
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate font-bold">{app.domain}</span>
-            <span className="line-clamp-1 text-muted-foreground text-sm">
-              {app.label}
-            </span>
-          </span>
-          <ArrowUpRight className="ml-auto size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-        </a>
-      ))}
-    </div>
-  );
-}
-
 function CurrentAppCard({ app }: { app: CurrentApp }): ReactNode {
   return (
     <Card
@@ -653,16 +610,6 @@ function WorkbenchGroup({
         ))}
       </div>
     </section>
-  );
-}
-
-function HeroPetRunway(): ReactNode {
-  return (
-    <div className="pointer-events-none absolute inset-0 z-10">
-      <div className="container relative mx-auto h-full max-w-7xl px-4">
-        <HeroPetPlaygroundLoader />
-      </div>
-    </div>
   );
 }
 
