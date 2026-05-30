@@ -9,7 +9,6 @@ import { type PropsWithChildren, type ReactNode, ViewTransition } from "react";
 import { ThemeProvider } from "~/lib/components/theme-provider";
 
 import { ColorSchemeControl } from "~/lib/site/color-scheme-control";
-import { HeaderNavigation } from "~/lib/site/header-navigation";
 import {
   defaultSeoDescription,
   siteKeywords,
@@ -64,6 +63,13 @@ export const metadata: Metadata = {
       "max-snippet": -1,
       "max-video-preview": -1,
     },
+  },
+  icons: {
+    icon: [
+      { url: "/brand/kd-signature-icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
   },
   openGraph: {
     title: "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
@@ -133,15 +139,15 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
               <header className="flex h-16 items-center justify-between gap-4">
                 <div className="flex min-w-0 flex-1 items-center gap-4">
                   <Link
-                    className="shrink-0 truncate bg-[linear-gradient(90deg,var(--foreground),var(--muted-foreground))] bg-clip-text text-xl font-black text-transparent"
+                    aria-label="Khanh Duy home"
+                    className="flex h-11 w-[82px] shrink-0 items-center text-foreground transition-colors hover:text-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 md:w-24"
                     href="/"
                     transitionTypes={["nav-forward"]}
                   >
-                    Khanh Duy
+                    <KdSignatureLogo />
                   </Link>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <HeaderNavigation />
                   <ColorSchemeControl />
                 </div>
               </header>
@@ -212,5 +218,31 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
         {isVercelRuntime ? <SpeedInsights /> : null}
       </body>
     </html>
+  );
+}
+
+function KdSignatureLogo(): ReactNode {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-auto w-full"
+      fill="none"
+      viewBox="0 0 176 56"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M17.5 43.5c3.6-12.9 8.8-24 17-31.1M29.5 32.6c13.5-14.5 27.3-22 34-15.7 6.2 5.9-10.2 15.4-33.1 18.8 12.9.4 23.3 4.9 31.4 12.5M77.5 46.2c4.9-13.7 10.4-25 18.1-33.7m-5.1 10.7c17.5-11.1 41.3-8.7 49.5 5.8 9.9 17.4-13.8 29-38.2 21.4-13.3-4.1-17.3-14.9-8.3-20.2"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="5.6"
+      />
+      <path
+        d="M138.7 33.3c9.4-.8 17.8-4.5 25-10.9"
+        stroke="#14b8a6"
+        strokeLinecap="round"
+        strokeWidth="5.6"
+      />
+    </svg>
   );
 }

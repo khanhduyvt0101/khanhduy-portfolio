@@ -8,9 +8,8 @@ import {
   IconBrandX,
   IconMail,
 } from "@tabler/icons-react";
-import { ArrowRight, ArrowUpRight, ExternalLink } from "lucide-react";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Badge } from "~/components/ui/badge";
@@ -158,36 +157,28 @@ function HeroSection(): ReactNode {
       <div className="absolute inset-0 -z-20 bg-[linear-gradient(120deg,rgba(255,255,255,0.92),rgba(235,240,246,0.78)_42%,rgba(244,244,239,0.9))] dark:bg-[linear-gradient(120deg,rgba(20,20,20,0.98),rgba(30,32,35,0.9)_46%,rgba(15,15,15,0.96))]" />
       <div className="absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_16%_18%,rgba(125,211,252,0.2),transparent_34%),radial-gradient(circle_at_76%_10%,rgba(251,207,232,0.2),transparent_30%)] dark:opacity-60" />
       <div className="container mx-auto grid max-w-7xl gap-8 px-4 pb-8 pt-10 sm:px-6 sm:pb-10 sm:pt-14 md:grid-cols-[minmax(0,0.9fr)_minmax(360px,1.1fr)] md:items-center lg:min-h-[min(calc(78svh-64px),760px)] lg:px-8">
-        <div className="flex min-w-0 flex-col gap-8">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold text-[#5b5f66] dark:text-[#b8babf]">
-              Bui Trong Khanh Duy / Ho Chi Minh City
-            </p>
-            <h1 className="mt-5 text-5xl font-semibold leading-none text-balance sm:text-6xl lg:text-7xl">
-              Khanh Duy
-            </h1>
-            <p className="mt-6 max-w-2xl text-xl leading-8 text-[#32353a] text-balance dark:text-[#d9d9d6] sm:text-2xl sm:leading-9">
-              Builds small apps for everyday friction.
-            </p>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-[#646971] dark:text-[#aaaead]">
-              A Ho Chi Minh City developer behind LofiHood, SpotterFuel, and
-              CampusCue: focused tools for Mac playback, crowded gyms, and
-              school-notice follow-through.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <Button asChild className="h-12 rounded-lg px-5" size="lg">
-              <Link href="#apps">
-                View the apps
-                <ArrowRight data-icon="inline-end" />
-              </Link>
-            </Button>
-            <SocialLinks />
-          </div>
+        <div className="max-w-3xl min-w-0 md:col-start-1 md:row-start-1">
+          <p className="text-sm font-semibold text-[#5b5f66] dark:text-[#b8babf]">
+            Bui Trong Khanh Duy / Ho Chi Minh City
+          </p>
+          <h1 className="mt-5 text-5xl font-semibold leading-none text-balance sm:text-6xl lg:text-7xl">
+            Khanh Duy
+          </h1>
+          <p className="mt-6 max-w-2xl text-xl leading-8 text-[#32353a] text-balance dark:text-[#d9d9d6] sm:text-2xl sm:leading-9">
+            Builds small apps for everyday friction.
+          </p>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[#646971] dark:text-[#aaaead]">
+            A Ho Chi Minh City developer behind LofiHood, SpotterFuel, and
+            CampusCue: focused tools for Mac playback, crowded gyms, and
+            school-notice follow-through.
+          </p>
         </div>
 
-        <HeroProductCluster />
+        <HeroAvatarPortrait />
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center md:col-start-1 md:row-start-2">
+          <SocialLinks />
+        </div>
       </div>
     </section>
   );
@@ -197,7 +188,7 @@ function SocialLinks(): ReactNode {
   return (
     <nav
       aria-label="Khanh Duy social and contact links"
-      className="flex flex-wrap gap-2"
+      className="flex flex-wrap gap-1.5 sm:gap-2"
     >
       {socialLinks.map(({ href, icon: Icon, label }) => {
         const external = !href.startsWith("mailto:");
@@ -205,7 +196,7 @@ function SocialLinks(): ReactNode {
         return (
           <Button
             asChild
-            className="group relative size-12 rounded-lg bg-white/75 p-0 shadow-xs backdrop-blur hover:bg-white dark:bg-white/10 dark:hover:bg-white/15"
+            className="group relative size-11 rounded-lg bg-white/75 p-0 shadow-xs backdrop-blur hover:bg-white dark:bg-white/10 dark:hover:bg-white/15 sm:size-12"
             key={href}
             size="icon"
             variant="outline"
@@ -231,72 +222,31 @@ function SocialLinks(): ReactNode {
   );
 }
 
-function HeroProductCluster(): ReactNode {
+function HeroAvatarPortrait(): ReactNode {
   return (
-    <div
-      aria-label="Product previews for LofiHood, SpotterFuel, and CampusCue"
-      role="img"
-      className="relative mx-auto hidden min-h-[460px] w-full max-w-[680px] md:block lg:min-h-[540px]"
-    >
-      <div className="absolute inset-x-2 top-2 rounded-[22px] border border-black/10 bg-white/78 p-2 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-white/12 dark:bg-white/8">
-        <div className="flex h-10 items-center gap-2 border-black/8 border-b px-4 dark:border-white/10">
-          <span className="size-3 rounded-full bg-[#ff605c]" />
-          <span className="size-3 rounded-full bg-[#ffbd44]" />
-          <span className="size-3 rounded-full bg-[#00ca4e]" />
-          <span className="ml-3 text-[#6d7178] text-xs dark:text-[#b8babf]">
-            current-apps.local
-          </span>
+    <figure className="relative isolate mx-auto w-[min(58vw,212px)] sm:w-[220px] md:col-start-2 md:row-span-2 md:row-start-1 md:w-full md:max-w-[470px] md:justify-self-center">
+      <div
+        aria-hidden="true"
+        className="absolute -left-8 top-8 size-24 rounded-full bg-[#b7e4cc]/45 blur-3xl dark:bg-[#93c5fd]/18 md:-left-10 md:top-16 md:size-48"
+      />
+      <div className="relative overflow-hidden rounded-[28px] border border-black/10 bg-white/70 p-2 shadow-[0_18px_48px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-white/12 dark:bg-white/10 dark:shadow-[0_28px_90px_rgba(0,0,0,0.36)] md:rounded-[34px] md:p-3 md:shadow-[0_28px_90px_rgba(15,23,42,0.18)]">
+        <div className="mb-2 flex h-6 items-center gap-1.5 px-2 md:h-8">
+          <span className="size-2 rounded-full bg-[#ff605c]" />
+          <span className="size-2 rounded-full bg-[#ffbd44]" />
+          <span className="size-2 rounded-full bg-[#00ca4e]" />
         </div>
-        <div className="relative aspect-[16/10] overflow-hidden rounded-[14px] bg-[#111318]">
+        <div className="relative aspect-square overflow-hidden rounded-[20px] bg-[#dce6d4] md:aspect-[4/5] md:rounded-[24px]">
           <Image
-            alt="LofiHood album manager window"
-            className="object-cover object-left-top"
+            alt="Portrait of Khanh Duy"
+            className="object-cover object-[50%_42%]"
             fill
-            priority
-            sizes="(max-width: 1024px) 90vw, 680px"
-            src="/apps/lofihood/album-manager.png"
+            preload
+            sizes="(max-width: 767px) 220px, (max-width: 1024px) 34vw, 440px"
+            src="/avatar.webp"
           />
         </div>
       </div>
-
-      <div className="absolute left-0 top-[245px] w-[43%] min-w-[180px] rotate-[-5deg] rounded-[18px] border border-black/10 bg-white p-2 shadow-[0_26px_70px_rgba(15,23,42,0.18)] dark:border-white/12 dark:bg-[#1b1b1d] lg:top-[285px]">
-        <Image
-          alt="LofiHood player panel"
-          className="h-auto w-full rounded-[12px]"
-          height={1192}
-          priority
-          sizes="(max-width: 640px) 190px, 300px"
-          src="/apps/lofihood/player-panel.png"
-          width={640}
-        />
-      </div>
-
-      <PhonePreview
-        alt="SpotterFuel swap screen"
-        className="absolute right-[20%] top-[265px] w-[32%] min-w-[128px] rotate-[5deg] lg:top-[310px]"
-        priority
-        src="/apps/spotterfuel/swap.jpg"
-      />
-      <PhonePreview
-        alt="CampusCue action inbox"
-        className="absolute right-0 top-[205px] w-[34%] min-w-[136px] rotate-[10deg] lg:top-[250px]"
-        priority
-        src="/apps/campuscue/screenshot1.png"
-      />
-
-      <div className="absolute bottom-2 right-4 hidden rounded-2xl border border-black/10 bg-white/82 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.16)] backdrop-blur-xl dark:border-white/12 dark:bg-white/10 sm:flex sm:items-center sm:gap-3">
-        {apps.map((app) => (
-          <Image
-            alt={app.iconAlt}
-            className="rounded-xl"
-            height={44}
-            key={app.name}
-            src={app.icon}
-            width={44}
-          />
-        ))}
-      </div>
-    </div>
+    </figure>
   );
 }
 
