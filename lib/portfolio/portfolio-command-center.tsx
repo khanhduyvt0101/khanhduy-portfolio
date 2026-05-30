@@ -334,7 +334,7 @@ function PhonePreview({
 function AppsSection(): ReactNode {
   return (
     <section
-      className="relative scroll-mt-16 border-black/10 border-t bg-white px-4 py-14 dark:border-white/10 dark:bg-[#151515] sm:px-6 md:py-20 lg:px-8"
+      className="relative scroll-mt-28 border-black/10 border-t bg-white px-4 py-14 dark:border-white/10 dark:bg-[#151515] sm:px-6 md:scroll-mt-24 md:py-20 lg:px-8"
       id="apps"
     >
       <div className="container mx-auto max-w-7xl">
