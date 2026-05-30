@@ -113,7 +113,12 @@ const footerGroups = [
 
 export default function Layout({ children }: PropsWithChildren): ReactNode {
   return (
-    <html suppressHydrationWarning dir="ltr" lang="en-US">
+    <html
+      suppressHydrationWarning
+      className="scroll-pt-28 md:scroll-pt-24"
+      dir="ltr"
+      lang="en-US"
+    >
       <body
         className={`${geist.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
