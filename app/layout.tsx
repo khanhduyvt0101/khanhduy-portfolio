@@ -7,10 +7,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { type PropsWithChildren, type ReactNode, ViewTransition } from "react";
 import { ThemeProvider } from "~/lib/components/theme-provider";
-import { PortfolioCommandPalette } from "~/lib/portfolio/portfolio-interactions";
 
 import { ColorSchemeControl } from "~/lib/site/color-scheme-control";
-import { HeaderCommandSearch } from "~/lib/site/header-command-search";
 import { HeaderNavigation } from "~/lib/site/header-navigation";
 import {
   defaultSeoDescription,
@@ -92,13 +90,6 @@ const footerGroups = [
     ],
   },
   {
-    label: "Workbench",
-    links: [
-      { label: "AI Agents", href: "/ai-agents" },
-      { label: "Free Tools", href: "/free-tools" },
-    ],
-  },
-  {
     label: "Connect",
     links: [
       {
@@ -143,7 +134,6 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
                   >
                     Khanh Duy
                   </Link>
-                  <HeaderCommandSearch />
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <HeaderNavigation />
@@ -152,7 +142,6 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
               </header>
             </div>
           </div>
-          <PortfolioCommandPalette />
           <ViewTransition
             default="page-soft"
             enter="page-forward"
@@ -161,7 +150,7 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
             <main className="flex-1">{children}</main>
           </ViewTransition>
           <footer className="mt-auto border-t">
-            <div className="container mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.2fr_repeat(4,minmax(0,1fr))]">
+            <div className="container mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.2fr_repeat(2,minmax(0,1fr))]">
               <div>
                 <p className="text-sm font-bold text-foreground">Khanh Duy</p>
                 <p className="mt-3 max-w-sm text-muted-foreground text-sm leading-6">

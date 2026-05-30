@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const siteUrl = "https://www.khanhduy.com";
 export const siteName = "Khanh Duy";
 export const defaultSeoDescription =
-  "Khanh Duy is a full-stack developer in Ho Chi Minh City building practical apps for focus, fitness, and family logistics, plus free browser tools and AI agents.";
+  "Khanh Duy is a Ho Chi Minh City developer building LofiHood, SpotterFuel, and CampusCue: focused apps for Mac playback, crowded gyms, and school-notice follow-through.";
 
 export const siteKeywords = [
   "Khanh Duy",
@@ -18,8 +18,6 @@ export const siteKeywords = [
   "school notice app",
   "Next.js developer",
   "React TypeScript developer",
-  "free browser tools",
-  "browser AI agents",
 ];
 
 type SeoMetadataOptions = {

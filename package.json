@@ -105,5 +105,21 @@
     "postcss": "^8.5.14",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3"
-  }
+  },
+  "description": "Personal portfolio site for Khanh Duy, built with Next.js, React, Tailwind CSS, and shadcn-style UI components. The site showcases profile information, projects, social links, and blog content.",
+  "main": "next.config.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khanhduyvt0101/khanhduy-portfolio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khanhduyvt0101/khanhduy-portfolio/issues"
+  },
+  "homepage": "https://github.com/khanhduyvt0101/khanhduy-portfolio#readme"
 }

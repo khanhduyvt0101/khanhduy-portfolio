@@ -14,7 +14,7 @@ import {
 export const metadata: Metadata = createSeoMetadata({
   title: "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
   description:
-    "Khanh Duy is a full-stack developer in Ho Chi Minh City building LofiHood, SpotterFuel, CampusCue, free browser tools, and browser AI agents.",
+    "Khanh Duy builds LofiHood, SpotterFuel, and CampusCue: focused apps for Mac playback, crowded gyms, and school-notice follow-through.",
   imageAlt: "Khanh Duy portfolio showing LofiHood, SpotterFuel, and CampusCue",
   keywords: siteKeywords,
   path: "/",
