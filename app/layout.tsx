@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default:
-      "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
+      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue & WakeArc",
     template: `%s | ${siteName}`,
   },
   description: defaultSeoDescription,
@@ -72,7 +72,8 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
+    title:
+      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue & WakeArc",
     description: defaultSeoDescription,
     url: "/",
     siteName,
@@ -81,7 +82,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
+    title:
+      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue & WakeArc",
     description: defaultSeoDescription,
   },
 };
@@ -93,6 +95,7 @@ const footerGroups = [
       { label: "LofiHood", href: "https://lofihood.com", external: true },
       { label: "SpotterFuel", href: "https://spotterfuel.com", external: true },
       { label: "CampusCue", href: "https://campuscue.app", external: true },
+      { label: "WakeArc", href: "https://wakearc.com", external: true },
     ],
   },
   {

@@ -80,7 +80,8 @@ export function Infor(): ReactNode {
             <p className="text-lg text-muted-foreground leading-relaxed mt-4">
               Hello, I&apos;m Khanh Duy, a Software Engineer based in Ho Chi
               Minh City. I build practical web, iOS, and macOS products. My
-              current work centers on LofiHood, SpotterFuel, and CampusCue.
+              current work centers on LofiHood, SpotterFuel, CampusCue, and
+              WakeArc.
             </p>
 
             <div className="flex flex-wrap gap-4 mt-8">

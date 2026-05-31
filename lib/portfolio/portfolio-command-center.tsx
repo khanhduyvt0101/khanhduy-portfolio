@@ -140,6 +140,26 @@ const apps: AppShowcase[] = [
     accentClassName: "from-[#bfdbfe] via-[#c4b5fd] to-[#fbcfe8]",
     visual: "phone-stack",
   },
+  {
+    name: "WakeArc",
+    platform: "iPhone + Apple Watch",
+    href: "https://wakearc.com",
+    cta: "View WakeArc",
+    description:
+      "A calm sleep-cycle alarm planner that works around 90-minute cycles, Sleep Now, Wake At, and Apple Watch sync.",
+    icon: "/apps/wakearc/app-icon.png",
+    iconAlt: "WakeArc app icon",
+    visualAlt:
+      "WakeArc iPhone screenshots showing Sleep Now, Wake At, and sleep-cycle options.",
+    screenshots: {
+      primary: "/apps/wakearc/sleep-now.png",
+      secondary: "/apps/wakearc/wake-at.png",
+      tertiary: "/apps/wakearc/cycle-list.png",
+    },
+    chips: ["iPhone", "Apple Watch", "90-minute cycles"],
+    accentClassName: "from-[#c7d2fe] via-[#bfdbfe] to-[#f0abfc]",
+    visual: "phone-stack",
+  },
 ];
 
 export function PortfolioCommandCenter(): ReactNode {
@@ -168,9 +188,9 @@ function HeroSection(): ReactNode {
             Builds small apps for everyday friction.
           </p>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[#646971] dark:text-[#aaaead]">
-            A Ho Chi Minh City developer behind LofiHood, SpotterFuel, and
-            CampusCue: focused tools for Mac playback, crowded gyms, and
-            school-notice follow-through.
+            A Ho Chi Minh City developer behind LofiHood, SpotterFuel,
+            CampusCue, and WakeArc: focused tools for Mac playback, crowded
+            gyms, school-notice follow-through, and sleep-cycle alarms.
           </p>
         </div>
 
@@ -291,13 +311,13 @@ function AppsSection(): ReactNode {
         <div className="mb-10 grid gap-5 md:grid-cols-[minmax(0,0.9fr)_minmax(260px,0.45fr)] md:items-end">
           <div>
             <h2 className="text-4xl font-semibold leading-tight text-balance md:text-5xl">
-              Three focused products, each built around one specific
+              Four focused products, each built around one specific
               interruption.
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-[#646971] dark:text-[#aaaead]">
-              Calm playback, crowded-gym reroutes, and parent review flows: each
-              app starts with a real moment where the next action should be
-              simpler.
+              Calm playback, crowded-gym reroutes, parent review flows, and
+              sleep-cycle alarms: each app starts with a real moment where the
+              next action should be simpler.
             </p>
           </div>
           <p className="text-sm leading-6 text-[#646971] dark:text-[#aaaead] md:text-right">
@@ -305,7 +325,7 @@ function AppsSection(): ReactNode {
           </p>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
           {apps.map((app) => (
             <AppTile app={app} key={app.name} />
           ))}

@@ -12,10 +12,12 @@ import {
 } from "~/lib/site/seo";
 
 export const metadata: Metadata = createSeoMetadata({
-  title: "Khanh Duy | Product Builder for LofiHood, SpotterFuel & CampusCue",
+  title:
+    "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue & WakeArc",
   description:
-    "Khanh Duy builds LofiHood, SpotterFuel, and CampusCue: focused apps for Mac playback, crowded gyms, and school-notice follow-through.",
-  imageAlt: "Khanh Duy portfolio showing LofiHood, SpotterFuel, and CampusCue",
+    "Khanh Duy builds LofiHood, SpotterFuel, CampusCue, and WakeArc: focused apps for Mac playback, crowded gyms, school-notice follow-through, and sleep-cycle alarms.",
+  imageAlt:
+    "Khanh Duy portfolio showing LofiHood, SpotterFuel, CampusCue, and WakeArc",
   keywords: siteKeywords,
   path: "/",
 });
@@ -77,6 +79,12 @@ const homeJsonLd = {
           position: 3,
           name: "CampusCue",
           url: "https://campuscue.app",
+        },
+        {
+          "@type": "ListItem",
+          position: 4,
+          name: "WakeArc",
+          url: "https://wakearc.com",
         },
       ],
     },

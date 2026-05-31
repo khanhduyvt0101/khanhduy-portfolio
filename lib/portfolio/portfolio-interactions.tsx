@@ -12,6 +12,7 @@ import {
   ImageIcon,
   type LucideIcon,
   Mail,
+  Moon,
   Music2,
   Palette,
   School,
@@ -175,6 +176,21 @@ const productCommands = [
     href: "https://campuscue.app",
     icon: School,
     keywords: ["school", "parents", "notices", "calendar", "ios", "product"],
+  },
+  {
+    title: "WakeArc",
+    description:
+      "Open the sleep-cycle alarm planner for iPhone and Apple Watch.",
+    href: "https://wakearc.com",
+    icon: Moon,
+    keywords: [
+      "sleep",
+      "alarm",
+      "sleep cycle",
+      "iphone",
+      "apple watch",
+      "product",
+    ],
   },
   {
     title: "GitHub",

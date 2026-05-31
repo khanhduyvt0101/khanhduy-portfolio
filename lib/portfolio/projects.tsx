@@ -40,6 +40,15 @@ const projects = [
     tags: ["iOS", "Parents", "School Notices", "TestFlight"],
     category: "iOS App",
   },
+  {
+    title: "WakeArc",
+    description:
+      "A sleep-cycle alarm planner for iPhone and Apple Watch with Sleep Now, Wake At, and 90-minute cycle options.",
+    link: "https://wakearc.com",
+    image: "/apps/wakearc/opengraph.png",
+    tags: ["iPhone", "Apple Watch", "Sleep Cycles", "Alarm"],
+    category: "iOS App",
+  },
 ];
 
 export function Projects(): ReactNode {
