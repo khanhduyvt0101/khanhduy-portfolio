@@ -81,7 +81,7 @@ export function Infor(): ReactNode {
               Hello, I&apos;m Khanh Duy, a Software Engineer based in Ho Chi
               Minh City. I build practical web, iOS, and macOS products. My
               current work centers on LofiHood, SpotterFuel, CampusCue, and
-              WakeArc.
+              WakeArc, plus CafeSignal.
             </p>
 
             <div className="flex flex-wrap gap-4 mt-8">

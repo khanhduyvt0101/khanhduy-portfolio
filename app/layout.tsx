@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default:
-      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue & WakeArc",
+      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue, WakeArc & CafeSignal",
     template: `%s | ${siteName}`,
   },
   description: defaultSeoDescription,
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title:
-      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue & WakeArc",
+      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue, WakeArc & CafeSignal",
     description: defaultSeoDescription,
     url: "/",
     siteName,
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue & WakeArc",
+      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue, WakeArc & CafeSignal",
     description: defaultSeoDescription,
   },
 };
@@ -96,6 +96,7 @@ const footerGroups = [
       { label: "SpotterFuel", href: "https://spotterfuel.com", external: true },
       { label: "CampusCue", href: "https://campuscue.app", external: true },
       { label: "WakeArc", href: "https://wakearc.com", external: true },
+      { label: "CafeSignal", href: "https://cafesignal.com", external: true },
     ],
   },
   {
@@ -169,7 +170,7 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
                 <p className="text-sm font-bold text-foreground">Khanh Duy</p>
                 <p className="mt-3 max-w-sm text-muted-foreground text-sm leading-6">
                   Product builder in Ho Chi Minh City shipping practical apps
-                  for focus, fitness, and family logistics.
+                  for focus, fitness, family logistics, sleep, and public Wi-Fi.
                 </p>
               </div>
               {footerGroups.map((group) => (

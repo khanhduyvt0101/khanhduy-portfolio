@@ -8,7 +8,13 @@ import {
   IconBrandX,
   IconMail,
 } from "@tabler/icons-react";
-import { ArrowUpRight, ExternalLink } from "lucide-react";
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  Coffee,
+  ExternalLink,
+  WifiHigh,
+} from "lucide-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 
@@ -76,7 +82,7 @@ type AppShowcase = {
   };
   chips: string[];
   accentClassName: string;
-  visual: "mac" | "phone-stack";
+  visual: "mac" | "phone-stack" | "wifi-menu";
 };
 
 const apps: AppShowcase[] = [
@@ -160,6 +166,24 @@ const apps: AppShowcase[] = [
     accentClassName: "from-[#c7d2fe] via-[#bfdbfe] to-[#f0abfc]",
     visual: "phone-stack",
   },
+  {
+    name: "CafeSignal",
+    itemType: "Mac",
+    href: "https://cafesignal.com",
+    cta: "Visit CafeSignal",
+    description:
+      "A native macOS menu bar app that finds usable open public Wi-Fi, verifies internet access, and helps with simple captive portals when safe.",
+    icon: "/apps/cafesignal/app-icon.png",
+    iconAlt: "CafeSignal app icon",
+    visualAlt:
+      "CafeSignal menu preview showing verified public Wi-Fi and ranked network candidates.",
+    screenshots: {
+      primary: "/apps/cafesignal/app-icon.png",
+    },
+    chips: ["Mac", "public Wi-Fi", "menu bar"],
+    accentClassName: "from-[#bff4f0] via-[#f8e3b5] to-[#f7cba8]",
+    visual: "wifi-menu",
+  },
 ];
 
 export function PortfolioCommandCenter(): ReactNode {
@@ -189,8 +213,9 @@ function HeroSection(): ReactNode {
           </p>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[#646971] dark:text-[#aaaead]">
             A Ho Chi Minh City developer behind LofiHood, SpotterFuel,
-            CampusCue, and WakeArc: focused tools for Mac playback, crowded
-            gyms, school-notice follow-through, and sleep-cycle alarms.
+            CampusCue, WakeArc, and CafeSignal: focused tools for Mac playback,
+            crowded gyms, school-notice follow-through, sleep-cycle alarms, and
+            public Wi-Fi.
           </p>
         </div>
 
@@ -311,23 +336,24 @@ function AppsSection(): ReactNode {
         <div className="mb-10 grid gap-5 md:grid-cols-[minmax(0,0.9fr)_minmax(260px,0.45fr)] md:items-end">
           <div>
             <h2 className="text-4xl font-semibold leading-tight text-balance md:text-5xl">
-              Four focused products, each built around one specific
+              Five focused products, each built around one specific
               interruption.
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-[#646971] dark:text-[#aaaead]">
               Calm playback, crowded-gym reroutes, parent review flows, and
-              sleep-cycle alarms: each app starts with a real moment where the
-              next action should be simpler.
+              sleep-cycle alarms, plus public Wi-Fi handoff: each app starts
+              with a real moment where the next action should be simpler.
             </p>
           </div>
           <p className="text-sm leading-6 text-[#646971] dark:text-[#aaaead] md:text-right">
-            Real app icons and screenshots from the product workspaces.
+            Real app icons, screenshots, and interface previews from the product
+            workspaces.
           </p>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
-          {apps.map((app) => (
-            <AppTile app={app} key={app.name} />
+        <div className="grid auto-rows-fr gap-5 lg:grid-cols-2 xl:grid-cols-6">
+          {apps.map((app, index) => (
+            <AppTile app={app} index={index} key={app.name} />
           ))}
         </div>
       </div>
@@ -335,9 +361,22 @@ function AppsSection(): ReactNode {
   );
 }
 
-function AppTile({ app }: { app: AppShowcase }): ReactNode {
+function AppTile({
+  app,
+  index,
+}: {
+  app: AppShowcase;
+  index: number;
+}): ReactNode {
+  const layoutClassName = index < 2 ? "xl:col-span-3" : "xl:col-span-2";
+
   return (
-    <article className="group flex h-full min-h-[620px] flex-col overflow-hidden rounded-[20px] border border-black/10 bg-[#fbfbf8] shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition duration-150 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(15,23,42,0.13)] motion-reduce:transform-none dark:border-white/10 dark:bg-[#1e1e1f]">
+    <article
+      className={cn(
+        "group flex h-full min-h-[620px] flex-col overflow-hidden rounded-[20px] border border-black/10 bg-[#fbfbf8] shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition duration-150 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(15,23,42,0.13)] motion-reduce:transform-none dark:border-white/10 dark:bg-[#1e1e1f]",
+        layoutClassName,
+      )}
+    >
       <div className="flex items-start justify-between gap-4 p-5">
         <div className="flex min-w-0 items-center gap-3">
           <Image
@@ -379,6 +418,8 @@ function AppTile({ app }: { app: AppShowcase }): ReactNode {
       >
         {app.visual === "mac" ? (
           <MacVisual app={app} />
+        ) : app.visual === "wifi-menu" ? (
+          <CafeSignalVisual app={app} />
         ) : (
           <PhoneStackVisual app={app} />
         )}
@@ -407,6 +448,189 @@ function AppTile({ app }: { app: AppShowcase }): ReactNode {
         </Button>
       </div>
     </article>
+  );
+}
+
+function CafeSignalVisual({ app }: { app: AppShowcase }): ReactNode {
+  const networks = [
+    ["Bluebird Cafe Guest", "Verified route", "3"],
+    ["Airport Free Wi-Fi", "Portal check", "2"],
+    ["Member Lounge", "Account required", "3"],
+  ] as const;
+
+  return (
+    <div
+      aria-label={app.visualAlt}
+      role="img"
+      className="w-full min-w-0 max-w-[500px] rounded-[18px] border border-black/10 bg-white/92 p-2 shadow-[0_24px_70px_rgba(15,23,42,0.22)] dark:border-white/10 dark:bg-[#202224]/95 sm:p-3"
+    >
+      <div className="min-w-0 rounded-[14px] border border-black/10 bg-[#fbfbf8] dark:border-white/10 dark:bg-[#151515] sm:hidden">
+        <div className="flex items-center justify-between gap-2 border-black/10 border-b px-2.5 py-2.5 dark:border-white/10">
+          <div className="flex min-w-0 items-center gap-2 text-[#646971] text-sm dark:text-[#aaaead]">
+            <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-black/10 bg-white dark:border-white/10 dark:bg-white/8">
+              <Coffee aria-hidden="true" className="size-4 text-[#0b8b96]" />
+            </span>
+            <span className="truncate">CafeSignal menu</span>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#0b8b96]/25 bg-[#0b8b96]/10 px-2.5 py-1.5 text-[#08636b] text-xs dark:text-[#7ee2e2]">
+            <CheckCircle2 aria-hidden="true" className="size-3.5" />
+            Verified
+          </span>
+        </div>
+
+        <div className="grid gap-2 p-2">
+          <div className="min-w-0 rounded-[12px] border border-black/10 bg-white p-2.5 dark:border-white/10 dark:bg-white/8">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[#646971] text-xs dark:text-[#aaaead]">
+                  Status
+                </p>
+                <h3 className="mt-1 text-lg font-semibold">Connected</h3>
+              </div>
+              <span className="flex h-8 w-12 items-center justify-end rounded-full bg-[#0b8b96] p-1">
+                <span className="size-6 rounded-full bg-white shadow-sm" />
+              </span>
+            </div>
+            <p className="mt-2 text-[#646971] text-xs leading-5 dark:text-[#aaaead]">
+              Bluebird Cafe Guest is online.
+            </p>
+          </div>
+
+          <div className="min-w-0 rounded-[12px] border border-black/10 bg-white p-2.5 dark:border-white/10 dark:bg-white/8">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-[#646971] text-xs dark:text-[#aaaead]">
+                  Ranked public Wi-Fi
+                </p>
+                <h3 className="mt-1 truncate text-base font-semibold">
+                  Best practical route
+                </h3>
+              </div>
+              <WifiHigh aria-hidden="true" className="size-5 text-[#0b8b96]" />
+            </div>
+            <div className="mt-2 grid gap-2">
+              {networks.slice(0, 1).map(([name, detail, level]) => (
+                <div
+                  className="grid min-h-10 grid-cols-[1fr_auto] items-center gap-2 rounded-lg border border-black/10 bg-[#fbfbf8] px-3 py-2 dark:border-white/10 dark:bg-[#151515]"
+                  key={name}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-medium">{name}</p>
+                    <p className="mt-0.5 truncate text-[#646971] text-[11px] dark:text-[#aaaead]">
+                      {detail}
+                    </p>
+                  </div>
+                  <div
+                    className="flex h-5 items-end gap-0.5"
+                    aria-hidden="true"
+                  >
+                    {[1, 2, 3].map((bar) => (
+                      <span
+                        className={cn(
+                          "block w-1 rounded-full",
+                          Number(level) >= bar
+                            ? "bg-[#0b8b96]"
+                            : "bg-[#8d939b]/30",
+                        )}
+                        key={bar}
+                        style={{ height: `${bar * 5 + 4}px` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="hidden min-w-0 rounded-[14px] border border-black/10 bg-[#fbfbf8] dark:border-white/10 dark:bg-[#151515] sm:block">
+        <div className="flex items-center justify-between gap-3 border-black/10 border-b px-4 py-3 dark:border-white/10">
+          <div className="flex min-w-0 items-center gap-2 text-[#646971] text-sm dark:text-[#aaaead]">
+            <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-black/10 bg-white dark:border-white/10 dark:bg-white/8">
+              <Coffee aria-hidden="true" className="size-4 text-[#0b8b96]" />
+            </span>
+            <span className="truncate">CafeSignal menu</span>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#0b8b96]/25 bg-[#0b8b96]/10 px-3 py-1.5 text-[#08636b] text-xs dark:text-[#7ee2e2]">
+            <CheckCircle2 aria-hidden="true" className="size-3.5" />
+            Verified
+          </span>
+        </div>
+
+        <div className="grid grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] gap-3 p-4">
+          <div className="min-w-0 rounded-[12px] border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/8">
+            <p className="text-[#646971] text-xs dark:text-[#aaaead]">Status</p>
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <h3 className="text-lg font-semibold">Connected</h3>
+              <span className="flex h-9 w-14 items-center justify-end rounded-full bg-[#0b8b96] p-1">
+                <span className="size-7 rounded-full bg-white shadow-sm" />
+              </span>
+            </div>
+            <p className="mt-4 text-[#646971] text-xs leading-5 dark:text-[#aaaead]">
+              Bluebird Cafe Guest is online. Last checked 15:44.
+            </p>
+            <div className="mt-4 grid gap-2">
+              {["Check Now", "Portal Assistant", "Settings"].map((item) => (
+                <div
+                  className="flex min-h-8 items-center justify-between rounded-lg border border-black/10 bg-[#fbfbf8] px-3 text-xs dark:border-white/10 dark:bg-[#151515]"
+                  key={item}
+                >
+                  {item}
+                  <span className="size-1.5 rounded-full bg-[#8d939b]" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="min-w-0 rounded-[12px] border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/8">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[#646971] text-xs dark:text-[#aaaead]">
+                  Ranked public Wi-Fi
+                </p>
+                <h3 className="mt-1 text-lg font-semibold">
+                  Best practical route
+                </h3>
+              </div>
+              <WifiHigh aria-hidden="true" className="size-5 text-[#0b8b96]" />
+            </div>
+            <div className="mt-4 grid gap-2">
+              {networks.map(([name, detail, level]) => (
+                <div
+                  className="grid min-h-[52px] grid-cols-[1fr_auto] items-center gap-3 rounded-lg border border-black/10 bg-[#fbfbf8] px-3 py-2 dark:border-white/10 dark:bg-[#151515]"
+                  key={name}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{name}</p>
+                    <p className="mt-0.5 truncate text-[#646971] text-xs dark:text-[#aaaead]">
+                      {detail}
+                    </p>
+                  </div>
+                  <div
+                    className="flex h-5 items-end gap-0.5"
+                    aria-hidden="true"
+                  >
+                    {[1, 2, 3].map((bar) => (
+                      <span
+                        className={cn(
+                          "block w-1 rounded-full",
+                          Number(level) >= bar
+                            ? "bg-[#0b8b96]"
+                            : "bg-[#8d939b]/30",
+                        )}
+                        key={bar}
+                        style={{ height: `${bar * 5 + 4}px` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

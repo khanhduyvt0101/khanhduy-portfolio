@@ -6,7 +6,7 @@ import {
 import { defaultSeoDescription } from "~/lib/site/seo";
 
 export const alt =
-  "Khanh Duy portfolio for LofiHood, SpotterFuel, CampusCue, and WakeArc";
+  "Khanh Duy portfolio for LofiHood, SpotterFuel, CampusCue, WakeArc, and CafeSignal";
 export const size = ogImageSize;
 export const contentType = ogImageContentType;
 
@@ -15,6 +15,6 @@ export default function Image() {
     title: "Khanh Duy",
     eyebrow: "Product Builder",
     description: defaultSeoDescription,
-    kind: "LofiHood / SpotterFuel / CampusCue / WakeArc",
+    kind: "LofiHood / SpotterFuel / CampusCue / WakeArc / CafeSignal",
   });
 }

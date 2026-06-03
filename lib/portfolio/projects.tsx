@@ -49,6 +49,15 @@ const projects = [
     tags: ["iPhone", "Apple Watch", "Sleep Cycles", "Alarm"],
     category: "iOS App",
   },
+  {
+    title: "CafeSignal",
+    description:
+      "A native macOS menu bar app that finds usable open public Wi-Fi, verifies internet access, and helps with simple captive portals when safe.",
+    link: "https://cafesignal.com",
+    image: "/apps/cafesignal/app-icon.png",
+    tags: ["macOS", "Menu Bar", "Public Wi-Fi", "Captive Portals"],
+    category: "macOS App",
+  },
 ];
 
 export function Projects(): ReactNode {
@@ -58,7 +67,7 @@ export function Projects(): ReactNode {
         Featured Projects
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
           <Card
             key={project.title}

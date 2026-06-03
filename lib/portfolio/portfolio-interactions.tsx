@@ -4,6 +4,7 @@ import {
   Bot,
   Braces,
   Code2,
+  Coffee,
   Copy,
   Dumbbell,
   ExternalLink,
@@ -191,6 +192,13 @@ const productCommands = [
       "apple watch",
       "product",
     ],
+  },
+  {
+    title: "CafeSignal",
+    description: "Open the macOS public Wi-Fi menu bar assistant.",
+    href: "https://cafesignal.com",
+    icon: Coffee,
+    keywords: ["wifi", "public wifi", "cafe", "macos", "menu bar", "product"],
   },
   {
     title: "GitHub",

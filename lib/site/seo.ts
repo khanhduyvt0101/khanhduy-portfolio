@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const siteUrl = "https://www.khanhduy.com";
 export const siteName = "Khanh Duy";
 export const defaultSeoDescription =
-  "Khanh Duy is a Ho Chi Minh City developer building LofiHood, SpotterFuel, CampusCue, and WakeArc: focused apps for Mac playback, crowded gyms, school-notice follow-through, and sleep-cycle alarms.";
+  "Khanh Duy is a Ho Chi Minh City developer building LofiHood, SpotterFuel, CampusCue, WakeArc, and CafeSignal: focused apps for Mac playback, crowded gyms, school notices, sleep-cycle alarms, and public Wi-Fi.";
 
 export const siteKeywords = [
   "Khanh Duy",
@@ -14,10 +14,12 @@ export const siteKeywords = [
   "SpotterFuel",
   "CampusCue",
   "WakeArc",
+  "CafeSignal",
   "macOS menu bar app",
   "iPhone fitness app",
   "school notice app",
   "sleep cycle alarm app",
+  "public Wi-Fi app",
   "Next.js developer",
   "React TypeScript developer",
 ];
