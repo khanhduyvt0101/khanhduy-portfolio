@@ -62,7 +62,7 @@ const socialLinks: SocialLink[] = [
 
 type AppShowcase = {
   name: string;
-  itemType: "iPhone" | "AppleWatch" | "Mac";
+  itemType: "iPhone" | "AppleWatch" | "Mac" | "iPhone + Apple Watch";
   href: string;
   cta: string;
   description: string;
@@ -142,7 +142,7 @@ const apps: AppShowcase[] = [
   },
   {
     name: "WakeArc",
-    itemType: "AppleWatch",
+    itemType: "iPhone + Apple Watch",
     href: "https://wakearc.com",
     cta: "View WakeArc",
     description:
