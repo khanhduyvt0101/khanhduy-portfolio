@@ -62,7 +62,7 @@ const socialLinks: SocialLink[] = [
 
 type AppShowcase = {
   name: string;
-  platform: string;
+  itemType: "iPhone" | "AppleWatch" | "Mac";
   href: string;
   cta: string;
   description: string;
@@ -82,7 +82,7 @@ type AppShowcase = {
 const apps: AppShowcase[] = [
   {
     name: "LofiHood",
-    platform: "macOS",
+    itemType: "Mac",
     href: "https://lofihood.com",
     cta: "Visit LofiHood",
     description:
@@ -96,13 +96,13 @@ const apps: AppShowcase[] = [
       secondary: "/apps/lofihood/player-panel.png",
       tertiary: "/apps/lofihood/url-import.png",
     },
-    chips: ["macOS", "menu bar", "offline"],
+    chips: ["Mac", "menu bar", "offline"],
     accentClassName: "from-[#bbf7d0] via-[#fef9c3] to-[#93c5fd]",
     visual: "mac",
   },
   {
     name: "SpotterFuel",
-    platform: "iPhone",
+    itemType: "iPhone",
     href: "https://apps.apple.com/us/app/spotterfuel/id6771243236",
     cta: "Get SpotterFuel",
     description:
@@ -122,7 +122,7 @@ const apps: AppShowcase[] = [
   },
   {
     name: "CampusCue",
-    platform: "iOS",
+    itemType: "iPhone",
     href: "https://campuscue.app",
     cta: "View CampusCue",
     description:
@@ -136,13 +136,13 @@ const apps: AppShowcase[] = [
       secondary: "/apps/campuscue/screenshot2.png",
       tertiary: "/apps/campuscue/screenshot3.png",
     },
-    chips: ["iOS", "review first", "local-first v1"],
+    chips: ["iPhone", "review first", "local-first v1"],
     accentClassName: "from-[#bfdbfe] via-[#c4b5fd] to-[#fbcfe8]",
     visual: "phone-stack",
   },
   {
     name: "WakeArc",
-    platform: "iPhone + Apple Watch",
+    itemType: "AppleWatch",
     href: "https://wakearc.com",
     cta: "View WakeArc",
     description:
@@ -156,7 +156,7 @@ const apps: AppShowcase[] = [
       secondary: "/apps/wakearc/wake-at.png",
       tertiary: "/apps/wakearc/cycle-list.png",
     },
-    chips: ["iPhone", "Apple Watch", "90-minute cycles"],
+    chips: ["AppleWatch", "sleep cycles", "90-minute cycles"],
     accentClassName: "from-[#c7d2fe] via-[#bfdbfe] to-[#f0abfc]",
     visual: "phone-stack",
   },
@@ -337,7 +337,7 @@ function AppsSection(): ReactNode {
 
 function AppTile({ app }: { app: AppShowcase }): ReactNode {
   return (
-    <article className="group flex min-h-[620px] flex-col overflow-hidden rounded-[20px] border border-black/10 bg-[#fbfbf8] shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition duration-150 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(15,23,42,0.13)] motion-reduce:transform-none dark:border-white/10 dark:bg-[#1e1e1f]">
+    <article className="group flex h-full min-h-[620px] flex-col overflow-hidden rounded-[20px] border border-black/10 bg-[#fbfbf8] shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition duration-150 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(15,23,42,0.13)] motion-reduce:transform-none dark:border-white/10 dark:bg-[#1e1e1f]">
       <div className="flex items-start justify-between gap-4 p-5">
         <div className="flex min-w-0 items-center gap-3">
           <Image
@@ -350,7 +350,7 @@ function AppTile({ app }: { app: AppShowcase }): ReactNode {
           <div className="min-w-0">
             <h3 className="truncate text-2xl font-semibold">{app.name}</h3>
             <p className="text-[#646971] text-sm dark:text-[#aaaead]">
-              {app.platform}
+              {app.itemType}
             </p>
           </div>
         </div>
@@ -373,7 +373,7 @@ function AppTile({ app }: { app: AppShowcase }): ReactNode {
 
       <div
         className={cn(
-          "mx-5 grid min-h-[300px] flex-1 place-items-center overflow-hidden rounded-[16px] bg-gradient-to-br p-5",
+          "mx-5 grid h-[360px] shrink-0 place-items-center overflow-hidden rounded-[16px] bg-gradient-to-br p-5",
           app.accentClassName,
         )}
       >
