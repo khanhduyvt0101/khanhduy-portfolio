@@ -109,7 +109,7 @@ const apps: AppShowcase[] = [
   {
     name: "SpotterFuel",
     itemType: "iPhone",
-    href: "https://apps.apple.com/us/app/spotterfuel/id6771243236",
+    href: "https://spotterfuel.com",
     cta: "Get SpotterFuel",
     description:
       "An iPhone gym companion that finds same-muscle swaps when planned equipment is busy.",
@@ -269,25 +269,32 @@ function SocialLinks(): ReactNode {
 
 function HeroAvatarPortrait(): ReactNode {
   return (
-    <figure className="relative isolate mx-auto w-[min(58vw,212px)] sm:w-[220px] md:col-start-2 md:row-span-2 md:row-start-1 md:w-full md:max-w-[470px] md:justify-self-center">
+    <figure className="relative isolate mx-auto w-[min(62vw,228px)] sm:w-[260px] md:col-start-2 md:row-span-2 md:row-start-1 md:w-full md:max-w-[380px] md:justify-self-center">
       <div
         aria-hidden="true"
-        className="absolute -left-8 top-8 size-24 rounded-full bg-[#b7e4cc]/45 blur-3xl dark:bg-[#93c5fd]/18 md:-left-10 md:top-16 md:size-48"
+        className="-rotate-3 absolute inset-3 rounded-[26px] border border-black/10 bg-[#d9ded8]/70 shadow-[0_22px_48px_rgba(15,23,42,0.13)] dark:border-white/10 dark:bg-white/8"
       />
-      <div className="relative overflow-hidden rounded-[28px] border border-black/10 bg-white/70 p-2 shadow-[0_18px_48px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-white/12 dark:bg-white/10 dark:shadow-[0_28px_90px_rgba(0,0,0,0.36)] md:rounded-[34px] md:p-3 md:shadow-[0_28px_90px_rgba(15,23,42,0.18)]">
-        <div className="mb-2 flex h-6 items-center gap-1.5 px-2 md:h-8">
-          <span className="size-2 rounded-full bg-[#ff605c]" />
-          <span className="size-2 rounded-full bg-[#ffbd44]" />
-          <span className="size-2 rounded-full bg-[#00ca4e]" />
+      <div className="relative overflow-hidden rounded-[26px] border border-black/10 bg-white/82 p-2 shadow-[0_20px_58px_rgba(15,23,42,0.17)] backdrop-blur-xl dark:border-white/12 dark:bg-white/10 dark:shadow-[0_28px_80px_rgba(0,0,0,0.38)] sm:rounded-[30px] sm:p-2.5">
+        <div className="mb-2 flex h-6 items-center justify-between px-2 sm:h-7">
+          <div className="flex items-center gap-1.5">
+            <span className="size-1.5 rounded-full bg-[#ff605c] sm:size-2" />
+            <span className="size-1.5 rounded-full bg-[#ffbd44] sm:size-2" />
+            <span className="size-1.5 rounded-full bg-[#00ca4e] sm:size-2" />
+          </div>
+          <div className="h-1.5 w-14 rounded-full bg-black/8 dark:bg-white/16 sm:w-20" />
         </div>
-        <div className="relative aspect-square overflow-hidden rounded-[20px] bg-[#dce6d4] md:aspect-[4/5] md:rounded-[24px]">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[18px] bg-[#dce6d4] ring-1 ring-black/7 dark:bg-[#242824] dark:ring-white/10 sm:rounded-[22px]">
           <Image
             alt="Portrait of Khanh Duy"
             className="object-cover object-[50%_42%]"
             fill
             preload
-            sizes="(max-width: 767px) 220px, (max-width: 1024px) 34vw, 440px"
+            sizes="(max-width: 767px) 220px, (max-width: 1024px) 30vw, 360px"
             src="/avatar.webp"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,transparent,rgba(14,16,18,0.18))]"
           />
         </div>
       </div>
@@ -412,7 +419,7 @@ function AppTile({
 
       <div
         className={cn(
-          "mx-5 grid h-[360px] shrink-0 place-items-center overflow-hidden rounded-[16px] bg-gradient-to-br p-5",
+          "relative isolate mx-5 grid h-[360px] shrink-0 place-items-center overflow-hidden rounded-[16px] bg-gradient-to-br p-5",
           app.accentClassName,
         )}
       >

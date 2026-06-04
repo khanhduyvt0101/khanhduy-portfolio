@@ -138,7 +138,7 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
           enableSystem
           disableTransitionOnChange
         >
-          <div className="site-header-transition sticky top-0 z-10 border-b bg-background/80 backdrop-blur-md">
+          <div className="site-header-transition sticky top-0 z-30 border-b bg-background/90 backdrop-blur-md">
             <div className="container mx-auto max-w-7xl px-4">
               <header className="flex h-16 items-center justify-between gap-4">
                 <div className="flex min-w-0 flex-1 items-center gap-4">
