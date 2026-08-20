@@ -10,6 +10,7 @@ function on(value: string | undefined): boolean {
 }
 
 const nextConfig = {
+  agentRules: false,
   devIndicators: false,
   typescript: {
     ignoreBuildErrors: true,

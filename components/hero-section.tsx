@@ -9,7 +9,7 @@ import linkedinLogo from "~/assets/platforms/linkedin.svg";
 import stravaLogo from "~/assets/platforms/strava.svg";
 import threadsLogo from "~/assets/platforms/threads.svg";
 import xLogo from "~/assets/platforms/x.svg";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { HeroCarousel } from "~/components/hero-carousel";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import {
@@ -172,14 +172,7 @@ export function HeroSection(): ReactNode {
         </div>
 
         <div className="mx-auto w-full max-w-sm md:justify-self-end">
-          <Avatar className="aspect-[4/5] size-auto w-full rounded-2xl shadow-xl">
-            <AvatarImage
-              alt="Portrait of Khanh Duy"
-              className="rounded-2xl object-cover object-[50%_42%]"
-              src="/avatar.webp"
-            />
-            <AvatarFallback className="rounded-2xl text-3xl">KD</AvatarFallback>
-          </Avatar>
+          <HeroCarousel />
         </div>
       </div>
     </section>

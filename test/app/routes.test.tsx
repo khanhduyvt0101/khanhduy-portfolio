@@ -21,7 +21,9 @@ describe("application routes", () => {
     const { container } = renderPage();
 
     expect(screen.getByRole("heading", { name: "Khanh Duy" })).toBeVisible();
-    expect(screen.getByText("KD")).toBeVisible();
+    expect(
+      screen.getByRole("region", { name: "Khanh Duy photo gallery" }),
+    ).toBeVisible();
     expect(
       container.querySelector('script[type="application/ld+json"]'),
     ).toHaveTextContent('"@type":"ProfilePage"');
@@ -30,7 +32,7 @@ describe("application routes", () => {
     ).toHaveTextContent('"@type":"Person"');
     expect(
       container.querySelector('script[type="application/ld+json"]'),
-    ).toHaveTextContent("Photoday Cleaner");
+    ).toHaveTextContent("PhotoDay Cleaner");
     expect(
       container.querySelector('script[type="application/ld+json"]'),
     ).toHaveTextContent("https://hevy.com/user/khanhduyvt0101");
@@ -39,6 +41,13 @@ describe("application routes", () => {
     expect(pageMetadata.description).toBe(
       "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.",
     );
+    expect(screen.getByRole("heading", { name: "Apps I own" })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "Products I build" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Visit ChatAcademia" }),
+    ).toHaveAttribute("href", "https://chatacademia.com");
   });
 
   it("renders both external and email social links", () => {

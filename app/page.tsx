@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { DeveloperShowcase } from "~/components/developer-showcase";
 import { HeroSection } from "~/components/hero-section";
+import { OwnerShowcase } from "~/components/owner-showcase";
 import {
   appLinks,
   profileSameAs,
@@ -98,6 +100,8 @@ export default function Page(): ReactNode {
         }}
       />
       <HeroSection />
+      <OwnerShowcase />
+      <DeveloperShowcase />
     </>
   );
 }
