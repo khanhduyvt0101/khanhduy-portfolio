@@ -1,0 +1,31 @@
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  resolve: { tsconfigPaths: true },
+  test: {
+    environment: "jsdom",
+    environmentOptions: {
+      jsdom: {
+        url: "https://www.khanhduy.com",
+      },
+    },
+    include: ["test/**/*.test.{ts,tsx}"],
+    setupFiles: ["test/setup.ts"],
+    coverage: {
+      provider: "istanbul",
+      include: [
+        "hooks/**/*.{ts,tsx}",
+        "components/**/*.{ts,tsx}",
+        "lib/**/*.{ts,tsx}",
+        "app/**/*.{ts,tsx}",
+      ],
+      exclude: ["test/**/*"],
+      thresholds: {
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100,
+      },
+    },
+  },
+});

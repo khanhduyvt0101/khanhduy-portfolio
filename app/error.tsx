@@ -1,40 +1,28 @@
 "use client";
 
-import { IconAlertCircle } from "@tabler/icons-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-  Banner,
-  BannerActions,
-  BannerContent,
-  BannerDescription,
-  BannerIcon,
-  BannerTitle,
-} from "~/components/ui/banner";
 import { Button } from "~/components/ui/button";
-import { getErrorText } from "~/lib/get-error-text";
 
 interface Props {
-  error: unknown;
   reset: () => void;
 }
 
-export default function ErrorBoundary({ error, reset }: Props): ReactNode {
+export default function ErrorBoundary({ reset }: Props): ReactNode {
   return (
-    <div className="container mx-auto max-w-2xl px-4 py-16">
-      <Banner variant="destructive" dismissible={false}>
-        <BannerIcon asChild>
-          <IconAlertCircle />
-        </BannerIcon>
-        <BannerContent>
-          <BannerTitle>Error</BannerTitle>
-          <BannerDescription>{getErrorText(error)}</BannerDescription>
-        </BannerContent>
-        <BannerActions>
-          <Button onClick={reset} variant="outline" size="sm">
-            Try again
-          </Button>
-        </BannerActions>
-      </Banner>
-    </div>
+    <section className="container mx-auto grid min-h-[60svh] max-w-2xl place-content-center px-4 py-16 text-center">
+      <h1 className="text-4xl font-semibold">Something went wrong</h1>
+      <p className="mt-4 text-muted-foreground">
+        The page could not load. Reload it or return to the homepage.
+      </p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <Button onClick={reset} type="button">
+          Reload page
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/">Go home</Link>
+        </Button>
+      </div>
+    </section>
   );
 }

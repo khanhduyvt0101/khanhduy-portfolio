@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import { PortfolioCommandCenter } from "~/lib/portfolio/portfolio-command-center";
+import { HeroSection } from "~/components/hero-section";
 import {
   createSeoMetadata,
   defaultSeoDescription,
@@ -9,7 +9,7 @@ import {
   siteKeywords,
   siteName,
   siteUrl,
-} from "~/lib/site/seo";
+} from "~/lib/seo";
 
 export const metadata: Metadata = createSeoMetadata({
   title:
@@ -107,7 +107,7 @@ export default function Page(): ReactNode {
           __html: serializeJsonLd(homeJsonLd),
         }}
       />
-      <PortfolioCommandCenter />
+      <HeroSection />
     </>
   );
 }

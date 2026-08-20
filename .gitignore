@@ -5,3 +5,5 @@
 .DS_Store
 .vercel
 /test-results
+/coverage
+/dist

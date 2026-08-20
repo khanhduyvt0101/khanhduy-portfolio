@@ -1,19 +1,29 @@
 {
-  "extends": "@tsconfig/next/tsconfig.json",
-  "compilerOptions": {
-    "plugins": [{ "name": "next" }],
-    "paths": { "~/*": ["./*"] },
-    "target": "ES2022",
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "allowJs": false
-  },
   "include": [
+    "package.json",
+    "next.config.ts",
     ".next/types/**/*.ts",
-    "**/*.d.ts",
-    "**/*.ts",
-    "**/*.cts",
-    "**/*.mts",
-    "**/*.tsx"
+    "next-env.d.ts",
+    "vitest.config.ts",
+    "components",
+    "app",
+    "lib",
+    "test"
   ],
-  "exclude": ["node_modules"]
+  "extends": "@tsconfig/bun/tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": false,
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "lib": ["ESNext", "DOM"],
+    "noEmit": false,
+    "noUncheckedIndexedAccess": false,
+    "outDir": "dist",
+    "paths": {
+      "~/*": ["./*"]
+    },
+    "rootDir": ".",
+    "rootDirs": ["."],
+    "types": ["bun", "node", "react", "react-dom"]
+  }
 }
