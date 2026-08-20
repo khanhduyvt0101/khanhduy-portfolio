@@ -26,6 +26,10 @@ describe("application routes", () => {
       container.querySelector('script[type="application/ld+json"]'),
     ).toHaveTextContent('"@type":"Person"');
     expect(pageMetadata.alternates).toEqual({ canonical: "/" });
+    expect(pageMetadata.title).toBe("Khanh Duy");
+    expect(pageMetadata.description).toBe(
+      "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.",
+    );
   });
 
   it("renders both external and email social links", () => {
@@ -78,7 +82,7 @@ describe("application routes", () => {
     expect(sitemap()).toEqual([
       {
         url: "https://www.khanhduy.com",
-        lastModified: new Date("2026-05-30T00:00:00.000Z"),
+        lastModified: new Date("2026-08-20T00:00:00.000Z"),
         changeFrequency: "monthly",
         priority: 1,
         images: ["https://www.khanhduy.com/opengraph-image"],

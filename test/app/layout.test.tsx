@@ -56,6 +56,10 @@ describe("Layout", () => {
       undefined,
     );
     expect(metadata.metadataBase).toEqual(new URL("https://www.khanhduy.com"));
+    expect(metadata.title).toBe("Khanh Duy");
+    expect(metadata.description).toBe(
+      "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.",
+    );
   });
 
   it("omits production telemetry outside Vercel", async () => {

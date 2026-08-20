@@ -3,23 +3,22 @@ import type { Metadata } from "next";
 export const siteUrl = "https://www.khanhduy.com";
 export const siteName = "Khanh Duy";
 export const defaultSeoDescription =
-  "Khanh Duy is a Ho Chi Minh City developer building LofiHood, SpotterFuel, CampusCue, WakeArc, and CafeSignal: focused apps for Mac playback, crowded gyms, school notices, sleep-cycle alarms, and public Wi-Fi.";
+  "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.";
 
 export const siteKeywords = [
   "Khanh Duy",
   "Bui Trong Khanh Duy",
-  "full-stack developer Vietnam",
-  "software engineer Ho Chi Minh City",
+  "indie hacker Vietnam",
+  "indie app developer Ho Chi Minh City",
   "LofiHood",
   "SpotterFuel",
   "CampusCue",
   "WakeArc",
   "CafeSignal",
-  "macOS menu bar app",
-  "iPhone fitness app",
-  "school notice app",
-  "sleep cycle alarm app",
-  "public Wi-Fi app",
+  "Photoday Cleaner",
+  "MoveHalo",
+  "macOS app developer",
+  "iOS app developer",
   "Next.js developer",
   "React TypeScript developer",
 ];

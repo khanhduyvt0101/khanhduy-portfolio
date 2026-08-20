@@ -1,6 +1,5 @@
 import Image, { type StaticImageData } from "next/image";
 import type { ReactNode } from "react";
-
 import facebookLogo from "~/assets/platforms/facebook.svg";
 import githubLogo from "~/assets/platforms/github.svg";
 import gmailLogo from "~/assets/platforms/gmail.svg";
@@ -18,6 +17,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { defaultSeoDescription } from "~/lib/seo";
 
 interface SocialLink {
   label: string;
@@ -97,9 +97,7 @@ export function HeroSection(): ReactNode {
             Builds small apps for everyday friction.
           </p>
           <p className="max-w-[68ch] text-base leading-7 text-muted-foreground">
-            I&apos;m an indie hacker in Ho Chi Minh City building thoughtful
-            macOS and iOS apps that solve everyday problems with focused,
-            practical experiences.
+            {defaultSeoDescription}
           </p>
           <div className="grid w-full max-w-2xl gap-3 pt-2">
             <div className="grid grid-cols-[4.5rem_1fr] items-center gap-3">

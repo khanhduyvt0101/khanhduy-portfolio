@@ -34,11 +34,7 @@ const isVercelRuntime = process.env.VERCEL === "1";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: {
-    default:
-      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue, WakeArc & CafeSignal",
-    template: `%s | ${siteName}`,
-  },
+  title: siteName,
   description: defaultSeoDescription,
   applicationName: siteName,
   authors: [{ name: siteName, url: siteUrl }],
@@ -72,8 +68,7 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title:
-      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue, WakeArc & CafeSignal",
+    title: siteName,
     description: defaultSeoDescription,
     url: "/",
     siteName,
@@ -82,8 +77,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title:
-      "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue, WakeArc & CafeSignal",
+    title: siteName,
     description: defaultSeoDescription,
   },
 };

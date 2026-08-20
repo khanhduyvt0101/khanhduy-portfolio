@@ -1,16 +1,15 @@
 import { createOgImage, ogImageContentType, ogImageSize } from "~/lib/og-image";
 import { defaultSeoDescription } from "~/lib/seo";
 
-export const alt =
-  "Khanh Duy portfolio for LofiHood, SpotterFuel, CampusCue, WakeArc, and CafeSignal";
+export const alt = "Khanh Duy — indie macOS and iOS app developer";
 export const size = ogImageSize;
 export const contentType = ogImageContentType;
 
 export default function Image() {
   return createOgImage({
     title: "Khanh Duy",
-    eyebrow: "Product Builder",
+    eyebrow: "Indie Hacker",
     description: defaultSeoDescription,
-    kind: "LofiHood / SpotterFuel / CampusCue / WakeArc / CafeSignal",
+    kind: "Thoughtful macOS and iOS apps",
   });
 }

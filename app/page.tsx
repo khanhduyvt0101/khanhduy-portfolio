@@ -12,12 +12,9 @@ import {
 } from "~/lib/seo";
 
 export const metadata: Metadata = createSeoMetadata({
-  title:
-    "Khanh Duy | Product Builder for LofiHood, SpotterFuel, CampusCue, WakeArc & CafeSignal",
-  description:
-    "Khanh Duy builds LofiHood, SpotterFuel, CampusCue, WakeArc, and CafeSignal: focused apps for Mac playback, crowded gyms, school notices, sleep-cycle alarms, and public Wi-Fi.",
-  imageAlt:
-    "Khanh Duy portfolio showing LofiHood, SpotterFuel, CampusCue, WakeArc, and CafeSignal",
+  title: siteName,
+  description: defaultSeoDescription,
+  imageAlt: "Khanh Duy — indie macOS and iOS app developer",
   keywords: siteKeywords,
   path: "/",
 });
@@ -31,7 +28,7 @@ const homeJsonLd = {
       alternateName: "Bui Trong Khanh Duy",
       url: siteUrl,
       image: `${siteUrl}/avatar.webp`,
-      jobTitle: "Full-stack Developer",
+      jobTitle: "Indie App Developer",
       address: {
         "@type": "PostalAddress",
         addressLocality: "Ho Chi Minh City",
@@ -91,6 +88,18 @@ const homeJsonLd = {
           position: 5,
           name: "CafeSignal",
           url: "https://cafesignal.com",
+        },
+        {
+          "@type": "ListItem",
+          position: 6,
+          name: "Photoday Cleaner",
+          url: "https://photoday-cleaner.vercel.app",
+        },
+        {
+          "@type": "ListItem",
+          position: 7,
+          name: "MoveHalo",
+          url: "https://movehalo.vercel.app",
         },
       ],
     },

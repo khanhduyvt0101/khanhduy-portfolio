@@ -30,7 +30,7 @@ describe("Open Graph images", () => {
     ApplicationImage();
     TwitterImage();
 
-    expect(alt).toContain("Khanh Duy portfolio");
+    expect(alt).toBe("Khanh Duy — indie macOS and iOS app developer");
     expect(contentType).toBe("image/png");
     expect(size).toEqual({ width: 1200, height: 630 });
     expect(twitterAlt).toBe(alt);
