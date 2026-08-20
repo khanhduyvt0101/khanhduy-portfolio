@@ -1,22 +1,12 @@
 import type { ReactNode } from "react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
+import { appLinks } from "~/lib/profile";
 
 const footerGroups = [
   {
     label: "Apps",
-    links: [
-      { label: "LofiHood", href: "https://lofihood.com" },
-      { label: "SpotterFuel", href: "https://spotterfuel.com" },
-      { label: "CampusCue", href: "https://campuscue.app" },
-      { label: "WakeArc", href: "https://wakearc.com" },
-      { label: "CafeSignal", href: "https://cafesignal.com" },
-      {
-        label: "Photoday Cleaner",
-        href: "https://photoday-cleaner.vercel.app",
-      },
-      { label: "MoveHalo", href: "https://movehalo.vercel.app" },
-    ],
+    links: appLinks,
   },
   {
     label: "Connect",

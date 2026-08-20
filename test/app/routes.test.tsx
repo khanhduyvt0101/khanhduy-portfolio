@@ -24,7 +24,16 @@ describe("application routes", () => {
     expect(screen.getByText("KD")).toBeVisible();
     expect(
       container.querySelector('script[type="application/ld+json"]'),
+    ).toHaveTextContent('"@type":"ProfilePage"');
+    expect(
+      container.querySelector('script[type="application/ld+json"]'),
     ).toHaveTextContent('"@type":"Person"');
+    expect(
+      container.querySelector('script[type="application/ld+json"]'),
+    ).toHaveTextContent("Photoday Cleaner");
+    expect(
+      container.querySelector('script[type="application/ld+json"]'),
+    ).toHaveTextContent("https://hevy.com/user/khanhduyvt0101");
     expect(pageMetadata.alternates).toEqual({ canonical: "/" });
     expect(pageMetadata.title).toBe("Khanh Duy");
     expect(pageMetadata.description).toBe(
@@ -78,6 +87,7 @@ describe("application routes", () => {
     expect(robots()).toEqual({
       rules: { userAgent: "*", allow: "/" },
       sitemap: "https://www.khanhduy.com/sitemap.xml",
+      host: "https://www.khanhduy.com",
     });
     expect(sitemap()).toEqual([
       {
@@ -85,7 +95,7 @@ describe("application routes", () => {
         lastModified: new Date("2026-08-20T00:00:00.000Z"),
         changeFrequency: "monthly",
         priority: 1,
-        images: ["https://www.khanhduy.com/opengraph-image"],
+        images: ["https://www.khanhduy.com/avatar.webp"],
       },
     ]);
   });

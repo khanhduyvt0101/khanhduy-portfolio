@@ -5,30 +5,11 @@ export const siteName = "Khanh Duy";
 export const defaultSeoDescription =
   "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.";
 
-export const siteKeywords = [
-  "Khanh Duy",
-  "Bui Trong Khanh Duy",
-  "indie hacker Vietnam",
-  "indie app developer Ho Chi Minh City",
-  "LofiHood",
-  "SpotterFuel",
-  "CampusCue",
-  "WakeArc",
-  "CafeSignal",
-  "Photoday Cleaner",
-  "MoveHalo",
-  "macOS app developer",
-  "iOS app developer",
-  "Next.js developer",
-  "React TypeScript developer",
-];
-
 type SeoMetadataOptions = {
   title: string;
   description: string;
   path: `/${string}`;
   imageAlt?: string;
-  keywords?: string[];
 };
 
 export function createSeoMetadata({
@@ -36,7 +17,6 @@ export function createSeoMetadata({
   description,
   path,
   imageAlt,
-  keywords,
 }: SeoMetadataOptions): Metadata {
   const openGraphImagePath =
     path === "/" ? "/opengraph-image" : `${path}/opengraph-image`;
@@ -46,7 +26,6 @@ export function createSeoMetadata({
   return {
     title,
     description,
-    keywords,
     alternates: {
       canonical: path,
     },
@@ -67,7 +46,10 @@ export function createSeoMetadata({
       url: path,
       siteName,
       locale: "en_US",
-      type: "website",
+      type: "profile",
+      firstName: "Khanh",
+      lastName: "Duy",
+      username: "khanhduyvt",
       images: [
         {
           url: openGraphImagePath,
@@ -81,6 +63,7 @@ export function createSeoMetadata({
       card: "summary_large_image",
       title,
       description,
+      creator: "@khanhduyvt",
       images: [
         {
           url: twitterImagePath,

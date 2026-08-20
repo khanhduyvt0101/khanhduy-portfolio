@@ -9,12 +9,7 @@ import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { ThemeProvider } from "~/components/theme-provider";
 
-import {
-  defaultSeoDescription,
-  siteKeywords,
-  siteName,
-  siteUrl,
-} from "~/lib/seo";
+import { defaultSeoDescription, siteName, siteUrl } from "~/lib/seo";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -40,7 +35,6 @@ export const metadata: Metadata = {
   authors: [{ name: siteName, url: siteUrl }],
   creator: siteName,
   publisher: siteName,
-  keywords: siteKeywords,
   alternates: {
     canonical: "/",
   },
@@ -72,13 +66,17 @@ export const metadata: Metadata = {
     description: defaultSeoDescription,
     url: "/",
     siteName,
-    type: "website",
+    type: "profile",
     locale: "en_US",
+    firstName: "Khanh",
+    lastName: "Duy",
+    username: "khanhduyvt",
   },
   twitter: {
     card: "summary_large_image",
     title: siteName,
     description: defaultSeoDescription,
+    creator: "@khanhduyvt",
   },
 };
 

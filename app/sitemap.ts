@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 
+import { profileUpdatedAt } from "~/lib/profile";
 import { siteUrl } from "~/lib/seo";
 
-const lastModified = new Date("2026-08-20T00:00:00.000Z");
+const lastModified = new Date(profileUpdatedAt);
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -11,7 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly",
       priority: 1,
-      images: [`${siteUrl}/opengraph-image`],
+      images: [`${siteUrl}/avatar.webp`],
     },
   ];
 }

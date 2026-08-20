@@ -8,7 +8,6 @@ describe("createSeoMetadata", () => {
       description: "Description",
       path: "/",
       imageAlt: "Custom alt",
-      keywords: ["portfolio"],
     });
 
     expect(metadata.openGraph).toEqual(
@@ -27,7 +26,17 @@ describe("createSeoMetadata", () => {
         images: [{ url: "/twitter-image", alt: "Custom alt" }],
       }),
     );
-    expect(metadata.keywords).toEqual(["portfolio"]);
+    expect(metadata.openGraph).toEqual(
+      expect.objectContaining({
+        type: "profile",
+        firstName: "Khanh",
+        lastName: "Duy",
+        username: "khanhduyvt",
+      }),
+    );
+    expect(metadata.twitter).toEqual(
+      expect.objectContaining({ creator: "@khanhduyvt" }),
+    );
   });
 
   it("builds nested metadata and falls back to the title for image labels", () => {
