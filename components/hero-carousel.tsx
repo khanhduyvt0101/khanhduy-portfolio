@@ -48,7 +48,7 @@ export function HeroCarousel() {
     <section
       aria-label="Khanh Duy photo gallery"
       aria-roledescription="carousel"
-      className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl shadow-xl"
+      className="glass-frosted relative aspect-[4/5] w-full overflow-hidden rounded-2xl p-2"
     >
       {slides.map((slide, index) => {
         const active = index === currentSlide;
@@ -56,7 +56,7 @@ export function HeroCarousel() {
         return (
           <div
             aria-hidden={!active}
-            className="absolute inset-0"
+            className="absolute inset-2 overflow-hidden rounded-xl"
             key={slide.alt}
           >
             <Image
@@ -82,7 +82,7 @@ export function HeroCarousel() {
 
       <Button
         aria-label="Previous photo"
-        className="absolute bottom-4 left-4 rounded-full"
+        className="absolute bottom-5 left-5 rounded-full"
         onClick={showPreviousSlide}
         size="icon"
         variant="secondary"
@@ -90,7 +90,7 @@ export function HeroCarousel() {
         <ChevronLeft />
       </Button>
 
-      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1">
+      <div className="glass-control absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-1 rounded-full p-1">
         {slides.map((slide, index) => (
           <Button
             aria-label={`Show photo ${index + 1}`}
@@ -116,7 +116,7 @@ export function HeroCarousel() {
 
       <Button
         aria-label="Next photo"
-        className="absolute right-4 bottom-4 rounded-full"
+        className="absolute right-5 bottom-5 rounded-full"
         onClick={showNextSlide}
         size="icon"
         variant="secondary"

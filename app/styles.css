@@ -74,6 +74,24 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
+  --glass-bg: oklch(1 0 0 / 58%);
+  --glass-bg-soft: oklch(1 0 0 / 42%);
+  --glass-bg-strong: oklch(0.96 0.025 245 / 76%);
+  --glass-border: oklch(1 0 0 / 72%);
+  --glass-border-soft: oklch(0.7 0.04 250 / 22%);
+  --glass-control-hover: oklch(1 0 0 / 72%);
+  --glass-footer-bg: oklch(1 0 0 / 24%);
+  --glass-frosted-solid: oklch(0.97 0.018 245);
+  --glass-shadow-sm:
+    0 0.125rem 0.5rem oklch(0.35 0.06 250 / 8%),
+    inset 0 1px 0 oklch(1 0 0 / 64%);
+  --glass-shadow:
+    0 0.75rem 2.5rem oklch(0.35 0.08 250 / 12%),
+    0 0.125rem 0.5rem oklch(0.35 0.06 250 / 7%),
+    inset 0 1px 0 oklch(1 0 0 / 78%);
+  --glass-shadow-lg:
+    0 1.5rem 4rem oklch(0.35 0.1 250 / 16%),
+    0 0.25rem 1rem oklch(0.35 0.08 250 / 8%), inset 0 1px 0 oklch(1 0 0 / 84%);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -103,6 +121,24 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+  --glass-bg: oklch(0.28 0.035 250 / 54%);
+  --glass-bg-soft: oklch(0.24 0.03 250 / 42%);
+  --glass-bg-strong: oklch(0.32 0.055 250 / 72%);
+  --glass-border: oklch(1 0 0 / 18%);
+  --glass-border-soft: oklch(1 0 0 / 10%);
+  --glass-control-hover: oklch(1 0 0 / 12%);
+  --glass-footer-bg: oklch(0.12 0.025 250 / 22%);
+  --glass-frosted-solid: oklch(0.24 0.03 250);
+  --glass-shadow-sm:
+    0 0.125rem 0.625rem oklch(0.03 0.03 250 / 26%),
+    inset 0 1px 0 oklch(1 0 0 / 12%);
+  --glass-shadow:
+    0 0.875rem 2.75rem oklch(0.03 0.04 250 / 32%),
+    0 0.125rem 0.625rem oklch(0.03 0.03 250 / 22%),
+    inset 0 1px 0 oklch(1 0 0 / 16%);
+  --glass-shadow-lg:
+    0 1.75rem 4.5rem oklch(0.03 0.05 250 / 42%),
+    0 0.25rem 1rem oklch(0.03 0.04 250 / 24%), inset 0 1px 0 oklch(1 0 0 / 18%);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -124,9 +160,123 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(
+        circle at 12% 8%,
+        oklch(0.82 0.11 215 / 42%),
+        transparent 34rem
+      ),
+      radial-gradient(
+        circle at 88% 24%,
+        oklch(0.86 0.1 285 / 34%),
+        transparent 31rem
+      ),
+      radial-gradient(
+        circle at 45% 78%,
+        oklch(0.9 0.09 165 / 24%),
+        transparent 38rem
+      );
+    background-attachment: fixed;
   }
   html {
-    @apply font-sans;
+    @apply scroll-smooth font-sans;
+  }
+  ::selection {
+    background: oklch(0.75 0.12 230 / 44%);
+    color: var(--foreground);
+  }
+  * {
+    scrollbar-color: var(--glass-border-soft) transparent;
+    scrollbar-width: thin;
+  }
+}
+
+@layer utilities {
+  .glass-surface {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(24px) saturate(155%);
+    -webkit-backdrop-filter: blur(24px) saturate(155%);
+  }
+
+  .glass-frosted {
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow-lg);
+    backdrop-filter: blur(32px) saturate(165%);
+    -webkit-backdrop-filter: blur(32px) saturate(165%);
+  }
+
+  .glass-control {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-shadow-sm);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  .glass-control-soft {
+    background: var(--glass-bg-soft);
+    border-color: var(--glass-border-soft);
+    box-shadow: var(--glass-shadow-sm);
+    backdrop-filter: blur(16px) saturate(145%);
+    -webkit-backdrop-filter: blur(16px) saturate(145%);
+  }
+
+  .glass-control-strong {
+    background: var(--glass-bg-strong);
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+  }
+
+  .glass-chip {
+    background: var(--glass-bg-soft);
+    border: 1px solid var(--glass-border-soft);
+    box-shadow: inset 0 1px 0 oklch(1 0 0 / 24%);
+    backdrop-filter: blur(14px) saturate(145%);
+    -webkit-backdrop-filter: blur(14px) saturate(145%);
+  }
+
+  .glass-separator {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--glass-border),
+      transparent
+    );
+  }
+}
+
+.dark body {
+  background-image:
+    radial-gradient(
+      circle at 12% 8%,
+      oklch(0.48 0.14 220 / 30%),
+      transparent 36rem
+    ),
+    radial-gradient(
+      circle at 88% 24%,
+      oklch(0.42 0.13 290 / 25%),
+      transparent 34rem
+    ),
+    radial-gradient(
+      circle at 45% 78%,
+      oklch(0.42 0.1 165 / 18%),
+      transparent 40rem
+    );
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-surface,
+  .glass-frosted,
+  .glass-control,
+  .glass-control-soft,
+  .glass-control-strong,
+  .glass-chip {
+    background: var(--glass-frosted-solid);
   }
 }
 

@@ -43,7 +43,7 @@ const cardSpans = [
 
 export function OwnerShowcase(): ReactNode {
   return (
-    <section className="py-24 md:py-32" id="apps">
+    <section className="relative py-24 md:py-32" id="owner-products">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-5 md:grid-cols-[minmax(0,0.8fr)_minmax(18rem,0.55fr)] md:items-end md:justify-between">
           <h2 className="max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
@@ -58,7 +58,7 @@ export function OwnerShowcase(): ReactNode {
         <div className="grid grid-flow-dense gap-4 md:grid-cols-12">
           {appLinks.map((app, index) => (
             <Card
-              className={`group min-h-80 overflow-hidden transition-[transform,box-shadow] duration-500 ease-out hover:-translate-y-1 hover:shadow-xl ${cardSpans[index]}`}
+              className={`group min-h-80 overflow-hidden transition-[transform,box-shadow,background-color] duration-500 ease-out hover:-translate-y-1 hover:shadow-(--glass-shadow-lg) ${cardSpans[index]}`}
               key={app.href}
             >
               <CardHeader>
@@ -81,7 +81,7 @@ export function OwnerShowcase(): ReactNode {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-1 items-end justify-end">
-                <div className="overflow-hidden rounded-2xl shadow-lg transition-transform duration-700 ease-out group-hover:scale-105">
+                <div className="glass-control overflow-hidden rounded-2xl p-1.5 transition-transform duration-700 ease-out group-hover:scale-105">
                   <Image
                     alt={`${app.label} app logo`}
                     className="size-32 object-cover sm:size-40"

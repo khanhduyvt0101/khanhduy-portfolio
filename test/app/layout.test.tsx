@@ -40,6 +40,15 @@ describe("Layout", () => {
     expect(
       screen.getByRole("link", { name: "Khanh Duy home" }),
     ).toHaveAttribute("href", "/");
+    expect(
+      screen.getByRole("navigation", { name: "Product showcases" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Owner products" }),
+    ).toHaveAttribute("href", "/#owner-products");
+    expect(
+      screen.getByRole("link", { name: "Developer products" }),
+    ).toHaveAttribute("href", "/#developer-products");
     expect(screen.getByText("Page content")).toBeVisible();
     expect(screen.getByRole("navigation", { name: "Apps" })).toBeVisible();
     expect(screen.getByRole("link", { name: "LofiHood" })).toHaveAttribute(

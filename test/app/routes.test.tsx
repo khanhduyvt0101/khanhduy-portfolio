@@ -43,8 +43,16 @@ describe("application routes", () => {
     );
     expect(screen.getByRole("heading", { name: "Apps I own" })).toBeVisible();
     expect(
+      screen.getByRole("heading", { name: "Apps I own" }).closest("section"),
+    ).toHaveAttribute("id", "owner-products");
+    expect(
       screen.getByRole("heading", { name: "Products I build" }),
     ).toBeVisible();
+    expect(
+      screen
+        .getByRole("heading", { name: "Products I build" })
+        .closest("section"),
+    ).toHaveAttribute("id", "developer-products");
     expect(
       screen.getByRole("link", { name: "Visit ChatAcademia" }),
     ).toHaveAttribute("href", "https://chatacademia.com");

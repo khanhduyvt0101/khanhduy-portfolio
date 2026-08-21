@@ -91,6 +91,13 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
       <body
         className={`${geist.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
+        <template
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: static design contract comment contains no user input.
+          dangerouslySetInnerHTML={{
+            __html:
+              "<!-- THESIS: A living glass portfolio makes real products the luminous objects; it refuses flat catalog chrome. OWN-WORLD: cool atmospheric ground, refractive white edges, tinted depth, and clear product imagery. STORY: meet Khanh Duy, distinguish what he owns from what he builds, then visit the work. FIRST VIEWPORT: wide identity copy at left, layered portrait glass at right, direct product navigation above. FORM: Apple-inspired Glass UI, pinned by the user; seed ba8d9071. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance -->",
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -103,7 +110,9 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
             enter="page-forward"
             exit="page-soft"
           >
-            <main className="flex-1">{children}</main>
+            <main className="w-full max-w-full flex-1 overflow-x-hidden">
+              {children}
+            </main>
           </ViewTransition>
           <SiteFooter />
         </ThemeProvider>

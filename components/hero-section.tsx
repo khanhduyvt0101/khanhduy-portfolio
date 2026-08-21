@@ -87,10 +87,11 @@ export function HeroSection(): ReactNode {
       className="relative isolate flex min-h-[calc(100svh-4rem)] items-center overflow-hidden"
       id="hero"
     >
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_75%_35%,var(--color-muted),transparent_38%)]" />
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.72fr)] md:py-20 lg:gap-20 lg:px-8">
+      <div className="absolute top-[12%] right-[-8rem] -z-10 size-[26rem] rounded-full bg-primary/15 blur-3xl motion-safe:animate-pulse" />
+      <div className="absolute bottom-[8%] left-[-7rem] -z-10 size-[22rem] rounded-full bg-chart-2/15 blur-3xl" />
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.72fr)] md:py-24 lg:gap-20 lg:px-8">
         <div className="flex max-w-3xl flex-col items-start gap-6">
-          <h1 className="max-w-3xl text-balance font-heading text-5xl font-semibold tracking-[-0.03em] sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-3xl text-balance font-heading text-6xl font-semibold tracking-[-0.03em] sm:text-7xl lg:text-8xl">
             Khanh Duy
           </h1>
           <p className="max-w-2xl text-balance text-xl leading-8 text-foreground sm:text-2xl sm:leading-9">
@@ -99,7 +100,7 @@ export function HeroSection(): ReactNode {
           <p className="max-w-[68ch] text-base leading-7 text-muted-foreground">
             {defaultSeoDescription}
           </p>
-          <div className="grid w-full max-w-2xl gap-3 pt-2">
+          <div className="glass-surface grid w-full max-w-2xl gap-3 rounded-2xl p-4 sm:p-5">
             <div className="grid grid-cols-[4.5rem_1fr] items-center gap-3">
               <p className="text-sm font-medium text-muted-foreground">
                 Social

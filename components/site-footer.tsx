@@ -23,9 +23,8 @@ const footerGroups = [
 
 export function SiteFooter(): ReactNode {
   return (
-    <footer className="mt-auto">
-      <Separator />
-      <div className="container mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.2fr_repeat(2,minmax(0,1fr))]">
+    <footer className="mt-auto px-2 pb-2 sm:px-4 sm:pb-4">
+      <div className="glass-frosted container mx-auto grid max-w-7xl gap-8 rounded-2xl px-5 py-9 sm:px-7 md:grid-cols-[1.2fr_repeat(2,minmax(0,1fr))]">
         <div>
           <p className="text-sm font-bold text-foreground">Khanh Duy</p>
           <p className="mt-3 max-w-sm text-muted-foreground text-sm leading-6">
@@ -57,10 +56,12 @@ export function SiteFooter(): ReactNode {
             </ul>
           </nav>
         ))}
-      </div>
-      <Separator />
-      <div className="px-4 py-5 text-center text-muted-foreground text-xs">
-        Made by Khanh Duy. Ho Chi Minh City, Vietnam.
+        <div className="md:col-span-3">
+          <Separator />
+          <p className="pt-5 text-center text-muted-foreground text-xs">
+            Made by Khanh Duy. Ho Chi Minh City, Vietnam.
+          </p>
+        </div>
       </div>
     </footer>
   );
