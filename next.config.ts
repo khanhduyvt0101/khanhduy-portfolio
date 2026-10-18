@@ -10,7 +10,10 @@ function on(value: string | undefined): boolean {
 }
 
 const nextConfig = {
-  output: "standalone",
+  output: "export",
+  images: {
+    unoptimized: true,
+  },
   agentRules: false,
   devIndicators: false,
   typescript: {

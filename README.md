@@ -16,7 +16,7 @@ Production: https://www.khanhduy.com
 - TypeScript 7 with Orchestero-style strict Bun project configuration
 - Biome for formatting, import organization, and lint-style checks
 - Vitest with 100% coverage thresholds
-- Docker Compose and Caddy for VPS deployment
+- Cloudflare Pages for static hosting and manual Wrangler deployments
 
 ## Requirements
 
@@ -66,7 +66,7 @@ Formats the project with Biome.
 bun run build
 ```
 
-Builds the production Next.js app.
+Builds the production static export into `out/`; no production Node server is needed.
 
 ```bash
 bun run test
@@ -87,7 +87,7 @@ bun run build
 bun run start
 ```
 
-Serves the production build on port `46480`.
+Previews `out/` locally with the installed Wrangler CLI on port `46480`. Stop the preview after checks.
 
 ## Project conventions
 
@@ -114,23 +114,31 @@ Registry settings, aliases, styling, and icon defaults are defined in
 
 ## Production deployment
 
-Production is self-hosted on the VPS using Docker Compose, a Node.js 24
-standalone Next.js server, and Caddy with automatic HTTPS. Cloudflare manages
-DNS; Namecheap remains the domain registrar.
+Production is a pure static export on Cloudflare Pages, with Cloudflare-managed
+HTTPS. Namecheap remains the domain registrar. There is no VPS app process,
+Pages Function, Worker script, or Git-triggered deployment.
+
+After local checks/build and commit/push, deploy manually:
 
 ```bash
-docker compose build app
-docker compose up -d --no-deps --wait --wait-timeout 90 app
+wrangler pages deploy out --project-name khanhduy-portfolio --branch main
 python deploy/smoke-test.py https://www.khanhduy.com
 ```
 
-The build runs TypeScript, Biome, and tests with coverage before producing the
-production image. See `deploy/README.md` for initial setup, credentials,
-shared Infisical proxy precautions, releases, verification, and rollback.
+If Node/Bun are not installed locally, generate the verified artifact with Docker:
 
-The former Vercel project was deleted at the owner's request after migration.
-There is no Vercel fallback. Pushing `main` does not automatically deploy to this
-VPS; use the documented manual release process. CI/CD is intentionally not used.
+```bash
+docker build --target export --output type=local,dest=out .
+```
+
+The Docker build runs TypeScript, Biome, coverage tests and Next static export;
+it does not start a server. A separate static Pages project, `khanhduy-redirect`,
+redirects the apex domain to www. See `deploy/README.md` for the manual workflow,
+preview commands, custom domains, verification, and rollback.
+
+CI/CD is intentionally not used. The former Vercel project was deleted; the old
+VPS website runtime is retired. Infisical's independent VPS proxy is unrelated
+to portfolio releases and must be preserved.
 
 ## Project Structure
 

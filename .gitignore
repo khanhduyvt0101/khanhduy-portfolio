@@ -9,3 +9,5 @@
 /test-results
 /coverage
 /dist
+/out
+/.wrangler

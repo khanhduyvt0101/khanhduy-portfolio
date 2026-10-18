@@ -17,17 +17,6 @@ RUN bun run check && bun run test --coverage
 FROM verified AS builder
 RUN bun run build
 
-FROM node:24-bookworm-slim@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5 AS runner
-WORKDIR /app
-ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
-    HOSTNAME=0.0.0.0 \
-    PORT=46480
-COPY --from=builder --chown=node:node /app/.next/standalone ./
-COPY --from=builder --chown=node:node /app/.next/static ./.next/static
-COPY --from=builder --chown=node:node /app/public ./public
-USER node
-EXPOSE 46480
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD node -e "fetch('http://127.0.0.1:46480/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "server.js"]
+# Build artifact only: no production container or server process is needed.
+FROM scratch AS export
+COPY --from=builder /app/out/ /

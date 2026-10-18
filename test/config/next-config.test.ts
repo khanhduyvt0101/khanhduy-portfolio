@@ -6,9 +6,13 @@ afterEach(() => {
   vi.resetModules();
 });
 
-describe("self-hosted production configuration", () => {
-  it("produces a standalone Node.js server for the production container", () => {
-    expect(nextConfig.output).toBe("standalone");
+describe("static production configuration", () => {
+  it("exports static files without requiring a Node.js server", () => {
+    expect(nextConfig.output).toBe("export");
+  });
+
+  it("serves exported image files without a runtime optimizer", () => {
+    expect(nextConfig.images?.unoptimized).toBe(true);
   });
 
   it.each([

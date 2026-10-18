@@ -1,6 +1,8 @@
 import { createOgImage, ogImageContentType, ogImageSize } from "~/lib/og-image";
 import { defaultSeoDescription } from "~/lib/seo";
 
+export const dynamic = "force-static";
+
 export const alt = "Khanh Duy — indie macOS and iOS app developer";
 export const size = ogImageSize;
 export const contentType = ogImageContentType;

@@ -75,7 +75,8 @@ def main():
     parser = PageAssets()
     parser.feed(html)
     paths = sorted(parser.paths)
-    assert any(path.startswith("/_next/image?") for path in paths)
+    assert not any(path.startswith("/_next/image?") for path in paths)
+    assert any(path.endswith(".webp") for path in paths)
     assert any(path.endswith(".css") for path in paths)
     assert any(".js" in path for path in paths)
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
@@ -88,7 +89,11 @@ def main():
         "preview": preview,
         "routes_passed": checked + ["404"],
         "assets_passed": len(paths),
-        "tls_verification": "system trust store (no insecure bypass)",
+        "tls_verification": (
+            "system trust store (no insecure bypass)"
+            if base.startswith("https://")
+            else "not applicable: local HTTP preview"
+        ),
         "result": "PASS",
     }, indent=2))
 

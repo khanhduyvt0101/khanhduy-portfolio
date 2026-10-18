@@ -12,7 +12,8 @@
     "format": "bun --bun biome format --write",
     "build": "NODE_ENV=production next build",
     "dev": "next dev -p 46480",
-    "start": "NODE_ENV=production next start -p 46480",
+    "start": "wrangler pages dev out --ip 127.0.0.1 --port 46480",
+    "deploy": "wrangler pages deploy out --project-name khanhduy-portfolio --branch main",
     "test": "vitest run"
   },
   "dependencies": {
