@@ -1,0 +1,11 @@
+.git
+.next
+node_modules
+coverage
+dist
+*.tsbuildinfo
+.env*
+.vercel
+test-results
+.impeccable
+*.bak.*

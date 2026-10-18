@@ -16,7 +16,7 @@ Production: https://www.khanhduy.com
 - TypeScript 7 with Orchestero-style strict Bun project configuration
 - Biome for formatting, import organization, and lint-style checks
 - Vitest with 100% coverage thresholds
-- Vercel for deployment
+- Docker Compose and Caddy for VPS deployment
 
 ## Requirements
 
@@ -112,29 +112,25 @@ bunx --bun shadcn@latest add button
 Registry settings, aliases, styling, and icon defaults are defined in
 `components.json`.
 
-## Vercel
+## Production deployment
 
-Vercel deploys only commits pushed to `main`. That branch is the production
-branch; preview deployments for every other branch are disabled by
-`vercel.json`.
-
-Keep project environment variables scoped to Production only. This repository
-does not require Vercel Preview or Development environment variables.
-
-The expected Vercel project is:
-
-```text
-khanh-duy-projects/khanhduy-portfolio
-```
-
-After the Git repository is connected in Vercel and its production branch is
-set to `main`, deployment is automatic:
+Production is self-hosted on the VPS using Docker Compose, a Node.js 24
+standalone Next.js server, and Caddy with automatic HTTPS. Cloudflare manages
+DNS; Namecheap remains the domain registrar.
 
 ```bash
-git push origin main
+docker compose build app
+docker compose up -d --no-deps --wait --wait-timeout 90 app
+python deploy/smoke-test.py https://www.khanhduy.com
 ```
 
-Do not run `vercel deploy` or `vercel --prod` for the normal release flow.
+The build runs TypeScript, Biome, and tests with coverage before producing the
+production image. See `deploy/README.md` for initial setup, credentials,
+shared Infisical proxy precautions, releases, verification, and rollback.
+
+The former Vercel project was deleted at the owner's request after migration.
+There is no Vercel fallback. Pushing `main` does not automatically deploy to this
+VPS; use the documented manual release process. CI/CD is intentionally not used.
 
 ## Project Structure
 

@@ -10,6 +10,7 @@ function on(value: string | undefined): boolean {
 }
 
 const nextConfig = {
+  output: "standalone",
   agentRules: false,
   devIndicators: false,
   typescript: {

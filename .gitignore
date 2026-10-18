@@ -1,7 +1,9 @@
 /node_modules
 /.next
 *.tsbuildinfo
-.env*.local
+.env*
+!.env.example
+*.bak.*
 .DS_Store
 .vercel
 /test-results

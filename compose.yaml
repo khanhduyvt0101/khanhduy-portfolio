@@ -1,0 +1,76 @@
+name: khanhduy-portfolio
+
+services:
+  app:
+    image: khanhduy-portfolio:production
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      HOSTNAME: 0.0.0.0
+      PORT: "46480"
+    ports:
+      - "127.0.0.1:46480:46480"
+    networks:
+      - web
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 768m
+    pids_limit: 256
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  caddy:
+    image: khanhduy-caddy:2.11.7-cloudflare-0.2.4
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.caddy
+    restart: unless-stopped
+    init: true
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    secrets:
+      - cloudflare_dns_api_token
+    networks:
+      - web
+      - edge
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  web:
+  edge:
+    external: true
+
+secrets:
+  cloudflare_dns_api_token:
+    file: ${HOME}/.config/cloudflare/dns-api-token
+
+volumes:
+  caddy_data:
+  caddy_config:
