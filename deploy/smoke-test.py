@@ -65,6 +65,10 @@ def main():
         ("/twitter-image", "image/png", b"\x89PNG\r\n\x1a\n"),
         ("/icon.png", "image/png", b"\x89PNG\r\n\x1a\n"),
         ("/favicon.ico", "image/", None),
+        ("/llms.txt", "text/plain", b"# Khanh Duy"),
+        ("/room-still.webp", "image/webp", b"WEBP"),
+        ("/models/desk.glb", "", b"glTF"),
+        ("/models/character-male-f.glb", "", b"glTF"),
     ]:
         code, response_headers, data = get(base, path)
         assert code == 200, (path, code)
@@ -76,7 +80,9 @@ def main():
     parser.feed(html)
     paths = sorted(parser.paths)
     assert not any(path.startswith("/_next/image?") for path in paths)
-    assert any(path.endswith(".webp") for path in paths)
+    # Crawlable copy and structured data are in the static HTML, not the canvas.
+    for marker in ("<h1", "LofiHood", "ChatAcademia", '"@type":"ProfilePage"'):
+        assert marker in html, marker
     assert any(path.endswith(".css") for path in paths)
     assert any(".js" in path for path in paths)
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:

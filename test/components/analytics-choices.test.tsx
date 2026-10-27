@@ -41,3 +41,37 @@ it("preserves an existing visitor opt-out without displaying choices", () => {
   expect(localStorage.getItem("website-analytics-v1")).toBe("denied");
   unmount();
 });
+
+it("waits for the page load and an idle moment before starting analytics", () => {
+  const callbacks: (() => void)[] = [];
+  const cancel = vi.fn();
+  vi.stubGlobal(
+    "requestIdleCallback",
+    vi.fn((callback: () => void) => {
+      callbacks.push(callback);
+      return callbacks.length;
+    }),
+  );
+  vi.stubGlobal("cancelIdleCallback", cancel);
+  const readyState = vi
+    .spyOn(document, "readyState", "get")
+    .mockReturnValue("loading");
+
+  const first = render(<AnalyticsChoices config={portfolioAnalytics} />);
+  expect(document.querySelector("iframe")).toBeNull();
+  window.dispatchEvent(new Event("load"));
+  expect(callbacks).toHaveLength(1);
+  callbacks[0]?.();
+  expect(document.querySelector("iframe")).not.toBeNull();
+  first.unmount();
+  expect(cancel).toHaveBeenCalledWith(1);
+
+  readyState.mockReturnValue("complete");
+  const second = render(<AnalyticsChoices config={portfolioAnalytics} />);
+  expect(callbacks).toHaveLength(2);
+  second.unmount();
+  expect(document.querySelector("iframe")).toBeNull();
+
+  readyState.mockRestore();
+  vi.unstubAllGlobals();
+});
