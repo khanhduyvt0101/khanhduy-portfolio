@@ -10,11 +10,14 @@
   "scripts": {
     "check": "bun --bun tsc --build && bun --bun biome check",
     "format": "bun --bun biome format --write",
-    "build": "NODE_ENV=production next build",
+    "build": "python3 scripts/env-run.py --env prod public -- next build",
     "dev": "next dev -p 46480",
     "start": "wrangler pages dev out --ip 127.0.0.1 --port 46480",
-    "deploy": "wrangler pages deploy out --project-name khanhduy-portfolio --branch main",
-    "test": "vitest run"
+    "deploy": "bash scripts/deploy-pages.sh",
+    "test": "vitest run",
+    "build:redirect": "python3 scripts/env-run.py --env prod public -- node scripts/build-redirect.mjs",
+    "deploy:redirect": "bash scripts/deploy-redirect.sh",
+    "build:container": "bash scripts/build-container.sh"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
@@ -55,6 +58,5 @@
     "type": "git",
     "url": "git+https://github.com/khanhduyvt0101/khanhduy-portfolio.git"
   },
-  "license": "ISC",
-  "homepage": "https://www.khanhduy.com"
+  "license": "ISC"
 }

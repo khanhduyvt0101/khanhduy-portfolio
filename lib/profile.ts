@@ -33,17 +33,24 @@ export const appLinks = [
   },
   {
     label: "PhotoDay Cleaner",
-    href: "https://photoday-cleaner.vercel.app",
+    href: "https://photoday-cleaner.pages.dev",
     platform: "iPhone",
     description: "A calmer way to review and stage photo cleanups.",
   },
   {
     label: "MoveHalo",
-    href: "https://movehalo.vercel.app",
+    href: "https://movehalo.pages.dev",
     platform: "iPhone",
     description: "Two daily movement goals, one calm Apple Health ritual.",
   },
 ] as const;
+
+export const discordBot = {
+  label: "Voxy",
+  href: "https://voxy.khanhduy.com",
+  platform: "Discord",
+  description: "Text-to-speech for Discord voice chats.",
+} as const;
 
 export const developerProjects = [
   {

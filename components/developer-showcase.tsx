@@ -23,7 +23,7 @@ export function DeveloperShowcase(): ReactNode {
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-5 md:grid-cols-[minmax(0,0.8fr)_minmax(18rem,0.55fr)] md:items-end">
           <h2 className="max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-            Products I build
+            I work as developer
           </h2>
           <p className="max-w-xl text-pretty text-muted-foreground leading-7 md:justify-self-end">
             Platforms I help bring to life as a developer, spanning research,
@@ -65,6 +65,7 @@ export function DeveloperShowcase(): ReactNode {
                 <a
                   aria-label={`Visit ${project.label}`}
                   href={project.href}
+                  data-analytics-cta={`developer_showcase:${project.label}`}
                   rel="noreferrer"
                   target="_blank"
                 >

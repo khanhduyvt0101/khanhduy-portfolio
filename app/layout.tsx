@@ -1,13 +1,13 @@
 import "./styles.css";
 
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { type PropsWithChildren, type ReactNode, ViewTransition } from "react";
+import { AnalyticsChoices } from "~/components/analytics-choices";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { ThemeProvider } from "~/components/theme-provider";
+import { portfolioAnalytics } from "~/lib/analytics-config";
 
 import { defaultSeoDescription, siteName, siteUrl } from "~/lib/seo";
 
@@ -24,8 +24,6 @@ const geistMono = Geist_Mono({
   display: "swap",
   variable: "--font-geist-mono",
 });
-
-const isVercelRuntime = process.env.VERCEL === "1";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -116,8 +114,7 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
           </ViewTransition>
           <SiteFooter />
         </ThemeProvider>
-        {isVercelRuntime ? <Analytics mode="production" /> : null}
-        {isVercelRuntime ? <SpeedInsights /> : null}
+        <AnalyticsChoices config={portfolioAnalytics} />
       </body>
     </html>
   );

@@ -1,0 +1,14 @@
+{
+  "accountId": "4619630cc2fa4da9fb7919dc1bc36889",
+  "profiles": {
+    "public": {
+      "project": "khanhduy-portfolio"
+    },
+    "test": {
+      "project": "khanhduy-portfolio"
+    },
+    "deploy": {
+      "project": "khanhduy-portfolio"
+    }
+  }
+}

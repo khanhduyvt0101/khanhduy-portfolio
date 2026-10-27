@@ -118,17 +118,17 @@ Production is a pure static export on Cloudflare Pages, with Cloudflare-managed
 HTTPS. Namecheap remains the domain registrar. There is no VPS app process,
 Pages Function, Worker script, or Git-triggered deployment.
 
-After local checks/build and commit/push, deploy manually:
+After local checks/build and separate release authorization, deploy manually (commit/push is separately authorized):
 
 ```bash
-wrangler pages deploy out --project-name khanhduy-portfolio --branch main
+bun run deploy
 python deploy/smoke-test.py https://www.khanhduy.com
 ```
 
 If Node/Bun are not installed locally, generate the verified artifact with Docker:
 
 ```bash
-docker build --target export --output type=local,dest=out .
+bun run build:container -- <empty-output-directory>
 ```
 
 The Docker build runs TypeScript, Biome, coverage tests and Next static export;
@@ -153,3 +153,7 @@ test/         Vitest tests and browser-like test setup
 ## Contact
 
 Email: khanhduyvt0101@gmail.com
+
+Production configuration and authenticated local checks: see `docs/cloudflare.md`. Docker builds use an ephemeral BuildKit Cloudflare token secret, not an Infisical CLI or machine-bootstrap mount; no app values are supplied as build arguments.
+
+`build:container` requires an empty destination, passes the host token with `--secret id=cloudflare_token,env=CLOUDFLARE_API_TOKEN`, and disables both verification/build-stage caching so each reads current Cloudflare Variables. No token file or external CLI build context is created. Never pass app values as Docker build arguments.

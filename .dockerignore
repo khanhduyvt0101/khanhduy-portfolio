@@ -6,8 +6,19 @@ dist
 out
 .wrangler
 *.tsbuildinfo
-.env*
+# Never send dotenv files (including examples) into any COPY/cache layer.
+**/.env*
+**/*.env
+# Host/provider bootstrap state must never enter a COPY/cache layer.
+**/.config
+**/.cloudflare
+**/.infisical
+**/cloudflare_token
+**/full-api-token
 .vercel
 test-results
 .impeccable
 *.bak.*
+
+__pycache__
+deploy/apex-redirect-out

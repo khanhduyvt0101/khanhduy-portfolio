@@ -118,6 +118,11 @@ export function HeroSection(): ReactNode {
                         <Button asChild size="icon-lg" variant="outline">
                           <a
                             aria-label={label}
+                            data-analytics-cta={
+                              label === "Email" || label === "LinkedIn"
+                                ? `hero:${label}`
+                                : undefined
+                            }
                             href={href}
                             rel={external ? "noreferrer" : undefined}
                             target={external ? "_blank" : undefined}

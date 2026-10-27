@@ -1,0 +1,26 @@
+{
+  "public": {
+    "required": [
+      "NODE_ENV",
+      "NEXT_PUBLIC_SITE_URL",
+      "NEXT_PUBLIC_GA_MEASUREMENT_ID"
+    ],
+    "optional": []
+  },
+  "deploy": {
+    "required": [
+      "NODE_ENV",
+      "NEXT_PUBLIC_SITE_URL",
+      "NEXT_PUBLIC_GA_MEASUREMENT_ID",
+      "CLOUDFLARE_PAGES_PROJECT",
+      "DEPLOY_BRANCH",
+      "CLOUDFLARE_ACCOUNT_ID"
+    ],
+    "optional": ["CLOUDFLARE_REDIRECT_PROJECT"],
+    "passthrough": ["CLOUDFLARE_API_TOKEN"]
+  },
+  "test": {
+    "required": ["NEXT_PUBLIC_SITE_URL", "NEXT_PUBLIC_GA_MEASUREMENT_ID"],
+    "optional": []
+  }
+}

@@ -26,7 +26,14 @@ vi.mock("next/font/google", () => ({
 }));
 
 vi.mock("next/image", () => ({
-  default: ({ fill: _fill, preload: _preload, src, ...props }: ImageProps) =>
+  default: ({
+    fill: _fill,
+    preload: _preload,
+    priority: _priority,
+    unoptimized: _unoptimized,
+    src,
+    ...props
+  }: ImageProps) =>
     createElement("img", {
       ...props,
       src:
@@ -37,3 +44,7 @@ vi.mock("next/image", () => ({
             : src.src,
     }),
 }));
+
+// Test fixtures only; never loaded by production builds.
+process.env.NEXT_PUBLIC_SITE_URL ??= "https://www.khanhduy.com";
+process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ??= "G-TESTONLY123";

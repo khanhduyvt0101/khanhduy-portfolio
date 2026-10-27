@@ -43,12 +43,20 @@ describe("Layout", () => {
     expect(
       screen.getByRole("navigation", { name: "Product showcases" }),
     ).toBeVisible();
+    const showcases = screen.getByRole("navigation", {
+      name: "Product showcases",
+    });
     expect(
-      screen.getByRole("link", { name: "Owner products" }),
-    ).toHaveAttribute("href", "/#owner-products");
-    expect(
-      screen.getByRole("link", { name: "Developer products" }),
-    ).toHaveAttribute("href", "/#developer-products");
+      Array.from(showcases.querySelectorAll("a"), (link) => [
+        link.textContent,
+        link.getAttribute("href"),
+      ]),
+    ).toEqual([
+      ["Discord Bot", "/#owner-products"],
+      ["macOS Apps", "/#macos-apps"],
+      ["iOS Apps", "/#ios-apps"],
+      ["Developer", "/#developer-products"],
+    ]);
     expect(screen.getByText("Page content")).toBeVisible();
     expect(screen.getByRole("navigation", { name: "Apps" })).toBeVisible();
     expect(screen.getByRole("link", { name: "LofiHood" })).toHaveAttribute(
@@ -58,12 +66,9 @@ describe("Layout", () => {
     expect(screen.getByRole("link", { name: "Email" })).not.toHaveAttribute(
       "target",
     );
-    expect(screen.getByTestId("analytics")).toBeVisible();
-    expect(screen.getByTestId("speed-insights")).toBeVisible();
-    expect(analytics).toHaveBeenCalledWith(
-      expect.objectContaining({ mode: "production" }),
-      undefined,
-    );
+    expect(screen.queryByTestId("analytics")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("speed-insights")).not.toBeInTheDocument();
+    expect(screen.queryByText("Analytics choices")).not.toBeInTheDocument();
     expect(metadata.metadataBase).toEqual(new URL("https://www.khanhduy.com"));
     expect(metadata.title).toBe("Khanh Duy");
     expect(metadata.description).toBe(

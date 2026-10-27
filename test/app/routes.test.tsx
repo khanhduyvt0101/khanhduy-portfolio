@@ -41,16 +41,39 @@ describe("application routes", () => {
     expect(pageMetadata.description).toBe(
       "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.",
     );
-    expect(screen.getByRole("heading", { name: "Apps I own" })).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: "Apps I own" }).closest("section"),
-    ).toHaveAttribute("id", "owner-products");
-    expect(
-      screen.getByRole("heading", { name: "Products I build" }),
-    ).toBeVisible();
+      screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
+    ).toEqual(["Discord Bot", "macOS Apps", "iOS Apps", "I work as developer"]);
+    const mac = screen
+      .getByRole("heading", { name: "macOS Apps" })
+      .closest("section");
+    const ios = screen
+      .getByRole("heading", { name: "iOS Apps" })
+      .closest("section");
+    expect(mac?.querySelectorAll("a[data-analytics-cta]")).toHaveLength(2);
+    expect(ios?.querySelectorAll("a[data-analytics-cta]")).toHaveLength(5);
+    expect(mac).toHaveTextContent("LofiHood");
+    expect(mac).toHaveTextContent("CafeSignal");
+    for (const name of [
+      "SpotterFuel",
+      "CampusCue",
+      "WakeArc",
+      "PhotoDay Cleaner",
+      "MoveHalo",
+    ]) {
+      expect(ios).toHaveTextContent(name);
+    }
+    expect(screen.getByRole("link", { name: "Visit Voxy" })).toHaveAttribute(
+      "href",
+      "https://voxy.khanhduy.com",
+    );
+    expect(screen.getByAltText("Voxy bot logo")).toHaveAttribute(
+      "src",
+      "/voxy-brand.webp",
+    );
     expect(
       screen
-        .getByRole("heading", { name: "Products I build" })
+        .getByRole("heading", { name: "I work as developer" })
         .closest("section"),
     ).toHaveAttribute("id", "developer-products");
     expect(

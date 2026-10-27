@@ -41,6 +41,11 @@ export function SiteFooter(): ReactNode {
                   <Button asChild className="h-auto p-0" variant="link">
                     <a
                       href={link.href}
+                      data-analytics-cta={
+                        link.label === "GitHub"
+                          ? undefined
+                          : `footer:${link.label}`
+                      }
                       rel={
                         link.href.startsWith("http") ? "noreferrer" : undefined
                       }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-export const siteUrl = "https://www.khanhduy.com";
+export const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const siteName = "Khanh Duy";
 export const defaultSeoDescription =
   "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.";
