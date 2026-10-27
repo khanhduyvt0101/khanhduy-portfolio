@@ -7,7 +7,7 @@ const SIGNATURE =
   "M17.5 43.5c3.6-12.9 8.8-24 17-31.1M29.5 32.6c13.5-14.5 27.3-22 34-15.7 6.2 5.9-10.2 15.4-33.1 18.8 12.9.4 23.3 4.9 31.4 12.5M77.5 46.2c4.9-13.7 10.4-25 18.1-33.7m-5.1 10.7c17.5-11.1 41.3-8.7 49.5 5.8 9.9 17.4-13.8 29-38.2 21.4-13.3-4.1-17.3-14.9-8.3-20.2";
 const TAIL = "M138.7 33.3c9.4-.8 17.8-4.5 25-10.9";
 /** Never reveal faster than this, so the signature finishes drawing. */
-const MIN_MS = 1800;
+const MIN_MS = 1200;
 
 interface Building {
   x: number;
@@ -98,7 +98,7 @@ export function Loader({
     const id = window.setTimeout(() => {
       setPhase("leaving");
       revealRef.current();
-    }, 650);
+    }, 400);
     return () => window.clearTimeout(id);
   }, [phase]);
 
