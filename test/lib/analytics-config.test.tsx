@@ -2,7 +2,6 @@ import { render } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 import Page from "~/app/page";
 import { SiteFooter } from "~/components/site-footer";
-import { TooltipProvider } from "~/components/ui/tooltip";
 import { portfolioAnalytics } from "~/lib/analytics-config";
 import { appLinks } from "~/lib/profile";
 
@@ -29,10 +28,10 @@ it("maps every approved product/contact placement to fixed audited metadata with
     "https://movehalo.pages.dev",
   );
   const { container } = render(
-    <TooltipProvider>
+    <>
       <Page />
       <SiteFooter />
-    </TooltipProvider>,
+    </>,
   );
   const links = [...container.querySelectorAll("a[data-analytics-cta]")];
   expect(links).toHaveLength(22);

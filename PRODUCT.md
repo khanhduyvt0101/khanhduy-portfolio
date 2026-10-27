@@ -32,8 +32,9 @@ Visitors primarily scan the home page, move between the owner and developer prod
 ## Brand Commitments
 
 - Preserve the name Khanh Duy, the signature mark, portrait, existing product logos, and the direct first-person voice.
-- Use Glass UI as the visual system across the whole site, including navigation, hero surfaces, product showcases, controls, error and not-found states, and footer.
-- Glass treatments must keep content legible and product imagery visually dominant.
+- The landing page is a 3D desk at night (Three.js, Kenney CC0 models): scrolling tours the room, and the Mac screen, iPhone, speaker and project board show the real products. All copy stays in server-rendered HTML so it is crawlable and readable without WebGL or JavaScript.
+- Devices without a GPU get a still of the room instead of the live scene; reduced motion is respected.
+- Glass UI remains the visual system for the 404 and error pages.
 
 ## Evidence on Hand
 

@@ -45,7 +45,7 @@ export const portfolioAnalytics: AnalyticsConfig = {
         },
       },
     ]),
-    ...["hero", "footer"].flatMap((placement) => [
+    ...["contact", "footer"].flatMap((placement) => [
       [
         `${placement}:Email`,
         {

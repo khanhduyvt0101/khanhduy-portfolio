@@ -1,15 +1,13 @@
 import "./styles.css";
 
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Geist } from "next/font/google";
 import { type PropsWithChildren, type ReactNode, ViewTransition } from "react";
 import { AnalyticsChoices } from "~/components/analytics-choices";
-import { SiteFooter } from "~/components/site-footer";
-import { SiteHeader } from "~/components/site-header";
 import { ThemeProvider } from "~/components/theme-provider";
 import { portfolioAnalytics } from "~/lib/analytics-config";
 
-import { defaultSeoDescription, siteName, siteUrl } from "~/lib/seo";
+import { defaultSeoDescription, homeTitle, siteName, siteUrl } from "~/lib/seo";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -18,16 +16,14 @@ const geist = Geist({
   variable: "--font-geist",
 });
 
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  adjustFontFallback: false,
-  display: "swap",
-  variable: "--font-geist-mono",
-});
+export const viewport: Viewport = {
+  themeColor: "#1d2430",
+  colorScheme: "dark light",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: siteName,
+  title: homeTitle,
   description: defaultSeoDescription,
   applicationName: siteName,
   authors: [{ name: siteName, url: siteUrl }],
@@ -87,32 +83,23 @@ export default function Layout({ children }: PropsWithChildren): ReactNode {
       lang="en-US"
     >
       <body
-        className={`${geist.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col bg-background text-foreground`}
+        className={`${geist.variable} font-sans antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
-        <template
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: static design contract comment contains no user input.
-          dangerouslySetInnerHTML={{
-            __html:
-              "<!-- THESIS: A living glass portfolio makes real products the luminous objects; it refuses flat catalog chrome. OWN-WORLD: cool atmospheric ground, refractive white edges, tinted depth, and clear product imagery. STORY: meet Khanh Duy, distinguish what he owns from what he builds, then visit the work. FIRST VIEWPORT: wide identity copy at left, layered portrait glass at right, direct product navigation above. FORM: Apple-inspired Glass UI, pinned by the user; seed ba8d9071. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance -->",
-          }}
-        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <SiteHeader />
           <ViewTransition
             default="page-soft"
             enter="page-forward"
             exit="page-soft"
           >
-            <main className="w-full max-w-full flex-1 overflow-x-hidden">
+            <main className="w-full max-w-full flex-1 overflow-x-clip">
               {children}
             </main>
           </ViewTransition>
-          <SiteFooter />
         </ThemeProvider>
         <AnalyticsChoices config={portfolioAnalytics} />
       </body>

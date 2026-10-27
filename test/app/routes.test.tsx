@@ -1,95 +1,114 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import ErrorBoundary from "~/app/error";
+import { GET } from "~/app/llms.txt/route";
 import NotFound from "~/app/not-found";
 import Page, { metadata as pageMetadata } from "~/app/page";
 import robots from "~/app/robots";
 import sitemap from "~/app/sitemap";
-import { TooltipProvider } from "~/components/ui/tooltip";
+
+vi.mock("next/dynamic", () => ({ default: () => () => null }));
 
 function renderPage() {
-  return render(
-    <TooltipProvider>
-      <Page />
-    </TooltipProvider>,
+  return render(<Page />);
+}
+
+function jsonLd(container: HTMLElement): string {
+  return (
+    container.querySelector('script[type="application/ld+json"]')
+      ?.textContent ?? ""
   );
 }
 
 describe("application routes", () => {
-  it("renders the home page and its structured data", () => {
+  it("renders the home page copy as crawlable HTML with structured data", () => {
     const { container } = renderPage();
 
-    expect(screen.getByRole("heading", { name: "Khanh Duy" })).toBeVisible();
     expect(
-      screen.getByRole("region", { name: "Khanh Duy photo gallery" }),
-    ).toBeVisible();
-    expect(
-      container.querySelector('script[type="application/ld+json"]'),
-    ).toHaveTextContent('"@type":"ProfilePage"');
-    expect(
-      container.querySelector('script[type="application/ld+json"]'),
-    ).toHaveTextContent('"@type":"Person"');
-    expect(
-      container.querySelector('script[type="application/ld+json"]'),
-    ).toHaveTextContent("PhotoDay Cleaner");
-    expect(
-      container.querySelector('script[type="application/ld+json"]'),
-    ).toHaveTextContent("https://hevy.com/user/khanhduyvt0101");
-    expect(pageMetadata.alternates).toEqual({ canonical: "/" });
-    expect(pageMetadata.title).toBe("Khanh Duy");
-    expect(pageMetadata.description).toBe(
-      "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.",
-    );
+      screen.getByRole("heading", { level: 1, name: "Khanh Duy" }),
+    ).toBeInTheDocument();
     expect(
       screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
-    ).toEqual(["Discord Bot", "macOS Apps", "iOS Apps", "I work as developer"]);
-    const mac = screen
-      .getByRole("heading", { name: "macOS Apps" })
-      .closest("section");
-    const ios = screen
-      .getByRole("heading", { name: "iOS Apps" })
-      .closest("section");
-    expect(mac?.querySelectorAll("a[data-analytics-cta]")).toHaveLength(2);
-    expect(ios?.querySelectorAll("a[data-analytics-cta]")).toHaveLength(5);
-    expect(mac).toHaveTextContent("LofiHood");
-    expect(mac).toHaveTextContent("CafeSignal");
-    for (const name of [
+    ).toEqual([
+      "Two menu bar apps",
+      "Five pocket apps",
+      "Voxy",
+      "I help build",
+      "Let's talk",
+    ]);
+    expect(
+      screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent),
+    ).toEqual([
+      "LofiHood",
+      "CafeSignal",
       "SpotterFuel",
       "CampusCue",
       "WakeArc",
       "PhotoDay Cleaner",
       "MoveHalo",
+      "ChatAcademia",
+      "PDF Vector",
+      "Orchestero",
+    ]);
+    for (const id of [
+      "hero",
+      "macos-apps",
+      "ios-apps",
+      "owner-products",
+      "developer-products",
+      "contact",
     ]) {
-      expect(ios).toHaveTextContent(name);
+      expect(container.querySelector(`#${id}`)).not.toBeNull();
     }
-    expect(screen.getByRole("link", { name: "Visit Voxy" })).toHaveAttribute(
-      "href",
+    expect(container.querySelectorAll("a[data-analytics-cta]")).toHaveLength(
+      13,
+    );
+    expect(
+      screen.getByRole("link", { name: /Visit voxy\.khanhduy\.com/ }),
+    ).toHaveAttribute("href", "https://voxy.khanhduy.com");
+    expect(
+      screen.getByRole("link", { name: /chatacademia\.com/ }),
+    ).toHaveAttribute("rel", "noopener");
+    // Without JavaScript the loader steps aside and the copy stays readable.
+    expect(renderToStaticMarkup(<Page />)).toContain(
+      "<noscript><style>.room-loader{display:none}",
+    );
+
+    const data = jsonLd(container);
+    for (const fragment of [
+      '"@type":"ProfilePage"',
+      '"@type":"Person"',
+      '"@type":"WebSite"',
+      "Bùi Trọng Khánh Duy",
+      "PhotoDay Cleaner",
       "https://voxy.khanhduy.com",
+      "https://hevy.com/user/khanhduyvt0101",
+      '"dateModified":"2026-10-27T00:00:00.000Z"',
+    ]) {
+      expect(data).toContain(fragment);
+    }
+
+    expect(pageMetadata.alternates).toEqual({ canonical: "/" });
+    expect(pageMetadata.title).toBe(
+      "Khanh Duy – Indie Mac & iPhone App Developer",
     );
-    expect(screen.getByAltText("Voxy bot logo")).toHaveAttribute(
-      "src",
-      "/voxy-brand.webp",
+    expect(pageMetadata.description).toBe(
+      "I'm Khanh Duy, an indie developer in Ho Chi Minh City making small, calm apps for Mac, iPhone, Apple Watch and Discord, like LofiHood, WakeArc and Voxy.",
     );
-    expect(
-      screen
-        .getByRole("heading", { name: "I work as developer" })
-        .closest("section"),
-    ).toHaveAttribute("id", "developer-products");
-    expect(
-      screen.getByRole("link", { name: "Visit ChatAcademia" }),
-    ).toHaveAttribute("href", "https://chatacademia.com");
+    expect(String(pageMetadata.description).length).toBeLessThanOrEqual(160);
   });
 
-  it("renders both external and email social links", () => {
+  it("links every profile and the email address", () => {
     renderPage();
 
-    expect(screen.getByRole("link", { name: "Email" })).not.toHaveAttribute(
-      "target",
-    );
+    expect(
+      screen.getByRole("link", { name: "khanhduyvt0101@gmail.com" }),
+    ).toHaveAttribute("href", "mailto:khanhduyvt0101@gmail.com");
     expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute(
-      "target",
-      "_blank",
+      "rel",
+      "me noopener",
     );
     expect(screen.getByRole("link", { name: "Strava" })).toHaveAttribute(
       "href",
@@ -99,6 +118,18 @@ describe("application routes", () => {
       "href",
       "https://hevy.com/user/khanhduyvt0101",
     );
+  });
+
+  it("serves a plain-text llms.txt summary", async () => {
+    const response = GET();
+    expect(response.headers.get("Content-Type")).toBe(
+      "text/plain; charset=utf-8",
+    );
+    const text = await response.text();
+    expect(text).toMatch(/^# Khanh Duy\n/);
+    expect(text).toContain("- [Voxy](https://voxy.khanhduy.com) (Discord)");
+    expect(text).toContain("- [PDF Vector](https://pdfvector.com)");
+    expect(text).toContain("- Email: khanhduyvt0101@gmail.com");
   });
 
   it("runs the error reset action", () => {
@@ -113,10 +144,17 @@ describe("application routes", () => {
     );
   });
 
-  it("renders the not-found recovery link", () => {
+  it("renders the not-found page with the site header and footer", () => {
     render(<NotFound />);
 
     expect(screen.getByRole("heading", { name: "404" })).toBeVisible();
+    expect(
+      screen.getByRole("navigation", { name: "Product showcases" }),
+    ).toBeVisible();
+    expect(screen.getByRole("link", { name: "LofiHood" })).toHaveAttribute(
+      "target",
+      "_blank",
+    );
     expect(screen.getByRole("link", { name: "Return home" })).toHaveAttribute(
       "href",
       "/",
@@ -132,7 +170,7 @@ describe("application routes", () => {
     expect(sitemap()).toEqual([
       {
         url: "https://www.khanhduy.com",
-        lastModified: new Date("2026-08-20T00:00:00.000Z"),
+        lastModified: new Date("2026-10-27T00:00:00.000Z"),
         changeFrequency: "monthly",
         priority: 1,
         images: ["https://www.khanhduy.com/avatar.webp"],

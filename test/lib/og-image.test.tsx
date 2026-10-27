@@ -30,7 +30,9 @@ describe("Open Graph images", () => {
     ApplicationImage();
     TwitterImage();
 
-    expect(alt).toBe("Khanh Duy — indie macOS and iOS app developer");
+    expect(alt).toBe(
+      "Khanh Duy's 3D desk at night, with his Mac and iPhone apps",
+    );
     expect(contentType).toBe("image/png");
     expect(size).toEqual({ width: 1200, height: 630 });
     expect(twitterAlt).toBe(alt);
@@ -39,51 +41,24 @@ describe("Open Graph images", () => {
     expect(imageResponseMock).toHaveBeenCalledTimes(2);
   });
 
-  it("renders short content and the complete dot pattern", () => {
+  it("renders the copy over the embedded room backdrop", () => {
     createOgImage({
       title: "Khanh Duy",
-      eyebrow: "Builder",
       description: "Focused software",
-      kind: "Portfolio",
+      footer: "Portfolio",
     });
 
     const { container } = render(capturedImage());
     expect(container).toHaveTextContent("Khanh Duy");
     expect(container).toHaveTextContent("Focused software");
-    expect(container.querySelectorAll('[style*="height: 4px"]')).toHaveLength(
-      144,
+    expect(container).toHaveTextContent("Portfolio");
+    expect(container.querySelector("img")?.getAttribute("src")).toMatch(
+      /^data:image\/jpeg;base64,/,
     );
     expect(imageResponseMock).toHaveBeenCalledWith(
       expect.anything(),
       ogImageSize,
     );
     expect(ogImageContentType).toBe("image/png");
-  });
-
-  it("wraps and truncates long text", () => {
-    createOgImage({
-      title: "A deliberately long portfolio title with many words",
-      eyebrow: "Product Builder",
-      description:
-        "This deliberately long description wraps across multiple lines and truncates everything beyond its supported second line for a predictable social card.",
-      kind: "Applications",
-    });
-
-    const { container } = render(capturedImage());
-    expect(container.textContent).toContain(
-      "A deliberately long\nportfolio title with",
-    );
-    expect(container.textContent).not.toContain("predictable social card");
-  });
-
-  it("accepts empty title and description content", () => {
-    createOgImage({
-      title: "",
-      eyebrow: "Builder",
-      description: "",
-      kind: "Empty",
-    });
-
-    expect(() => render(capturedImage())).not.toThrow();
   });
 });

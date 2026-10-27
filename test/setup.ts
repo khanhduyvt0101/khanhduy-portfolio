@@ -22,7 +22,7 @@ Object.defineProperty(window, "matchMedia", {
 
 vi.mock("next/font/google", () => ({
   Geist: () => ({ variable: "--font-geist" }),
-  Geist_Mono: () => ({ variable: "--font-geist-mono" }),
+  Unbounded: () => ({ variable: "--font-display" }),
 }));
 
 vi.mock("next/image", () => ({
@@ -48,3 +48,11 @@ vi.mock("next/image", () => ({
 // Test fixtures only; never loaded by production builds.
 process.env.NEXT_PUBLIC_SITE_URL ??= "https://www.khanhduy.com";
 process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ??= "G-TESTONLY123";
+
+// Lenis (smooth scrolling on the landing page) observes layout size.
+class ResizeObserverStub {
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+}
+globalThis.ResizeObserver ??= ResizeObserverStub;

@@ -19,7 +19,10 @@ export default defineConfig({
         "lib/**/*.{ts,tsx}",
         "app/**/*.{ts,tsx}",
       ],
-      exclude: ["test/**/*"],
+      // The WebGL room and its scroll choreography need a real GPU browser; they
+      // are verified with browser smoke tests. Their server-rendered copy is
+      // covered through the home page tests.
+      exclude: ["test/**/*", "components/room/**"],
       thresholds: {
         statements: 100,
         branches: 100,

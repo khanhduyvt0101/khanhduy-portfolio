@@ -1,4 +1,4 @@
-export const profileUpdatedAt = "2026-08-20T00:00:00.000Z";
+export const profileUpdatedAt = "2026-10-27T00:00:00.000Z";
 
 export const appLinks = [
   {

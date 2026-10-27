@@ -90,6 +90,12 @@ components:
 
 # Design System: Khanh Duy Portfolio
 
+> **Landing page (since 2026-10-27):** a cosy 3D desk at night replaces the glass
+> layout on `/`. Code lives in `components/room/` (scene, scroll choreography,
+> loader); palette `#1d2430` night, `#f6f1e9` ink, `#ffb86b` lamp amber, `#8ef5c8`
+> mint; display type Unbounded 800 with Geist body. The glass system below still
+> applies to the 404 and error pages.
+
 ## Overview
 
 **Creative North Star: "Living Glass Portfolio"**

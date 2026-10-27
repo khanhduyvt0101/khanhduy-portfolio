@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
+import { Unbounded } from "next/font/google";
 import type { ReactNode } from "react";
-
-import { DeveloperShowcase } from "~/components/developer-showcase";
-import { HeroSection } from "~/components/hero-section";
-import { OwnerShowcase } from "~/components/owner-showcase";
+import { RoomExperience } from "~/components/room/experience";
 import {
   appLinks,
+  discordBot,
   profileSameAs,
   profileTopics,
   profileUpdatedAt,
@@ -13,16 +12,24 @@ import {
 import {
   createSeoMetadata,
   defaultSeoDescription,
+  homeTitle,
   serializeJsonLd,
   siteName,
   siteUrl,
 } from "~/lib/seo";
 
 export const metadata: Metadata = createSeoMetadata({
-  title: siteName,
+  title: homeTitle,
   description: defaultSeoDescription,
-  imageAlt: "Khanh Duy — indie macOS and iOS app developer",
+  imageAlt: "Khanh Duy's 3D desk at night, with his Mac and iPhone apps",
   path: "/",
+});
+
+const unbounded = Unbounded({
+  subsets: ["latin"],
+  weight: "800",
+  display: "swap",
+  variable: "--font-display",
 });
 
 const profilePageId = `${siteUrl}/#profile`;
@@ -46,7 +53,12 @@ const homeJsonLd = {
       "@type": "Person",
       "@id": personId,
       name: siteName,
-      alternateName: "Bui Trong Khanh Duy",
+      alternateName: [
+        "Bui Trong Khanh Duy",
+        "Bùi Trọng Khánh Duy",
+        "khanhduyvt",
+      ],
+      email: "mailto:khanhduyvt0101@gmail.com",
       url: siteUrl,
       description: defaultSeoDescription,
       image: {
@@ -78,13 +90,15 @@ const homeJsonLd = {
     },
     {
       "@type": "ItemList",
-      name: "Current apps by Khanh Duy",
-      itemListElement: appLinks.map(({ href, label }, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: label,
-        url: href,
-      })),
+      name: "Apps and bots by Khanh Duy",
+      itemListElement: [...appLinks, discordBot].map(
+        ({ href, label }, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: label,
+          url: href,
+        }),
+      ),
     },
   ],
 };
@@ -99,9 +113,9 @@ export default function Page(): ReactNode {
           __html: serializeJsonLd(homeJsonLd),
         }}
       />
-      <HeroSection />
-      <OwnerShowcase />
-      <DeveloperShowcase />
+      <div className={unbounded.variable}>
+        <RoomExperience />
+      </div>
     </>
   );
 }

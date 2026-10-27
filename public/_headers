@@ -17,3 +17,6 @@ https://:project.pages.dev/*
 
 https://:version.:project.pages.dev/*
   X-Robots-Tag: noindex, nofollow
+
+/llms.txt
+  Content-Type: text/plain; charset=utf-8

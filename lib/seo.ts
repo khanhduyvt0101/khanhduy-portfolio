@@ -3,8 +3,10 @@ import type { Metadata } from "next";
 export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const siteName = "Khanh Duy";
+/** Name first, then what he does: the query people type is the name. */
+export const homeTitle = "Khanh Duy – Indie Mac & iPhone App Developer";
 export const defaultSeoDescription =
-  "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.";
+  "I'm Khanh Duy, an indie developer in Ho Chi Minh City making small, calm apps for Mac, iPhone, Apple Watch and Discord, like LofiHood, WakeArc and Voxy.";
 
 type SeoMetadataOptions = {
   title: string;

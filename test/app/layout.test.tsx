@@ -1,13 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-const analytics = vi.fn(() => <div data-testid="analytics" />);
-const speedInsights = vi.fn(() => <div data-testid="speed-insights" />);
-
-vi.mock("@vercel/analytics/next", () => ({ Analytics: analytics }));
-vi.mock("@vercel/speed-insights/next", () => ({
-  SpeedInsights: speedInsights,
-}));
 vi.mock("react", async (importOriginal) => {
   const react = await importOriginal<typeof import("react")>();
 
@@ -22,14 +15,12 @@ vi.mock("next-themes", () => ({
 }));
 
 describe("Layout", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-    vi.resetModules();
-  });
-
-  it("renders the header, content, footer, and production telemetry", async () => {
-    vi.stubEnv("VERCEL", "1");
-    const { default: Layout, metadata } = await import("~/app/layout");
+  it("wraps pages in the main landmark without site chrome", async () => {
+    const {
+      default: Layout,
+      metadata,
+      viewport,
+    } = await import("~/app/layout");
 
     render(
       <Layout>
@@ -37,52 +28,16 @@ describe("Layout", () => {
       </Layout>,
     );
 
-    expect(
-      screen.getByRole("link", { name: "Khanh Duy home" }),
-    ).toHaveAttribute("href", "/");
-    expect(
-      screen.getByRole("navigation", { name: "Product showcases" }),
-    ).toBeVisible();
-    const showcases = screen.getByRole("navigation", {
-      name: "Product showcases",
-    });
-    expect(
-      Array.from(showcases.querySelectorAll("a"), (link) => [
-        link.textContent,
-        link.getAttribute("href"),
-      ]),
-    ).toEqual([
-      ["Discord Bot", "/#owner-products"],
-      ["macOS Apps", "/#macos-apps"],
-      ["iOS Apps", "/#ios-apps"],
-      ["Developer", "/#developer-products"],
-    ]);
-    expect(screen.getByText("Page content")).toBeVisible();
-    expect(screen.getByRole("navigation", { name: "Apps" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "LofiHood" })).toHaveAttribute(
-      "target",
-      "_blank",
-    );
-    expect(screen.getByRole("link", { name: "Email" })).not.toHaveAttribute(
-      "target",
-    );
-    expect(screen.queryByTestId("analytics")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("speed-insights")).not.toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveTextContent("Page content");
+    // The landing page brings its own navigation; the glass chrome only
+    // appears on the 404 page.
+    expect(screen.queryByRole("banner")).not.toBeInTheDocument();
     expect(screen.queryByText("Analytics choices")).not.toBeInTheDocument();
     expect(metadata.metadataBase).toEqual(new URL("https://www.khanhduy.com"));
-    expect(metadata.title).toBe("Khanh Duy");
+    expect(metadata.title).toBe("Khanh Duy – Indie Mac & iPhone App Developer");
     expect(metadata.description).toBe(
-      "I'm an indie hacker in Ho Chi Minh City building thoughtful macOS and iOS apps that solve everyday problems with focused, practical experiences.",
+      "I'm Khanh Duy, an indie developer in Ho Chi Minh City making small, calm apps for Mac, iPhone, Apple Watch and Discord, like LofiHood, WakeArc and Voxy.",
     );
-  });
-
-  it("omits production telemetry outside Vercel", async () => {
-    vi.stubEnv("VERCEL", "0");
-    const { default: Layout } = await import("~/app/layout");
-
-    render(<Layout>Local content</Layout>);
-
-    expect(screen.queryByTestId("analytics")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("speed-insights")).not.toBeInTheDocument();
+    expect(viewport.themeColor).toBe("#1d2430");
   });
 });
