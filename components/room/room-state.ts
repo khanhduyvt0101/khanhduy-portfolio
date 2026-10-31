@@ -26,10 +26,11 @@ export const room = {
   /** Active item per stage (index into its list). */
   mac: 0,
   ios: 0,
+  voice: 0,
   work: 0,
   /** 0..1: how far the phone has lifted off the desk. */
   phoneLift: 0,
-  /** 0..1: Voxy speaker activity. */
+  /** 0..1: desk speaker activity during the voice stage. */
   voxy: 0,
   /** True near the end of the page: the character waves. */
   wave: false,

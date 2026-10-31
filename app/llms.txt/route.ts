@@ -1,8 +1,8 @@
 import {
   appLinks,
   developerProjects,
-  discordBot,
   profileSameAs,
+  voiceProducts,
 } from "~/lib/profile";
 import { defaultSeoDescription, siteName, siteUrl } from "~/lib/seo";
 
@@ -16,7 +16,7 @@ export function GET(): Response {
     `> ${defaultSeoDescription}`,
     "",
     "## Apps and bots I own",
-    ...[...appLinks, discordBot].map(
+    ...[...appLinks, ...voiceProducts].map(
       (app) =>
         `- [${app.label}](${app.href}) (${app.platform}): ${app.description}`,
     ),

@@ -23,6 +23,7 @@ import {
   DefaultLoadingManager,
   type Group,
   type Mesh,
+  type MeshBasicMaterial,
   type MeshStandardMaterial,
   type Object3D,
   SRGBColorSpace,
@@ -42,7 +43,8 @@ export interface RoomSceneProps {
   mac: ScreenItem[];
   ios: ScreenItem[];
   work: ScreenItem[];
-  voxyLogo: string;
+  /** Speaker badge per voice product, in the voice stage's order. */
+  voiceLogos: string[];
 }
 
 // Report asset progress to the (three-free) loader in the main bundle.
@@ -545,12 +547,18 @@ function ProjectBoard({ items }: { items: ScreenItem[] }): ReactNode {
   );
 }
 
-function VoxySpeaker({ logo }: { logo: string }): ReactNode {
+function VoiceSpeaker({ logos }: { logos: string[] }): ReactNode {
   const rings = useRef<(Mesh | null)[]>([]);
   const badge = useRef<Group>(null);
-  const map = useTexture(logo);
-  map.colorSpace = SRGBColorSpace;
+  const face = useRef<MeshBasicMaterial>(null);
+  const maps = useTexture(logos);
+  for (const map of maps) map.colorSpace = SRGBColorSpace;
   useFrame((state, delta) => {
+    const map = maps[Math.min(maps.length - 1, Math.max(0, room.voice))];
+    if (face.current && map && face.current.map !== map) {
+      face.current.map = map;
+      face.current.needsUpdate = true;
+    }
     const t = state.clock.elapsedTime;
     rings.current.forEach((ring, i) => {
       if (!ring) return;
@@ -603,7 +611,7 @@ function VoxySpeaker({ logo }: { logo: string }): ReactNode {
         <Billboard>
           <mesh>
             <circleGeometry args={[0.1, 48]} />
-            <meshBasicMaterial map={map} toneMapped={false} />
+            <meshBasicMaterial map={maps[0]} ref={face} toneMapped={false} />
           </mesh>
           <mesh position={[0, 0, -0.002]}>
             <circleGeometry args={[0.112, 48]} />
@@ -652,7 +660,7 @@ function Room({
   mac,
   ios,
   work,
-  voxyLogo,
+  voiceLogos,
 }: Omit<RoomSceneProps, "lite">): ReactNode {
   return (
     <group>
@@ -703,7 +711,7 @@ function Room({
       <Character />
 
       <Model name="sideTable" position={[0.85, 0, -2.08]} />
-      <VoxySpeaker logo={voxyLogo} />
+      <VoiceSpeaker logos={voiceLogos} />
       <Model name="books" position={[1.62, DESK_TOP, -2.2]} rotation={-0.2} />
 
       <ProjectBoard items={work} />

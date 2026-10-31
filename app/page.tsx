@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 import { RoomExperience } from "~/components/room/experience";
 import {
   appLinks,
-  discordBot,
   profileSameAs,
   profileTopics,
   profileUpdatedAt,
+  voiceProducts,
 } from "~/lib/profile";
 import {
   createSeoMetadata,
@@ -91,7 +91,7 @@ const homeJsonLd = {
     {
       "@type": "ItemList",
       name: "Apps and bots by Khanh Duy",
-      itemListElement: [...appLinks, discordBot].map(
+      itemListElement: [...appLinks, ...voiceProducts].map(
         ({ href, label }, index) => ({
           "@type": "ListItem",
           position: index + 1,
