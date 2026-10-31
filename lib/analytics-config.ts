@@ -1,5 +1,5 @@
 import type { AnalyticsConfig } from "./analytics";
-import { appLinks, developerProjects, discordBot } from "./profile";
+import { appLinks, developerProjects, voiceProducts } from "./profile";
 
 export const portfolioAnalytics: AnalyticsConfig = {
   id: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "",
@@ -7,32 +7,25 @@ export const portfolioAnalytics: AnalyticsConfig = {
     .hostname,
   titles: { "/": "Khanh Duy" },
   actions: Object.fromEntries([
-    ...appLinks.flatMap((app) =>
-      ["owner_showcase", "footer"].map((placement) => [
-        `${placement}:${app.label}`,
-        {
-          href: app.href,
-          name: "select_content",
-          params: {
-            content_type: "owner_product",
-            item_id: app.label.toLowerCase().replaceAll(" ", "-"),
-            link_placement: placement,
-          },
-        },
-      ]),
-    ),
-    [
-      "owner_showcase:Voxy",
+    ...[
+      ...appLinks.flatMap((app) =>
+        ["owner_showcase", "footer"].map(
+          (placement) => [app, placement] as const,
+        ),
+      ),
+      ...voiceProducts.map((app) => [app, "owner_showcase"] as const),
+    ].map(([app, placement]) => [
+      `${placement}:${app.label}`,
       {
-        href: discordBot.href,
+        href: app.href,
         name: "select_content",
         params: {
           content_type: "owner_product",
-          item_id: "voxy",
-          link_placement: "owner_showcase",
+          item_id: app.label.toLowerCase().replaceAll(" ", "-"),
+          link_placement: placement,
         },
       },
-    ],
+    ]),
     ...developerProjects.map((project) => [
       `developer_showcase:${project.label}`,
       {

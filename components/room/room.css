@@ -268,9 +268,6 @@ html.lenis.lenis-smooth body {
 .room-stage {
   position: relative;
 }
-.room-voxy {
-  height: 170svh;
-}
 .room-sticky {
   position: sticky;
   top: 0;
@@ -307,11 +304,6 @@ html.lenis.lenis-smooth body {
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1;
-}
-.room-lede {
-  margin-top: 1rem;
-  line-height: 1.6;
-  color: var(--mist);
 }
 .room-list {
   display: grid;

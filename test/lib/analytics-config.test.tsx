@@ -34,8 +34,8 @@ it("maps every approved product/contact placement to fixed audited metadata with
     </>,
   );
   const links = [...container.querySelectorAll("a[data-analytics-cta]")];
-  expect(links).toHaveLength(22);
-  expect(Object.keys(portfolioAnalytics.actions)).toHaveLength(22);
+  expect(links).toHaveLength(25);
+  expect(Object.keys(portfolioAnalytics.actions)).toHaveLength(25);
   for (const link of links) {
     const key = link.getAttribute("data-analytics-cta") as string;
     const action = portfolioAnalytics.actions[key];

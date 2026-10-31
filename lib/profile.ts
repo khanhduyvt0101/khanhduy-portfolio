@@ -1,4 +1,4 @@
-export const profileUpdatedAt = "2026-10-27T00:00:00.000Z";
+export const profileUpdatedAt = "2026-10-31T00:00:00.000Z";
 
 export const appLinks = [
   {
@@ -32,6 +32,12 @@ export const appLinks = [
     description: "Checks whether public Wi-Fi is ready for work.",
   },
   {
+    label: "Clawdrobe",
+    href: "https://clawdrobe.com",
+    platform: "macOS",
+    description: "Keeps several Claude Desktop accounts open side by side.",
+  },
+  {
     label: "PhotoDay Cleaner",
     href: "https://photoday-cleaner.pages.dev",
     platform: "iPhone",
@@ -45,12 +51,22 @@ export const appLinks = [
   },
 ] as const;
 
-export const discordBot = {
-  label: "Voxy",
-  href: "https://voxy.khanhduy.com",
-  platform: "Discord",
-  description: "Text-to-speech for Discord voice chats.",
-} as const;
+export const voiceProducts = [
+  {
+    label: "Voxy",
+    href: "https://voxybot.app",
+    platform: "Discord",
+    description:
+      "Text-to-speech for Discord voice chats. Type in a voice channel's chat and everyone in the room hears it.",
+  },
+  {
+    label: "Heartongue",
+    href: "https://heartongue.com",
+    platform: "Web",
+    description:
+      "Live interpretation for church services. Listeners scan a QR code and hear the sermon in their own language.",
+  },
+] as const;
 
 export const developerProjects = [
   {

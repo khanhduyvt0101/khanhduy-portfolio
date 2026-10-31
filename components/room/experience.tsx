@@ -11,6 +11,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import cafesignalLogo from "~/assets/products/cafesignal.webp";
 import campuscueLogo from "~/assets/products/campuscue.webp";
 import chatacademiaLogo from "~/assets/products/chatacademia.webp";
+import clawdrobeLogo from "~/assets/products/clawdrobe.webp";
 import lofihoodLogo from "~/assets/products/lofihood.webp";
 import movehaloLogo from "~/assets/products/movehalo.webp";
 import orchesteroLogo from "~/assets/products/orchestero.webp";
@@ -21,7 +22,7 @@ import wakearcLogo from "~/assets/products/wakearc.webp";
 import { Loader } from "~/components/room/loader";
 import type { ScreenItem } from "~/components/room/room-scene";
 import { type CameraKey, cameraKeys, room } from "~/components/room/room-state";
-import { appLinks, developerProjects, discordBot } from "~/lib/profile";
+import { appLinks, developerProjects, voiceProducts } from "~/lib/profile";
 
 const RoomScene = dynamic(() => import("~/components/room/room-scene"), {
   ssr: false,
@@ -33,6 +34,7 @@ const appLogos: Record<(typeof appLinks)[number]["label"], string> = {
   CampusCue: campuscueLogo.src,
   WakeArc: wakearcLogo.src,
   CafeSignal: cafesignalLogo.src,
+  Clawdrobe: clawdrobeLogo.src,
   "PhotoDay Cleaner": photodayCleanerLogo.src,
   MoveHalo: movehaloLogo.src,
 };
@@ -64,6 +66,9 @@ const workScreens: ScreenItem[] = developerProjects.map((project) => ({
   logo: projectLogos[project.label],
 }));
 
+/** Badges that float over the desk speaker, in voiceProducts order. */
+const voiceLogos = ["/voxy-brand.webp", "/heartongue-brand.webp"];
+
 const socials = [
   ["GitHub", "https://github.com/khanhduyvt0101"],
   ["LinkedIn", "https://www.linkedin.com/in/buitrongkhanhduy/"],
@@ -93,13 +98,15 @@ function Nav(): ReactNode {
       <nav aria-label="Sections" className="room-nav-links">
         <a href="#macos-apps">Mac</a>
         <a href="#ios-apps">iPhone</a>
-        <a href="#owner-products">Voxy</a>
+        <a href="#owner-products">Voice</a>
         <a href="#developer-products">Work</a>
         <a href="#contact">Contact</a>
       </nav>
     </header>
   );
 }
+
+type Stage = "mac" | "ios" | "voice" | "work";
 
 /** A tall section whose copy panel sticks while the camera works the room. */
 function Stage({
@@ -113,7 +120,7 @@ function Stage({
   kicker: string;
   title: string;
   items: ListItem[];
-  stage: "mac" | "ios" | "work";
+  stage: Stage;
 }): ReactNode {
   return (
     <section
@@ -299,7 +306,7 @@ export function RoomExperience(): ReactNode {
 
       // Active item per stage.
       for (const section of gsap.utils.toArray<HTMLElement>("[data-stage]")) {
-        const stage = section.dataset.stage as "mac" | "ios" | "work";
+        const stage = section.dataset.stage as Stage;
         const items = Array.from(
           section.querySelectorAll<HTMLElement>(".room-item"),
         );
@@ -385,6 +392,14 @@ export function RoomExperience(): ReactNode {
     tag: app.platform === "iPhone" ? undefined : app.platform,
     cta: `owner_showcase:${app.label}`,
   }));
+  const voiceItems: ListItem[] = voiceProducts.map((product) => ({
+    label: product.label,
+    description: product.description,
+    href: product.href,
+    host: new URL(product.href).hostname,
+    tag: product.platform,
+    cta: `owner_showcase:${product.label}`,
+  }));
   const workItems: ListItem[] = developerProjects.map((project) => ({
     label: project.label,
     description: project.description,
@@ -428,7 +443,7 @@ export function RoomExperience(): ReactNode {
             ios={iosScreens}
             lite={lite}
             mac={macScreens}
-            voxyLogo="/voxy-brand.webp"
+            voiceLogos={voiceLogos}
             work={workScreens}
           />
         ) : null}
@@ -439,8 +454,8 @@ export function RoomExperience(): ReactNode {
         <div className="room-hero-copy">
           <h1 className="room-hero-title">Khanh Duy</h1>
           <p className="room-hero-lede">
-            I build small, calm apps for Mac, iPhone and Discord from my desk in
-            Ho Chi Minh City.
+            I build small, calm apps for Mac, iPhone, Discord and the web from
+            my desk in Ho Chi Minh City.
           </p>
           <a className="room-hero-cue" href="#macos-apps">
             Come in and look around
@@ -453,7 +468,7 @@ export function RoomExperience(): ReactNode {
         items={macItems}
         kicker="On the Mac"
         stage="mac"
-        title="Two menu bar apps"
+        title="Three Mac apps"
       />
       <Stage
         id="ios-apps"
@@ -463,28 +478,13 @@ export function RoomExperience(): ReactNode {
         title="Five pocket apps"
       />
 
-      <section className="room-stage room-voxy" id="owner-products">
-        <div className="room-sticky">
-          <div className="room-panel room-reveal">
-            <p className="room-kicker">On Discord</p>
-            <h2 className="room-h2">{discordBot.label}</h2>
-            <p className="room-lede">
-              {discordBot.description} Type in a voice channel&apos;s chat and
-              everyone in the room hears it, read in a natural Vietnamese voice.
-            </p>
-            <a
-              className="room-button"
-              data-analytics-cta="owner_showcase:Voxy"
-              href={discordBot.href}
-              rel="noopener"
-              target="_blank"
-            >
-              Visit {new URL(discordBot.href).hostname}
-              <ArrowUpRight aria-hidden="true" className="size-4" />
-            </a>
-          </div>
-        </div>
-      </section>
+      <Stage
+        id="owner-products"
+        items={voiceItems}
+        kicker="Live voice"
+        stage="voice"
+        title="Spoken out loud"
+      />
 
       <Stage
         id="developer-products"

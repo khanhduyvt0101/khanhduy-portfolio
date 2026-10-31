@@ -32,9 +32,9 @@ describe("application routes", () => {
     expect(
       screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
     ).toEqual([
-      "Two menu bar apps",
+      "Three Mac apps",
       "Five pocket apps",
-      "Voxy",
+      "Spoken out loud",
       "I help build",
       "Let's talk",
     ]);
@@ -43,11 +43,14 @@ describe("application routes", () => {
     ).toEqual([
       "LofiHood",
       "CafeSignal",
+      "Clawdrobe",
       "SpotterFuel",
       "CampusCue",
       "WakeArc",
       "PhotoDay Cleaner",
       "MoveHalo",
+      "Voxy",
+      "Heartongue",
       "ChatAcademia",
       "PDF Vector",
       "Orchestero",
@@ -63,11 +66,18 @@ describe("application routes", () => {
       expect(container.querySelector(`#${id}`)).not.toBeNull();
     }
     expect(container.querySelectorAll("a[data-analytics-cta]")).toHaveLength(
-      13,
+      15,
+    );
+    expect(screen.getByRole("link", { name: /voxybot\.app/ })).toHaveAttribute(
+      "href",
+      "https://voxybot.app",
     );
     expect(
-      screen.getByRole("link", { name: /Visit voxy\.khanhduy\.com/ }),
-    ).toHaveAttribute("href", "https://voxy.khanhduy.com");
+      screen.getByRole("link", { name: /heartongue\.com/ }),
+    ).toHaveAttribute("href", "https://heartongue.com");
+    expect(
+      screen.getByRole("link", { name: /clawdrobe\.com/ }),
+    ).toHaveAttribute("href", "https://clawdrobe.com");
     expect(
       screen.getByRole("link", { name: /chatacademia\.com/ }),
     ).toHaveAttribute("rel", "noopener");
@@ -83,9 +93,11 @@ describe("application routes", () => {
       '"@type":"WebSite"',
       "Bùi Trọng Khánh Duy",
       "PhotoDay Cleaner",
-      "https://voxy.khanhduy.com",
+      "https://voxybot.app",
+      "https://heartongue.com",
+      "https://clawdrobe.com",
       "https://hevy.com/user/khanhduyvt0101",
-      '"dateModified":"2026-10-27T00:00:00.000Z"',
+      '"dateModified":"2026-10-31T00:00:00.000Z"',
     ]) {
       expect(data).toContain(fragment);
     }
@@ -127,7 +139,8 @@ describe("application routes", () => {
     );
     const text = await response.text();
     expect(text).toMatch(/^# Khanh Duy\n/);
-    expect(text).toContain("- [Voxy](https://voxy.khanhduy.com) (Discord)");
+    expect(text).toContain("- [Voxy](https://voxybot.app) (Discord)");
+    expect(text).toContain("- [Heartongue](https://heartongue.com) (Web)");
     expect(text).toContain("- [PDF Vector](https://pdfvector.com)");
     expect(text).toContain("- Email: khanhduyvt0101@gmail.com");
   });
@@ -170,7 +183,7 @@ describe("application routes", () => {
     expect(sitemap()).toEqual([
       {
         url: "https://www.khanhduy.com",
-        lastModified: new Date("2026-10-27T00:00:00.000Z"),
+        lastModified: new Date("2026-10-31T00:00:00.000Z"),
         changeFrequency: "monthly",
         priority: 1,
         images: ["https://www.khanhduy.com/avatar.webp"],
