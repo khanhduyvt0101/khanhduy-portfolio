@@ -23,7 +23,7 @@ python3 scripts/env-run.py --env prod test -- bun --bun node_modules/vitest/vite
 bun run build
 ```
 
-Browser validation must use Camofox with interception installed before navigation. Capture/fulfill collection locally and block unknown external requests; never generate production analytics events for QA. Verify automatic startup without a saved grant, DNT/GPC, existing denial, alias/preview/private exclusion, and sanitized payloads. The historical `deploy/analytics-browser.mjs` requires Chrome and opt-in controls and is not compatible with this policy; do not run it. Browser checks do not prove Google reporting ingestion.
+Browser validation must use Chrome Headless Shell (`chrome-headless` / `CHROME_PATH`, puppeteer-core from `/data/tools/node_modules`) with request interception installed before navigation. Capture/fulfill collection locally and block unknown external requests; never generate production analytics events for QA. Verify automatic startup without a saved grant, DNT/GPC, existing denial, alias/preview/private exclusion, and sanitized payloads. The historical `deploy/analytics-browser.mjs` expects opt-in controls and is not compatible with this policy; do not run it. Browser checks do not prove Google reporting ingestion.
 
 **Historical acceptance finding:** the runtime downloaded during the original opt-in rollout emitted automatic `scroll`; strict browser QA correctly rejected it. Parent subsequently confirmed authenticated readback of Enhanced Measurement OFF, redaction, key events and dimensions. Use a current, explicitly pinned runtime fixture for real-SDK verification. Retain disabled ad signals/personalization.
 
