@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import ErrorBoundary from "~/app/error";
 import { GET } from "~/app/llms.txt/route";
-import NotFound from "~/app/not-found";
+import NotFound, { metadata as notFoundMetadata } from "~/app/not-found";
 import Page, { metadata as pageMetadata } from "~/app/page";
 import robots from "~/app/robots";
 import sitemap from "~/app/sitemap";
@@ -159,6 +159,11 @@ describe("application routes", () => {
 
   it("renders the not-found page with the site header and footer", () => {
     render(<NotFound />);
+
+    // Its own title, and no canonical or index directive inherited from the home page.
+    expect(notFoundMetadata.title).toBe("Page not found – Khanh Duy");
+    expect(notFoundMetadata.alternates).toBeUndefined();
+    expect(notFoundMetadata.robots).toBeUndefined();
 
     expect(screen.getByRole("heading", { name: "404" })).toBeVisible();
     expect(

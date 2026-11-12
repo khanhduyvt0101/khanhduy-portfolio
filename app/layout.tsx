@@ -21,6 +21,8 @@ export const viewport: Viewport = {
   colorScheme: "dark light",
 };
 
+// Canonical and robots are set per page (createSeoMetadata), so the 404 page does not inherit the home
+// page's canonical or an index directive next to the noindex Next adds for not-found.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: homeTitle,
@@ -29,24 +31,10 @@ export const metadata: Metadata = {
   authors: [{ name: siteName, url: siteUrl }],
   creator: siteName,
   publisher: siteName,
-  alternates: {
-    canonical: "/",
-  },
   formatDetection: {
     address: false,
     email: false,
     telephone: false,
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
   },
   icons: {
     icon: [
