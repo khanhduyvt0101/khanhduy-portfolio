@@ -38,6 +38,9 @@ describe("Layout", () => {
     expect(metadata.description).toBe(
       "I'm Khanh Duy, an indie developer in Ho Chi Minh City making small, calm apps for Mac, iPhone, Apple Watch and Discord, like LofiHood, WakeArc and Voxy.",
     );
+    // Per page only: the 404 page must not inherit a canonical or "index".
+    expect(metadata.alternates).toBeUndefined();
+    expect(metadata.robots).toBeUndefined();
     expect(viewport.themeColor).toBe("#1d2430");
   });
 });

@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { Button } from "~/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "Page not found – Khanh Duy",
+  description: "This page does not exist or has moved.",
+};
 
 export default function NotFound(): ReactNode {
   return (
